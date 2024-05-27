@@ -1,11 +1,13 @@
 package com.example.jomdining.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,9 +18,13 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,31 +38,59 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.jomdining.R
-import com.example.jomdining.data.TempDataSource
 import com.example.jomdining.data.TempMenuItems
-import com.example.jomdining.data.TempTopic
 import com.example.jomdining.databaseentities.Menu
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodOrderingModuleScreen(
     // viewModel: JomDiningViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
-    // TopicGrid(modifier = modifier)
-    MenuItemGrid(modifier = modifier)
+    Scaffold(
+        topBar = {
+            JomDiningTopAppBar(
+                title = "JomDining"
+            )
+        },
+        containerColor = backgroundColor,
+    ) { innerPadding ->
+        Column(
+            modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(backgroundColor)
+        ) {
+            Row(
+                modifier = modifier.fillMaxSize()
+            ) {
+                MenuItemGrid(
+                    modifier = Modifier
+                        .padding(start = 24.dp, end = 32.dp)
+                        .weight(0.6f)
+                        .fillMaxHeight()
+                )
+                SecondItem(
+                    modifier = Modifier
+                        .weight(0.4f)
+                        .fillMaxHeight()
+                )
+            }
+        }
+    }
 }
-
-
 
 @Composable
 fun MenuItemGrid(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         verticalArrangement = Arrangement.spacedBy(32.dp),
         horizontalArrangement = Arrangement.spacedBy(32.dp),
-        modifier = modifier
+        modifier = modifier.background(backgroundColor)
     ) {
         items(TempMenuItems.menuItems) { menuItem ->
             MenuItemCard(menuItem)
@@ -71,7 +105,10 @@ fun MenuItemCard(
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        modifier = modifier
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+        )
     ) {
         Column(
             modifier = Modifier
@@ -85,9 +122,11 @@ fun MenuItemCard(
                 Image(
                     // modify this painter later. it is currently hardcoded.
                     // the Menu table currently does not yet have a column for image name
-                    painter = painterResource(id = R.drawable.chickenchop),
+                    // painter = painterResource(id = R.drawable.chicken_chop),
+                    painter = painterResource(id = menuItem.menuItemImageResourceId),
                     contentDescription = menuItem.menuItemName,
                     modifier = modifier
+                        .padding(bottom = 4.dp)
                         .size(width = 120.dp, height = 120.dp)
                         .aspectRatio(1f)
                         .clip(CircleShape),
@@ -96,7 +135,10 @@ fun MenuItemCard(
             }
             Row {
                 Text(
-                    text = menuItem.menuItemName,
+                    text = stringResource(
+                        R.string.menu_item_name_placeholder,
+                        menuItem.menuItemName
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -127,93 +169,77 @@ fun MenuItemCardPreview() {
             menuItemID = 1,
             menuItemName = stringResource(R.string.chicken_chop),
             menuItemPrice = 12.34,
-            menuItemType = stringResource(R.string.main_course)
+            menuItemType = stringResource(R.string.main_course),
+            menuItemImageResourceId = R.string.chicken_chop
         )
     MenuItemCard(
         menuItem = menuItem,
     )
 }
 
+@Composable
+fun SecondItem(
+    modifier: Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(Color.DarkGray)
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "Second Item")
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun JomDiningTopAppBar(
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = {
+            Text(title)
+        },
+        modifier = modifier,
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(
     name = "pixel_tablet_landscape",
     device = "spec: width=2560dp, height=1600dp, orientation=landscape",
-    showBackground = true
+    showBackground = true,
+    backgroundColor = 0xCEDFFF
 )
 @Composable
-fun FoodOrderingModulePreview() {
-    val topic = TempTopic(R.string.photography, 1234, R.drawable.photography)
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        TopicCard(topic = topic)
-    }
-}
-
-/*
-    OLD CODE BELOW THIS LINE
-*/
-
-@Composable
-fun TopicGrid(
+fun FoodOrderingModulePreview(
     modifier: Modifier = Modifier
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
-    ) {
-        items(TempDataSource.topics) { topic ->
-            TopicCard(topic)
+    Scaffold(
+        topBar = {
+            JomDiningTopAppBar(title = "JomDining")
         }
-    }
-}
-
-@Composable
-fun TopicCard(
-    topic: TempTopic,
-    modifier: Modifier = Modifier
-) {
-    Card {
-        Row {
-            Box {
-                Image(
-                    painter = painterResource(id = topic.imageRes),
-                    contentDescription = stringResource(id = topic.name),
-                    modifier = modifier
-                        .size(width = 68.dp, height = 68.dp)
-                        .aspectRatio(1f),
-                    contentScale = ContentScale.Crop
+    ) { innerPadding ->
+        Column(
+            modifier.fillMaxSize().padding(innerPadding)
+        ) {
+            Row(modifier = modifier.fillMaxSize()) {
+                MenuItemGrid(
+                    modifier = Modifier
+                        .padding(start = 24.dp, end = 32.dp)
+                        .weight(0.7f)
+                        .fillMaxHeight()
                 )
-            }
-            Column {
-                Text(
-                    text = stringResource(id = topic.name),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(
-                        start = 16.dp,
-                        top = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp
-                    )
+                SecondItem(
+                    modifier = Modifier
+                        .weight(0.3f)
+                        .fillMaxHeight()
                 )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_grain),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                    )
-                    Text(
-                        text = topic.availableCourse.toString(),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
             }
         }
     }

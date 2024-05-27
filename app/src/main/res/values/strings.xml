@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">JomDining</string>
 
+    <string name="menu_item_name_placeholder">%s</string>
+    <string name="menu_item_type_placeholder">%s</string>
+    <string name="menu_item_price_placeholder">%s</string>
+
     <string name="a_and_w">A&amp;W</string>
     <string name="chicken_chop">Chicken Chop</string>
     <string name="chicken_nuggets">Chicken Nuggets</string>
