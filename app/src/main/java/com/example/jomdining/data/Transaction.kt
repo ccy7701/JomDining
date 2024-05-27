@@ -3,7 +3,13 @@ package com.example.jomdining.data
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.ProvidedTypeConverter
+import androidx.room.TypeConverter
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
+@Serializable
 @Entity(
     tableName = "transaction",
     foreignKeys = [
@@ -26,3 +32,18 @@ data class Transaction(
     val transactionBalance: Float,
     val tableNumber: Int
 )
+
+@ProvidedTypeConverter
+class TransactionConverter {
+    @TypeConverter
+    fun stringToTransaction(transactionJson: String?): Transaction? {
+        return transactionJson?.let {
+            Json.decodeFromString(it)
+        }
+    }
+
+    @TypeConverter
+    fun transactionToString(transaction: Transaction?): String {
+        return Json.encodeToString(transaction)
+    }
+}

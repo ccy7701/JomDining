@@ -2,7 +2,14 @@ package com.example.jomdining.data
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.ProvidedTypeConverter
+import androidx.room.TypeConverter
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
+@Serializable
 @Entity(
     tableName = "order_item",
     primaryKeys = ["menuItemID", "transactionID"],
@@ -27,3 +34,18 @@ data class OrderItem(
     val orderItemQuantity: Int,
     val foodServed: Int
 )
+
+@ProvidedTypeConverter
+class OrderItemConverter {
+    @TypeConverter
+    fun stringToOrderItem(orderItemJson: String?): OrderItem? {
+        return orderItemJson?.let {
+            Json.decodeFromString(it)
+        }
+    }
+
+    @TypeConverter
+    fun orderItemToString(orderItem: OrderItem?): String {
+        return Json.encodeToString(orderItem)
+    }
+}
