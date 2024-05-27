@@ -8,7 +8,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodOrderingModuleScreen(
-    viewModel: JomDiningViewModel,
+    // viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier
 ) {
 
