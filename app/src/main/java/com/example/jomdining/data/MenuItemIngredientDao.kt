@@ -6,9 +6,17 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.TypeConverters
 import kotlinx.coroutines.flow.Flow
 
-
+@Dao
+@TypeConverters(
+    Account::class,
+    Menu::class,
+    OrderItem::class,
+    Stock::class,
+    Transaction::class
+)
 interface MenuItemIngredientDao {
     // Add a new row to the menu_item_ingredient table
     @Insert(onConflict = OnConflictStrategy.IGNORE)

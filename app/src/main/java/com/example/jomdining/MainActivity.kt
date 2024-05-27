@@ -47,3 +47,13 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+@Preview(
+    name = "generic_tablet_landscape",
+    device = "spec: width=1280dp, height=800dp, orientation=landscape",
+    showBackground = true
+)
+@Composable
+fun FoodOrderingModulePreview() {
+
+}

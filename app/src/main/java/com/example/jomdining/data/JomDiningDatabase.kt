@@ -46,7 +46,7 @@ abstract class JomDiningDatabase: RoomDatabase() {
                     .addTypeConverter(MenuItemIngredientConverter())
                     .addTypeConverter(OrderItemConverter())
                     .addTypeConverter(StockConverter())
-                    .addTypeConverter()
+                    .addTypeConverter(TransactionConverter())
                     .build()
                     .also {
                         Instance = it
