@@ -1,4 +1,4 @@
-package com.example.jomdining.data
+package com.example.jomdining.databaseentities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -19,27 +19,29 @@ import kotlinx.serialization.json.Json
     StockConverter::class,
     TransactionConverter::class
 )
-data class Menu(
+data class Account(
     @PrimaryKey(autoGenerate = true)
-    val menuItemID: Int,
-    val menuItemName: String,
-    val menuItemPrice: Float,
-    val menuItemType: String
+    val accountID: Int,
+    val accountPassword: String,
+    val employeeName: String,
+    val employeePosition: String,
+    val employeePhoneNumber: String,
+    val employeeEmail: String
 )
 
 @ProvidedTypeConverter
-class MenuConverter {
-    // Convert String to Menu
+class AccountConverter {
+    // Convert String to Account
     @TypeConverter
-    fun stringToMenu(menuJson: String?): Menu? {
-        return menuJson?.let {
+    fun stringToAccount(accountJson: String?): Account? {
+        return accountJson?.let {
             Json.decodeFromString(it)
         }
     }
 
-    // Convert Menu to String
+    // Convert Account to String
     @TypeConverter
-    fun menuToString(menu: Menu?): String {
-        return Json.encodeToString(menu)
+    fun accountToString(account: Account?): String {
+        return Json.encodeToString(account)
     }
 }

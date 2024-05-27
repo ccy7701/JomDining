@@ -1,4 +1,4 @@
-package com.example.jomdining.data
+package com.example.jomdining.databaseentities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

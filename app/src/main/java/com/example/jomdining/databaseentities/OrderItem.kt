@@ -1,4 +1,4 @@
-package com.example.jomdining.data
+package com.example.jomdining.databaseentities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -6,7 +6,6 @@ import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 

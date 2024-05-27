@@ -1,12 +1,18 @@
-package com.example.jomdining.data
+package com.example.jomdining.daos
 
-import android.view.MenuItem
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
+import com.example.jomdining.databaseentities.AccountConverter
+import com.example.jomdining.databaseentities.MenuConverter
+import com.example.jomdining.databaseentities.MenuItemIngredient
+import com.example.jomdining.databaseentities.MenuItemIngredientConverter
+import com.example.jomdining.databaseentities.OrderItemConverter
+import com.example.jomdining.databaseentities.StockConverter
+import com.example.jomdining.databaseentities.TransactionConverter
 import kotlinx.coroutines.flow.Flow
 
 @Dao

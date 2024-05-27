@@ -4,6 +4,24 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.jomdining.daos.AccountDao
+import com.example.jomdining.daos.MenuDao
+import com.example.jomdining.daos.MenuItemIngredientDao
+import com.example.jomdining.daos.OrderItemDao
+import com.example.jomdining.daos.StockDao
+import com.example.jomdining.daos.TransactionDao
+import com.example.jomdining.databaseentities.Account
+import com.example.jomdining.databaseentities.AccountConverter
+import com.example.jomdining.databaseentities.Menu
+import com.example.jomdining.databaseentities.MenuConverter
+import com.example.jomdining.databaseentities.MenuItemIngredient
+import com.example.jomdining.databaseentities.MenuItemIngredientConverter
+import com.example.jomdining.databaseentities.OrderItem
+import com.example.jomdining.databaseentities.OrderItemConverter
+import com.example.jomdining.databaseentities.Stock
+import com.example.jomdining.databaseentities.StockConverter
+import com.example.jomdining.databaseentities.Transaction
+import com.example.jomdining.databaseentities.TransactionConverter
 import kotlinx.coroutines.InternalCoroutinesApi
 
 @Database(

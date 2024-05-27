@@ -1,7 +1,19 @@
 <resources>
     <string name="app_name">JomDining</string>
 
+    <string name="a_and_w">A&amp;W</string>
+    <string name="chicken_chop">Chicken Chop</string>
+    <string name="chicken_nuggets">Chicken Nuggets</string>
+    <string name="coca_cola">Coca Coca</string>
+    <string name="fish_and_chips">Fish and Chips</string>
+    <string name="french_fries">French Fries</string>
+    <string name="onion_rings">Onion Rings</string>
+    <string name="sirloin_steak">Sirloin Steak</string>
+    <string name="sprite">Sprite</string>
 
+    <string name="main_course">Main Course</string>
+    <string name="side_dish">Side Dish</string>
+    <string name="dessert">Dessert</string>
 
     <string name="architecture">Architecture</string>
     <string name="automotive">Automotive</string>
