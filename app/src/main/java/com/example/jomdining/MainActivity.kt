@@ -28,6 +28,24 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+
+            /*
+                      JomDiningTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val viewModel: FlightSearchViewModel = viewModel(factory = JomDiningViewModel.factory)
+                    MainMenuScreen(
+                        viewModel = viewModel,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+             */
+
+
+
         }
     }
 }
