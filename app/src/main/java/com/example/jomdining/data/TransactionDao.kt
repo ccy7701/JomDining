@@ -10,11 +10,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(
-    Account::class,
-    Menu::class,
-    MenuItemIngredient::class,
-    OrderItem::class,
-    Stock::class
+    AccountConverter::class,
+    MenuConverter::class,
+    MenuItemIngredientConverter::class,
+    OrderItemConverter::class,
+    StockConverter::class,
+    TransactionConverter::class
 )
 interface TransactionDao {
     // Add a new row to the transaction table

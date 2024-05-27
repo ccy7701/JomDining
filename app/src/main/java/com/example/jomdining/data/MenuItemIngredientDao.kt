@@ -11,11 +11,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(
-    Account::class,
-    Menu::class,
-    OrderItem::class,
-    Stock::class,
-    Transaction::class
+    AccountConverter::class,
+    MenuConverter::class,
+    MenuItemIngredientConverter::class,
+    OrderItemConverter::class,
+    StockConverter::class,
+    TransactionConverter::class
 )
 interface MenuItemIngredientDao {
     // Add a new row to the menu_item_ingredient table
@@ -31,5 +32,5 @@ interface MenuItemIngredientDao {
 
     // THIS ALSO DOES NOT LOOK RIGHT!
     @Query("SELECT * FROM menu_item_ingredient WHERE menuItemID = :menuItemID")
-    fun getIngredientsForSingleMenuItem(menuItemID: Menu): Flow<List<MenuItemIngredient>>
+    fun getIngredientsForSingleMenuItem(menuItemID: Int): Flow<List<MenuItemIngredient>>
 }

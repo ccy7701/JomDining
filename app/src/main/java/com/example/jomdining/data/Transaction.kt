@@ -5,6 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -20,6 +21,14 @@ import kotlinx.serialization.json.Json
             childColumns = ["accountID"]
         )
     ]
+)
+@TypeConverters(
+    AccountConverter::class,
+    MenuConverter::class,
+    MenuItemIngredientConverter::class,
+    OrderItemConverter::class,
+    StockConverter::class,
+    TransactionConverter::class
 )
 data class Transaction(
     @PrimaryKey(autoGenerate = true)

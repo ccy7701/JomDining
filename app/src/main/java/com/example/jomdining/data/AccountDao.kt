@@ -6,11 +6,12 @@ import androidx.room.TypeConverters
 
 @Dao
 @TypeConverters(
-    Menu::class,
-    MenuItemIngredient::class,
-    OrderItem::class,
-    Stock::class,
-    Transaction::class
+    AccountConverter::class,
+    MenuConverter::class,
+    MenuItemIngredientConverter::class,
+    OrderItemConverter::class,
+    StockConverter::class,
+    TransactionConverter::class
 )
 interface AccountDao {
     // Assumption: Login is made with email and password

@@ -10,11 +10,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(
-    Account::class,
-    MenuItemIngredient::class,
-    OrderItem::class,
-    Stock::class,
-    Transaction::class
+    AccountConverter::class,
+    MenuConverter::class,
+    MenuItemIngredientConverter::class,
+    OrderItemConverter::class,
+    StockConverter::class,
+    TransactionConverter::class
 )
 interface MenuDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)

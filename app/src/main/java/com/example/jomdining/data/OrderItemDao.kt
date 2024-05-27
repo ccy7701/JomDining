@@ -10,11 +10,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(
-    Account::class,
-    Menu::class,
-    MenuItemIngredient::class,
-    Stock::class,
-    Transaction::class
+    AccountConverter::class,
+    MenuConverter::class,
+    MenuItemIngredientConverter::class,
+    OrderItemConverter::class,
+    StockConverter::class,
+    TransactionConverter::class
 )
 interface OrderItemDao {
     // Add a new row to the menu_item_ingredient table
@@ -23,7 +24,6 @@ interface OrderItemDao {
 
     @Delete
     suspend fun removeOrderItem(orderItem: OrderItem)
-
 
     // THIS DOES NOT LOOK RIGHT YET!
     @Query("""
