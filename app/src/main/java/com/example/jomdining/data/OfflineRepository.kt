@@ -5,7 +5,7 @@ import com.example.jomdining.daos.MenuDao
 import com.example.jomdining.daos.MenuItemIngredientDao
 import com.example.jomdining.daos.OrderItemDao
 import com.example.jomdining.daos.StockDao
-import com.example.jomdining.daos.TransactionDao
+import com.example.jomdining.daos.TransactionsDao
 
 class OfflineRepository(
     private val accountDao: AccountDao,
@@ -13,7 +13,7 @@ class OfflineRepository(
     private val menuItemIngredientDao: MenuItemIngredientDao,
     private val orderItemDao: OrderItemDao,
     private val stockDao: StockDao,
-    private val transactionDao: TransactionDao
+    private val transactionsDao: TransactionsDao
 ) : JomDiningRepository {
     /*
         ALL ITEMS UNDER orderItemDao

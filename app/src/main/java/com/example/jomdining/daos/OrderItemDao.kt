@@ -12,7 +12,7 @@ import com.example.jomdining.databaseentities.MenuItemIngredientConverter
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.OrderItemConverter
 import com.example.jomdining.databaseentities.StockConverter
-import com.example.jomdining.databaseentities.TransactionConverter
+import com.example.jomdining.databaseentities.TransactionsConverter
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.Flow
     MenuItemIngredientConverter::class,
     OrderItemConverter::class,
     StockConverter::class,
-    TransactionConverter::class
+    TransactionsConverter::class
 )
 interface OrderItemDao {
     // Add a new row to the menu_item_ingredient table
@@ -37,7 +37,7 @@ interface OrderItemDao {
         SELECT order_item.transactionID, order_item.menuItemID, order_item.orderItemQuantity, order_item.foodServed
         FROM order_item
         INNER JOIN menu ON order_item.menuItemID = menu.menuItemID
-        INNER JOIN "transaction" ON order_item.transactionID = "transaction".transactionID
+        INNER JOIN transactions ON order_item.transactionID = transactions.transactionID
         WHERE order_item.transactionID = :transactionID
         AND order_item.menuItemID = :menuItemID
     """)

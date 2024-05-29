@@ -22,7 +22,7 @@ import kotlinx.serialization.json.Json
         ),
         // FOREIGN KEY ("transactionID") REFERENCES "transaction"("transactionID")
         ForeignKey(
-            entity = Transaction::class,
+            entity = Transactions::class,
             parentColumns = ["transactionID"],
             childColumns = ["transactionID"]
         )
@@ -34,7 +34,7 @@ import kotlinx.serialization.json.Json
     MenuItemIngredientConverter::class,
     OrderItemConverter::class,
     StockConverter::class,
-    TransactionConverter::class
+    TransactionsConverter::class
 )
 data class OrderItem(
     val menuItemID: Int,

@@ -10,8 +10,8 @@ import com.example.jomdining.databaseentities.MenuConverter
 import com.example.jomdining.databaseentities.MenuItemIngredientConverter
 import com.example.jomdining.databaseentities.OrderItemConverter
 import com.example.jomdining.databaseentities.StockConverter
-import com.example.jomdining.databaseentities.Transaction
-import com.example.jomdining.databaseentities.TransactionConverter
+import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.databaseentities.TransactionsConverter
 
 @Dao
 @TypeConverters(
@@ -20,15 +20,15 @@ import com.example.jomdining.databaseentities.TransactionConverter
     MenuItemIngredientConverter::class,
     OrderItemConverter::class,
     StockConverter::class,
-    TransactionConverter::class
+    TransactionsConverter::class
 )
-interface TransactionDao {
+interface TransactionsDao {
     // Add a new row to the transaction table
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addTransaction(transaction: Transaction)
+    suspend fun addTransaction(transaction: Transactions)
 
     @Delete
-    suspend fun removeTransaction(transaction: Transaction)
+    suspend fun removeTransaction(transaction: Transactions)
 
     // THERE IS MORE TO BE ADDED LATER
 }

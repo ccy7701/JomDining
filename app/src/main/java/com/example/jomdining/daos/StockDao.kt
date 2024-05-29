@@ -12,7 +12,7 @@ import com.example.jomdining.databaseentities.MenuItemIngredientConverter
 import com.example.jomdining.databaseentities.OrderItemConverter
 import com.example.jomdining.databaseentities.Stock
 import com.example.jomdining.databaseentities.StockConverter
-import com.example.jomdining.databaseentities.TransactionConverter
+import com.example.jomdining.databaseentities.TransactionsConverter
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.Flow
     MenuItemIngredientConverter::class,
     OrderItemConverter::class,
     StockConverter::class,
-    TransactionConverter::class
+    TransactionsConverter::class
 )
 interface StockDao {
     // Add a new row to the stock table

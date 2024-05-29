@@ -9,7 +9,7 @@ import com.example.jomdining.databaseentities.MenuConverter
 import com.example.jomdining.databaseentities.MenuItemIngredientConverter
 import com.example.jomdining.databaseentities.OrderItemConverter
 import com.example.jomdining.databaseentities.StockConverter
-import com.example.jomdining.databaseentities.TransactionConverter
+import com.example.jomdining.databaseentities.TransactionsConverter
 
 @Dao
 @TypeConverters(
@@ -18,7 +18,7 @@ import com.example.jomdining.databaseentities.TransactionConverter
     MenuItemIngredientConverter::class,
     OrderItemConverter::class,
     StockConverter::class,
-    TransactionConverter::class
+    TransactionsConverter::class
 )
 interface AccountDao {
     // Assumption: Login is made with email and password

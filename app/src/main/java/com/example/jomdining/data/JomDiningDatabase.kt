@@ -9,7 +9,7 @@ import com.example.jomdining.daos.MenuDao
 import com.example.jomdining.daos.MenuItemIngredientDao
 import com.example.jomdining.daos.OrderItemDao
 import com.example.jomdining.daos.StockDao
-import com.example.jomdining.daos.TransactionDao
+import com.example.jomdining.daos.TransactionsDao
 import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.AccountConverter
 import com.example.jomdining.databaseentities.Menu
@@ -20,8 +20,8 @@ import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.OrderItemConverter
 import com.example.jomdining.databaseentities.Stock
 import com.example.jomdining.databaseentities.StockConverter
-import com.example.jomdining.databaseentities.Transaction
-import com.example.jomdining.databaseentities.TransactionConverter
+import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.databaseentities.TransactionsConverter
 import kotlinx.coroutines.InternalCoroutinesApi
 
 @Database(
@@ -31,7 +31,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
         MenuItemIngredient::class,
         OrderItem::class,
         Stock::class,
-        Transaction::class
+        Transactions::class
     ],
     version = 1,
     exportSchema = false
@@ -42,7 +42,7 @@ abstract class JomDiningDatabase: RoomDatabase() {
     abstract fun menuItemIngredientDao(): MenuItemIngredientDao
     abstract fun orderItemDao(): OrderItemDao
     abstract fun stockDao(): StockDao
-    abstract fun transactionDao(): TransactionDao
+    abstract fun transactionDao(): TransactionsDao
 
     companion object {
         @Volatile
@@ -64,7 +64,7 @@ abstract class JomDiningDatabase: RoomDatabase() {
                     .addTypeConverter(MenuItemIngredientConverter())
                     .addTypeConverter(OrderItemConverter())
                     .addTypeConverter(StockConverter())
-                    .addTypeConverter(TransactionConverter())
+                    .addTypeConverter(TransactionsConverter())
                     .build()
                     .also {
                         Instance = it

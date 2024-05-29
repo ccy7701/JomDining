@@ -12,7 +12,7 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 @Entity(
-    tableName = "transaction",
+    tableName = "transactions",
     foreignKeys = [
         // FOREIGN KEY ("accountID") REFERENCES "account"("accountID")
         ForeignKey(
@@ -28,9 +28,9 @@ import kotlinx.serialization.json.Json
     MenuItemIngredientConverter::class,
     OrderItemConverter::class,
     StockConverter::class,
-    TransactionConverter::class
+    TransactionsConverter::class
 )
-data class Transaction(
+data class Transactions(
     @PrimaryKey(autoGenerate = true)
     val transactionID: Int,
     val accountID: Int,
@@ -43,16 +43,16 @@ data class Transaction(
 )
 
 @ProvidedTypeConverter
-class TransactionConverter {
+class TransactionsConverter {
     @TypeConverter
-    fun stringToTransaction(transactionJson: String?): Transaction? {
+    fun stringToTransaction(transactionJson: String?): Transactions? {
         return transactionJson?.let {
             Json.decodeFromString(it)
         }
     }
 
     @TypeConverter
-    fun transactionToString(transaction: Transaction?): String {
+    fun transactionToString(transaction: Transactions?): String {
         return Json.encodeToString(transaction)
     }
 }

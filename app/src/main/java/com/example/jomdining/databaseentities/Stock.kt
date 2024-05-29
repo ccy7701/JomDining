@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
     MenuItemIngredientConverter::class,
     OrderItemConverter::class,
     StockConverter::class,
-    TransactionConverter::class
+    TransactionsConverter::class
 )
 data class Stock (
     @PrimaryKey(autoGenerate = true)

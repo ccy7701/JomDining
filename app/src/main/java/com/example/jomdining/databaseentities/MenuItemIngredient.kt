@@ -34,7 +34,7 @@ import kotlinx.serialization.json.Json
     MenuItemIngredientConverter::class,
     OrderItemConverter::class,
     StockConverter::class,
-    TransactionConverter::class
+    TransactionsConverter::class
 )
 data class MenuItemIngredient(
     val menuItemID: Int,
