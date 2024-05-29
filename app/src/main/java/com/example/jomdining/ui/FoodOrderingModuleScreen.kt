@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.example.jomdining.R
 import com.example.jomdining.data.TempMenuItems
 import com.example.jomdining.databaseentities.Menu
+import com.example.jomdining.databaseentities.OrderItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -161,20 +162,22 @@ fun MenuItemCard(
     }
 }
 
-@Preview
 @Composable
-fun MenuItemCardPreview() {
-    val menuItem =
-        Menu(
-            menuItemID = 1,
-            menuItemName = stringResource(R.string.chicken_chop),
-            menuItemPrice = 12.34,
-            menuItemType = stringResource(R.string.main_course),
-            menuItemImageResourceId = R.string.chicken_chop
-        )
-    MenuItemCard(
-        menuItem = menuItem,
-    )
+fun OrderItemCard(
+    orderItem: OrderItem,
+    modifier: Modifier = Modifier
+) {
+    Card {
+        Row {
+            Box {
+                /*
+                                Image {
+                    // painter = painterResource(id = )
+                }
+                 */
+            }
+        }
+    }
 }
 
 @Composable
@@ -206,6 +209,22 @@ fun JomDiningTopAppBar(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary
         )
+    )
+}
+
+@Preview
+@Composable
+fun MenuItemCardPreview() {
+    val menuItem =
+        Menu(
+            menuItemID = 1,
+            menuItemName = stringResource(R.string.chicken_chop),
+            menuItemPrice = 12.34,
+            menuItemType = stringResource(R.string.main_course),
+            menuItemImageResourceId = R.string.chicken_chop
+        )
+    MenuItemCard(
+        menuItem = menuItem,
     )
 }
 

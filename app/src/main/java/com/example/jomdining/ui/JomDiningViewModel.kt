@@ -19,7 +19,38 @@ class JomDiningViewModel(
 
     // ...
 
-    // ...
+    /*
+        ALL ITEMS UNDER OrderItemDao
+     */
+    fun increaseOrDecreaseOrderItemQuantity(
+        transactionID: Int,
+        menuItemID: Int,
+        toIncrease: Boolean
+    ) {
+        viewModelScope.launch {
+            val orderItem = repository.fetchOrderItemByID(transactionID, menuItemID)
+            orderItem?.let {
+                if (toIncrease) {
+                    repository.increaseOrderItemQuantity(transactionID, menuItemID)
+                } else {
+                    repository.decreaseOrderItemQuantity(transactionID, menuItemID)
+                }
+            }
+            // You need a different tutorial as reference.
+        }
+    }
+
+    private fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
+        viewModelScope.launch {
+            repository.increaseOrderItemQuantity(transactionID, menuItemID)
+        }
+    }
+
+    private fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
+        viewModelScope.launch {
+            repository.decreaseOrderItemQuantity(transactionID, menuItemID)
+        }
+    }
 
     fun updateInputPreferences(input: String) {
         viewModelScope.launch {

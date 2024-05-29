@@ -15,5 +15,16 @@ class OfflineRepository(
     private val stockDao: StockDao,
     private val transactionDao: TransactionDao
 ) : JomDiningRepository {
+    /*
+        ALL ITEMS UNDER orderItemDao
+     */
+    override fun fetchOrderItemByID(transactionID: Int, menuItemID: Int) =
+        orderItemDao.fetchOrderItemByID(transactionID, menuItemID)
 
+    override suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) =
+        orderItemDao.increaseOrderItemQuantity(transactionID, menuItemID)
+
+    override suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
+        orderItemDao.decreaseOrderItemQuantity(transactionID, menuItemID)
+    }
 }

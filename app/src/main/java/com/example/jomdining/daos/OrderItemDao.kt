@@ -7,13 +7,11 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
 import com.example.jomdining.databaseentities.AccountConverter
-import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.MenuConverter
 import com.example.jomdining.databaseentities.MenuItemIngredientConverter
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.OrderItemConverter
 import com.example.jomdining.databaseentities.StockConverter
-import com.example.jomdining.databaseentities.Transaction
 import com.example.jomdining.databaseentities.TransactionConverter
 import kotlinx.coroutines.flow.Flow
 
@@ -36,26 +34,36 @@ interface OrderItemDao {
 
     // THIS DOES NOT LOOK RIGHT YET!
     @Query("""
+        SELECT order_item.transactionID, order_item.menuItemID, order_item.orderItemQuantity, order_item.foodServed
+        FROM order_item
+        INNER JOIN menu ON order_item.menuItemID = menu.menuItemID
+        INNER JOIN "transaction" ON order_item.transactionID = "transaction".transactionID
+        WHERE order_item.transactionID = :transactionID
+        AND order_item.menuItemID = :menuItemID
+    """)
+    fun fetchOrderItemByID(transactionID: Int, menuItemID: Int): OrderItem
+
+    // THIS ALSO DOES NOT LOOK RIGHT YET!
+    @Query("""
+        SELECT * FROM order_item
+        INNER JOIN menu AS menu ON order_item.menuItemID = menu.menuItemID
+        WHERE transactionID = :transactionID
+    """)
+    fun fetchAllOrderItemsByTransaction(transactionID: Int): Flow<List<OrderItem>>
+
+    @Query("""
         UPDATE order_item
         SET orderItemQuantity = orderItemQuantity + 1
         WHERE transactionID = :transactionID
         AND menuItemID = :menuItemID
     """)
-    fun increaseOrderItemQuantity(transactionID: Transaction, menuItemID: Menu)
+    suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
 
-    // THIS ALSO DOES NOT LOOK RIGHT YET!
     @Query("""
         UPDATE order_item
         SET orderItemQuantity = orderItemQuantity - 1
         WHERE transactionID = :transactionID
         AND menuItemID = :menuItemID
     """)
-    fun decreaseOrderQuantity(transactionID: Transaction, menuItemID: Menu)
-
-    // THIS ALSO DOES NOT LOOK RIGHT YET!
-    @Query("""
-        SELECT * FROM order_item
-        WHERE transactionID = :transactionID
-    """)
-    fun fetchAllOrderItemsByTransaction(transactionID: String): Flow<List<OrderItem>>
+    suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
 }
