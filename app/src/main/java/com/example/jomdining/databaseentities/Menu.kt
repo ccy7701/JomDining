@@ -12,12 +12,12 @@ import kotlinx.serialization.json.Json
 @Serializable
 @Entity
 @TypeConverters(
-    AccountConverter::class,
-    MenuConverter::class,
-    MenuItemIngredientConverter::class,
-    OrderItemConverter::class,
-    StockConverter::class,
-    TransactionsConverter::class
+//    AccountConverter::class,
+//    MenuConverter::class,
+//    MenuItemIngredientConverter::class,
+//    OrderItemConverter::class,
+//    StockConverter::class,
+//    TransactionsConverter::class
 )
 data class Menu(
     @PrimaryKey(autoGenerate = true)

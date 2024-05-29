@@ -45,7 +45,7 @@ import com.example.jomdining.databaseentities.OrderItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodOrderingModuleScreen(
-    // viewModel: JomDiningViewModel,
+    viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
@@ -72,6 +72,11 @@ fun FoodOrderingModuleScreen(
                         .weight(0.6f)
                         .fillMaxHeight()
                 )
+//                MenuItemGridNew(
+//                    viewModel = viewModel,
+//                    modifier = Modifier
+//                        .padding(start = 24.dp, end = 32.dp)
+//                )
                 SecondItem(
                     modifier = Modifier
                         .weight(0.4f)
@@ -82,6 +87,25 @@ fun FoodOrderingModuleScreen(
     }
 }
 
+@Composable
+fun MenuItemGridNew(
+    viewModel: JomDiningViewModel,
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        verticalArrangement = Arrangement.spacedBy(32.dp),
+        horizontalArrangement = Arrangement.spacedBy(32.dp),
+        modifier = modifier
+    ) {
+        items(viewModel.menuUi.menuItems) { menuItem ->
+            MenuItemCard(menuItem)
+        }
+    }
+}
+
+// this composable does not consider the viewModel yet
+// the one that does is to be written above it
 @Composable
 fun MenuItemGrid(
     modifier: Modifier = Modifier,

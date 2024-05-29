@@ -32,7 +32,6 @@ interface OrderItemDao {
     @Delete
     suspend fun removeOrderItem(orderItem: OrderItem)
 
-    // THIS DOES NOT LOOK RIGHT YET!
     @Query("""
         SELECT order_item.transactionID, order_item.menuItemID, order_item.orderItemQuantity, order_item.foodServed
         FROM order_item
@@ -41,15 +40,14 @@ interface OrderItemDao {
         WHERE order_item.transactionID = :transactionID
         AND order_item.menuItemID = :menuItemID
     """)
-    fun fetchOrderItemByID(transactionID: Int, menuItemID: Int): OrderItem
+    fun getOrderItemByID(transactionID: Int, menuItemID: Int): OrderItem
 
-    // THIS ALSO DOES NOT LOOK RIGHT YET!
     @Query("""
         SELECT * FROM order_item
         INNER JOIN menu AS menu ON order_item.menuItemID = menu.menuItemID
         WHERE transactionID = :transactionID
     """)
-    fun fetchAllOrderItemsByTransaction(transactionID: Int): Flow<List<OrderItem>>
+    fun getAllOrderItemsByTransactionID(transactionID: Int): Flow<List<OrderItem>>
 
     @Query("""
         UPDATE order_item

@@ -11,7 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.jomdining.ui.FoodOrderingModuleScreen
+import com.example.jomdining.ui.JomDiningViewModel
 import com.example.jomdining.ui.theme.JomDiningTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,7 +36,9 @@ class MainActivity : ComponentActivity() {
                         .statusBarsPadding(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    val viewModel: JomDiningViewModel = viewModel(factory = JomDiningViewModel.factory)
                     FoodOrderingModuleScreen(
+                        viewModel = viewModel,
                         modifier = Modifier.padding(
                             start = 8.dp,
                             top = 8.dp,

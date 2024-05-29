@@ -1,25 +1,30 @@
 package com.example.jomdining.data
 
-import com.example.jomdining.daos.AccountDao
 import com.example.jomdining.daos.MenuDao
-import com.example.jomdining.daos.MenuItemIngredientDao
 import com.example.jomdining.daos.OrderItemDao
-import com.example.jomdining.daos.StockDao
-import com.example.jomdining.daos.TransactionsDao
 
 class OfflineRepository(
-    private val accountDao: AccountDao,
+//    private val accountDao: AccountDao,
     private val menuDao: MenuDao,
-    private val menuItemIngredientDao: MenuItemIngredientDao,
+//    private val menuItemIngredientDao: MenuItemIngredientDao,
     private val orderItemDao: OrderItemDao,
-    private val stockDao: StockDao,
-    private val transactionsDao: TransactionsDao
+//    private val stockDao: StockDao,
+//    private val transactionsDao: TransactionsDao
 ) : JomDiningRepository {
+    /*
+        ALL ITEMS UNDER MenuDao
+     */
+    override fun getAllMenuItems() =
+        menuDao.getAllMenuItems()
+
     /*
         ALL ITEMS UNDER orderItemDao
      */
-    override fun fetchOrderItemByID(transactionID: Int, menuItemID: Int) =
-        orderItemDao.fetchOrderItemByID(transactionID, menuItemID)
+    override fun getOrderItemByID(transactionID: Int, menuItemID: Int) =
+        orderItemDao.getOrderItemByID(transactionID, menuItemID)
+
+    override fun getAllOrderItemsByTransactionID(transactionID: Int) =
+        orderItemDao.getAllOrderItemsByTransactionID(transactionID)
 
     override suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) =
         orderItemDao.increaseOrderItemQuantity(transactionID, menuItemID)

@@ -23,12 +23,12 @@ import kotlinx.serialization.json.Json
     ]
 )
 @TypeConverters(
-    AccountConverter::class,
-    MenuConverter::class,
-    MenuItemIngredientConverter::class,
-    OrderItemConverter::class,
-    StockConverter::class,
-    TransactionsConverter::class
+    //AccountConverter::class,
+    //MenuConverter::class,
+    //MenuItemIngredientConverter::class,
+    //OrderItemConverter::class,
+    //StockConverter::class,
+    //TransactionsConverter::class
 )
 data class Transactions(
     @PrimaryKey(autoGenerate = true)
@@ -42,6 +42,7 @@ data class Transactions(
     val tableNumber: Int
 )
 
+@Serializable
 @ProvidedTypeConverter
 class TransactionsConverter {
     @TypeConverter
