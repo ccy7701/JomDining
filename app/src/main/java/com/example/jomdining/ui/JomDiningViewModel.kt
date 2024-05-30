@@ -28,7 +28,7 @@ class JomDiningViewModel(
         private set
 
     init {
-        // getAllMenuItems()
+        getAllMenuItems()
     }
 
     // ...

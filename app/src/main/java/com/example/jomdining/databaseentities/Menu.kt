@@ -10,7 +10,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
-@Entity
+@Entity(
+    tableName = "menu"
+)
 @TypeConverters(
 //    AccountConverter::class,
 //    MenuConverter::class,
