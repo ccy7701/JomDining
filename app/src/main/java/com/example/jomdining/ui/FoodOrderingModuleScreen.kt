@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -43,15 +45,14 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.data.TempMenuItems
 import com.example.jomdining.databaseentities.Menu
-import com.example.jomdining.databaseentities.OrderItem
 import java.io.InputStream
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodOrderingModuleScreen(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
     Scaffold(
         topBar = {
@@ -59,28 +60,27 @@ fun FoodOrderingModuleScreen(
                 title = "JomDining"
             )
         },
-        containerColor = backgroundColor,
+        containerColor = Color(0xFFCEDFFF)
     ) { innerPadding ->
         Column(
             modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(backgroundColor)
         ) {
             Row(
                 modifier = modifier.fillMaxSize()
             ) {
-                MenuItemGrid(
+                Box(
                     modifier = Modifier
-                        .padding(start = 24.dp, end = 32.dp)
                         .weight(0.6f)
-                        .fillMaxHeight()
-                )
-//                MenuItemGridNew(
-//                    viewModel = viewModel,
-//                    modifier = Modifier
-//                        .padding(start = 24.dp, end = 32.dp)
-//                )
+                        .fillMaxSize()
+                ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MenuItemGrid(
+                        viewModel = viewModel,
+                        modifier = modifier
+                    )
+                }
                 SecondItem(
                     modifier = Modifier
                         .weight(0.4f)
@@ -92,36 +92,17 @@ fun FoodOrderingModuleScreen(
 }
 
 @Composable
-fun MenuItemGridNew(
-    viewModel: JomDiningViewModel,
-    modifier: Modifier = Modifier
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        verticalArrangement = Arrangement.spacedBy(32.dp),
-        horizontalArrangement = Arrangement.spacedBy(32.dp),
-        modifier = modifier
-    ) {
-        items(viewModel.menuUi.menuItems) { menuItem ->
-            MenuItemCard(menuItem)
-        }
-    }
-}
-
-// this composable does not consider the viewModel yet
-// the one that does is to be written above it
-@Composable
 fun MenuItemGrid(
+    viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        verticalArrangement = Arrangement.spacedBy(32.dp),
-        horizontalArrangement = Arrangement.spacedBy(32.dp),
-        modifier = modifier.background(backgroundColor)
+        modifier = modifier
+            .background(backgroundColor)
     ) {
-        items(TempMenuItems.menuItems) { menuItem ->
+        items(viewModel.menuUi.menuItems) { menuItem ->
             MenuItemCard(menuItem)
         }
     }
@@ -134,7 +115,12 @@ fun MenuItemCard(
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        modifier = modifier,
+        modifier = modifier.padding(
+            start = 16.dp,
+            end = 16.dp,
+            top = 16.dp,
+            bottom = 16.dp
+        ),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         )
@@ -154,7 +140,7 @@ fun MenuItemCard(
                 val inputStream: InputStream?
                 try {
                     inputStream = assetManager.open(imagePath)
-                    Log.d("IMAGE_FILE", "Image file exists in assets: ${inputStream != null}")
+                    Log.d("IMAGE_FILE", "Image file exists in assets: $inputStream")
                 } catch (e: Exception) {
                     Log.e("IMAGE_FILE_ERROR", "Image file does not exist in assets: $e")
                 }
@@ -190,7 +176,7 @@ fun MenuItemCard(
             }
             Row {
                 Text(
-                    text = "RM " + String.format("%.2f", menuItem.menuItemPrice),
+                    text = String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -201,23 +187,23 @@ fun MenuItemCard(
     }
 }
 
-@Composable
-fun OrderItemCard(
-    orderItem: OrderItem,
-    modifier: Modifier = Modifier
-) {
-    Card {
-        Row {
-            Box {
-                /*
-                                Image {
-                    // painter = painterResource(id = )
-                }
-                 */
-            }
-        }
-    }
-}
+//@Composable
+//fun OrderItemCard(
+//    orderItem: OrderItem,
+//    modifier: Modifier = Modifier
+//) {
+//    Card {
+//        Row {
+//            Box {
+//                /*
+//                                Image {
+//                    // painter = painterResource(id = )
+//                }
+//                 */
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun SecondItem(
@@ -225,7 +211,7 @@ fun SecondItem(
 ) {
     Box(
         modifier = modifier
-            .background(Color.DarkGray)
+            .background(Color.Black)
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
@@ -260,11 +246,29 @@ fun MenuItemCardPreview() {
             menuItemName = stringResource(R.string.chicken_chop),
             menuItemPrice = 12.34,
             menuItemType = stringResource(R.string.main_course),
-            menuItemImagePath = "app/src/main/images/chickenChop.png"
+            menuItemImagePath = "file:///android_asset/chickenChop.png"
         )
     MenuItemCard(
         menuItem = menuItem,
     )
+}
+
+@Composable
+fun TestMenuItemGrid(
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = Color(0xFFCEDFFF)
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        // verticalArrangement = Arrangement.spacedBy(0.dp),
+        // horizontalArrangement = Arrangement.spacedBy(24.dp),
+        modifier = modifier
+            .background(backgroundColor)
+    ) {
+        items(TempMenuItems.menuItems) { menuItem ->
+            MenuItemCard(menuItem)
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -280,25 +284,31 @@ fun FoodOrderingModulePreview(
 ) {
     Scaffold(
         topBar = {
-            JomDiningTopAppBar(title = "JomDining")
-        }
+            JomDiningTopAppBar(
+                title = "JomDining"
+            )
+        },
+        containerColor = Color(0xFFCEDFFF)
     ) { innerPadding ->
         Column(
             modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Row(modifier = modifier.fillMaxSize()) {
-                MenuItemGrid(
+            Row(
+                modifier = modifier.fillMaxSize()
+            ) {
+                Box(
                     modifier = Modifier
-                        .padding(start = 24.dp, end = 32.dp)
-                        .weight(0.7f)
-                        .fillMaxHeight()
-                )
+                        .weight(0.6f)
+                        .fillMaxSize()
+                ) {
+                    TestMenuItemGrid(modifier = modifier)
+                }
                 SecondItem(
                     modifier = Modifier
-                        .weight(0.3f)
-                        .fillMaxHeight()
+                        .weight(0.4f)
+                        .fillMaxSize()
                 )
             }
         }

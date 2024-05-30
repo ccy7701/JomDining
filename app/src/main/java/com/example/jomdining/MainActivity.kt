@@ -5,12 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.jomdining.ui.FoodOrderingModuleScreen
 import com.example.jomdining.ui.JomDiningViewModel
@@ -22,14 +20,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             JomDiningTheme {
-                /*
-                                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-                 */
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
@@ -39,30 +29,10 @@ class MainActivity : ComponentActivity() {
                     val viewModel: JomDiningViewModel = viewModel(factory = JomDiningViewModel.factory)
                     FoodOrderingModuleScreen(
                         viewModel = viewModel,
-                        modifier = Modifier.padding(
-                            start = 8.dp,
-                            top = 8.dp,
-                            end = 8.dp
-                        )
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
-
-            /*
-                      JomDiningTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    val viewModel: FlightSearchViewModel = viewModel(factory = JomDiningViewModel.factory)
-                    MainMenuScreen(
-                        viewModel = viewModel,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                }
-            }
-             */
-
         }
     }
 }
