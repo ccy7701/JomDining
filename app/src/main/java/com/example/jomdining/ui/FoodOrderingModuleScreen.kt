@@ -57,7 +57,7 @@ fun FoodOrderingModuleScreen(
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "JomDinin"
+                title = "JomDining"
             )
         },
         containerColor = Color(0xFFCEDFFF)
