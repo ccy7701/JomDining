@@ -25,7 +25,7 @@ data class Menu(
     val menuItemName: String,
     val menuItemPrice: Double,
     val menuItemType: String,
-    val menuItemImageResourceId: Int
+    val menuItemImagePath: String
 )
 
 @ProvidedTypeConverter

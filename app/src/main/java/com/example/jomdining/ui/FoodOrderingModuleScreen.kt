@@ -1,5 +1,6 @@
 package com.example.jomdining.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,16 +32,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.data.TempMenuItems
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import java.io.InputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,11 +148,22 @@ fun MenuItemCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
+                val imagePath = menuItem.menuItemImagePath
+                Log.d("IMAGE_PATH", "Current image path is $imagePath")
+                val assetManager = LocalContext.current.assets
+                val inputStream: InputStream?
+                try {
+                    inputStream = assetManager.open(imagePath)
+                    Log.d("IMAGE_FILE", "Image file exists in assets: ${inputStream != null}")
+                } catch (e: Exception) {
+                    Log.e("IMAGE_FILE_ERROR", "Image file does not exist in assets: $e")
+                }
                 Image(
-                    // modify this painter later. it is currently hardcoded.
-                    // the Menu table currently does not yet have a column for image name
-                    // painter = painterResource(id = R.drawable.chicken_chop),
-                    painter = painterResource(id = menuItem.menuItemImageResourceId),
+                    painter = rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data("file:///android_asset/$imagePath")
+                            .build()
+                    ),
                     contentDescription = menuItem.menuItemName,
                     modifier = modifier
                         .padding(bottom = 4.dp)
@@ -245,7 +260,7 @@ fun MenuItemCardPreview() {
             menuItemName = stringResource(R.string.chicken_chop),
             menuItemPrice = 12.34,
             menuItemType = stringResource(R.string.main_course),
-            menuItemImageResourceId = R.string.chicken_chop
+            menuItemImagePath = "app/src/main/images/chickenChop.png"
         )
     MenuItemCard(
         menuItem = menuItem,
@@ -269,7 +284,9 @@ fun FoodOrderingModulePreview(
         }
     ) { innerPadding ->
         Column(
-            modifier.fillMaxSize().padding(innerPadding)
+            modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             Row(modifier = modifier.fillMaxSize()) {
                 MenuItemGrid(

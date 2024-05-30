@@ -67,6 +67,7 @@ class JomDiningViewModel(
             }
             updateOrderItemQuantity(transactionID)
             // You might need a different tutorial as reference.
+            // populate with somethingSomething.menuItemID for buttons and whatnot in the future
         }
     }
 
