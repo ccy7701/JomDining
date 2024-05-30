@@ -1,17 +1,15 @@
 package com.example.jomdining.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,20 +17,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.input.pointer.pointerInput
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     val errorMessage by remember { mutableStateOf("") }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFCEDFFF))
-            .padding(16.dp),
+            .padding(16.dp)
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    // Hide the keyboard when tapped outside
+                    keyboardController?.hide()
+                }
+            },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -47,6 +54,14 @@ fun RegisterScreen(navController: NavHostController, modifier: Modifier = Modifi
             value = username,
             onValueChange = { username = it },
             label = { Text("Username") },
+            modifier = Modifier
+                .width(800.dp)
+                .padding(bottom = 16.dp)
+        )
+        TextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
             modifier = Modifier
                 .width(800.dp)
                 .padding(bottom = 16.dp)
