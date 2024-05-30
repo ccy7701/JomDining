@@ -1,5 +1,6 @@
 package com.example.jomdining.databaseentities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ProvidedTypeConverter
@@ -37,7 +38,9 @@ import kotlinx.serialization.json.Json
 //    TransactionsConverter::class
 )
 data class OrderItem(
+    @ColumnInfo(name = "menuItemID")
     val menuItemID: Int,
+    @ColumnInfo(name = "transactionID")
     val transactionID: Int,
     val orderItemQuantity: Int,
     val foodServed: Int

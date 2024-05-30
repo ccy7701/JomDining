@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
 import com.example.jomdining.databaseentities.AccountConverter
+import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.MenuConverter
 import com.example.jomdining.databaseentities.MenuItemIngredientConverter
 import com.example.jomdining.databaseentities.OrderItem
@@ -17,12 +18,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(
-    AccountConverter::class,
-    MenuConverter::class,
-    MenuItemIngredientConverter::class,
-    OrderItemConverter::class,
-    StockConverter::class,
-    TransactionsConverter::class
+//    AccountConverter::class,
+//    MenuConverter::class,
+//    MenuItemIngredientConverter::class,
+//    OrderItemConverter::class,
+//    StockConverter::class,
+//    TransactionsConverter::class
 )
 interface OrderItemDao {
     // Add a new row to the menu_item_ingredient table
@@ -33,14 +34,18 @@ interface OrderItemDao {
     suspend fun removeOrderItem(orderItem: OrderItem)
 
     @Query("""
-        SELECT order_item.transactionID, order_item.menuItemID, order_item.orderItemQuantity, order_item.foodServed
-        FROM order_item
-        INNER JOIN menu ON order_item.menuItemID = menu.menuItemID
-        INNER JOIN transactions ON order_item.transactionID = transactions.transactionID
-        WHERE order_item.transactionID = :transactionID
-        AND order_item.menuItemID = :menuItemID
+        SELECT * FROM order_item
+        WHERE order_item.menuItemID = :menuItemID
     """)
-    fun getOrderItemByID(transactionID: Int, menuItemID: Int): OrderItem
+    suspend fun getOrderItemByID(menuItemID: Int): OrderItem
+
+    @Query("""
+        SELECT menu.* 
+        FROM menu
+        INNER JOIN order_item ON order_item.menuItemID = menu.menuItemID
+        WHERE order_item.menuItemID = :menuItemID
+    """)
+    suspend fun getCorrespondingMenuItem(menuItemID: Int): Menu
 
     @Query("""
         SELECT * FROM order_item
