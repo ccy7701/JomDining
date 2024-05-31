@@ -22,9 +22,4 @@ interface JomDiningRepository {
 //    suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
 //
 //    suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
-
-    /*
-        ITEMS UNDER TransactionsDao
-     */
-//    suspend fun getCurrentTransactionByIDStream(transactionID: Int): Transactions
 }

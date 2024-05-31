@@ -39,6 +39,10 @@ class JomDiningViewModel(
         }
     }
 
+    // ...
+
+    // ...
+
     /*
         ALL ITEMS UNDER MenuDao
      */
@@ -51,6 +55,20 @@ class JomDiningViewModel(
             )
         }
     }
+
+    /*
+        ALL ITEMS UNDER OrderItemDao
+     */
+//    fun getCurrentOrderItems(transactionID: Int) {
+//        viewModelScope.launch {
+//            orderItemUi = orderItemUi.copy(
+//                orderItemsList = repository.getAllOrderItemsByTransactionIDStream(transactionID)
+//                    .filterNotNull()
+//                    .first()
+//            )
+//            Log.d("orderItemsList", "Order items list successfully created with total of ${orderItemUi.orderItemsList.size} items.")
+//        }
+//    }
 
     fun getAllCurrentOrderItems(transactionID: Int) {
         viewModelScope.launch {
@@ -127,11 +145,6 @@ class JomDiningViewModel(
 //    }
 
     /*
-        ALL ITEMS UNDER TransactionsDao
-     */
-    // fun getCurrentTransaction()
-
-    /*
         EVERYTHING ELSE
      */
     fun updateInputPreferences(input: String) {
@@ -152,7 +165,7 @@ class JomDiningViewModel(
 //                        application.database.menuItemIngredientDao(),
                         application.database.orderItemDao(),
 //                        application.database.stockDao(),
-                        application.database.transactionsDao()
+//                        application.database.transactionsDao()
                     )
                 JomDiningViewModel(repository, application.userPreferencesRepository)
             }

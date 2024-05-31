@@ -2,7 +2,6 @@ package com.example.jomdining.data
 
 import com.example.jomdining.daos.MenuDao
 import com.example.jomdining.daos.OrderItemDao
-import com.example.jomdining.daos.TransactionsDao
 
 class OfflineRepository(
 //    private val accountDao: AccountDao,
@@ -10,7 +9,7 @@ class OfflineRepository(
 //    private val menuItemIngredientDao: MenuItemIngredientDao,
     private val orderItemDao: OrderItemDao,
 //    private val stockDao: StockDao,
-    private val transactionsDao: TransactionsDao
+//    private val transactionsDao: TransactionsDao
 ) : JomDiningRepository {
     /*
         ALL ITEMS UNDER MenuDao
@@ -36,10 +35,4 @@ class OfflineRepository(
 //    override suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
 //        orderItemDao.decreaseOrderItemQuantity(transactionID, menuItemID)
 //    }
-
-    /*
-        ALL ITEMS UNDER TransactionsDao
-     */
-//    override suspend fun getCurrentTransactionByIDStream(transactionID: Int) =
-//        transactionsDao.getCurrentTransactionByID(transactionID)
 }

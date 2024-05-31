@@ -30,10 +30,5 @@ interface TransactionsDao {
     @Delete
     suspend fun removeTransaction(transaction: Transactions)
 
-    // Get the currently active transaction using transactionID
-//    @Query("""
-//        SELECT * FROM transactions
-//        WHERE transactionID = :transactionID
-//    """)
-//    suspend fun getCurrentTransactionByID(transactionID: Int): Transactions
+    // THERE IS MORE TO BE ADDED LATER
 }
