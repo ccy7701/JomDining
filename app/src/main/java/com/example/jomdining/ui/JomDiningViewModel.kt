@@ -12,7 +12,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jomdining.JomDiningApplication
 import com.example.jomdining.data.JomDiningRepository
 import com.example.jomdining.data.OfflineRepository
-import com.example.jomdining.data.TempOrderItemsList.orderItemsList
 import com.example.jomdining.data.UserPreferencesRepository
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
@@ -36,7 +35,7 @@ class JomDiningViewModel(
         runBlocking {
             getAllMenuItems()
             // THIS IS CURRENTLY HARDCODED FOR TESTING!
-            getCurrentOrderItems(1)
+            getAllCurrentOrderItems(1)
         }
     }
 
@@ -71,29 +70,35 @@ class JomDiningViewModel(
 //        }
 //    }
 
-    fun getCurrentOrderItems(transactionID: Int) {
+    fun getAllCurrentOrderItems(transactionID: Int) {
         viewModelScope.launch {
+            // The value pairs will be stored in the following mutableList
+            val currentOrderItemsListWithMenus = mutableListOf<Pair<OrderItem, Menu>>()
+
+            // Firstly, a list of orderItems is generated
             val currentOrderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
                 .filterNotNull()
                 .first()
-            // Log.d("currentOrderItems", "Successfully created with total of ${currentOrderItems.size} items.")
-            val updatedOrderItemsList = mutableListOf<Menu>()
-            // Iterate through each OrderItem
+                // Log.d("COI_List", "Successfully created with total of ${currentOrderItems.size} items.")
+
+            // Then, the mutableList is populated with pairs of (OrderItem, Menu), iteratively through each OrderItem
             currentOrderItems.forEach { orderItem ->
-                // First, verify through Logcat the details fetched.
-                // Log.d("orderItem_indv", "Order item details: $orderItem")
-                // Get the corresponding menu item
+                // Get the OrderItem
+                // Log.d("COI_Element", "Order item details: $orderItem")
+                // Get the corresponding Menu
                 val correspondingMenuItem = repository.getCorrespondingMenuItem(menuItemID = orderItem.menuItemID)
-                // Log.d("correspondingMenuItem", "Found corresponding menu item: $correspondingMenuItem")
-                // add the corresponding menu item to the list
-                updatedOrderItemsList.add(correspondingMenuItem)
+                // Log.d("COI_MenuItem", "Found corresponding menu item: $correspondingMenuItem")
+                // Add the OrderItem and Menu to the mutableList
+                currentOrderItemsListWithMenus.add(Pair(orderItem, correspondingMenuItem))
             }
-            // Log.d("updatedOrderItemsList", "New list created with size ${updatedOrderItemsList.size}")
+            Log.d("COI_FinalList", "New list created with size ${currentOrderItemsListWithMenus.size}")
+            Log.d("COI_FinalListDetails", "Details: $currentOrderItemsListWithMenus")
+
             // Update orderItemUi with the new list of order items
             orderItemUi = orderItemUi.copy(
-                orderItemsList = updatedOrderItemsList
+                orderItemsList = currentOrderItemsListWithMenus
             )
-            Log.d("orderItemsList", "New orderItemsList created with size ${orderItemUi.orderItemsList.size}")
+            Log.d("orderItemUi", "New orderItemsList created with size ${orderItemUi.orderItemsList.size}")
         }
     }
 

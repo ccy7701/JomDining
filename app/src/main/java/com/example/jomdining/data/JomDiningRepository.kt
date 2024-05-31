@@ -19,7 +19,7 @@ interface JomDiningRepository {
 
     fun getAllOrderItemsByTransactionIDStream(transactionID: Int): Flow<List<OrderItem>>
 
-    suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
-
-    suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
+//    suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
+//
+//    suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
 }

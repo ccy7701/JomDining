@@ -1,6 +1,5 @@
 package com.example.jomdining.ui
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -135,14 +134,14 @@ fun MenuItemCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 val imagePath = menuItem.menuItemImagePath
-                Log.d("IMAGE_PATH", "Current image path is $imagePath")
+                // Log.d("IMAGE_PATH", "Current image path is $imagePath")
                 val assetManager = LocalContext.current.assets
                 val inputStream: InputStream?
                 try {
                     inputStream = assetManager.open(imagePath)
-                    Log.d("IMAGE_FILE", "Image file exists in assets: $inputStream")
+                    // Log.d("IMAGE_FILE", "Image file exists in assets: $inputStream")
                 } catch (e: Exception) {
-                    Log.e("IMAGE_FILE_ERROR", "Image file does not exist in assets: $e")
+                    // Log.e("IMAGE_FILE_ERROR", "Image file does not exist in assets: $e")
                 }
                 Image(
                     painter = rememberAsyncImagePainter(
@@ -260,8 +259,6 @@ fun TestMenuItemGrid(
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        // verticalArrangement = Arrangement.spacedBy(0.dp),
-        // horizontalArrangement = Arrangement.spacedBy(24.dp),
         modifier = modifier
             .background(backgroundColor)
     ) {
