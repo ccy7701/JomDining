@@ -43,6 +43,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,6 +68,14 @@ fun FoodOrderingModuleScreen(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
 ) {
+    // Fetch current order items list when this screen is composed
+    LaunchedEffect(Unit) {
+        // THIS IS CURRENTLY HARDCODED FOR TESTING!
+        viewModel.getAllCurrentOrderItems(1)
+        // THIS IS ALSO CURRENTLY HARDCODED FOR TESTING!
+        viewModel.getCurrentActiveTransaction(1)
+    }
+
     Scaffold(
         topBar = {
             JomDiningTopAppBar(

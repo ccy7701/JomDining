@@ -2,6 +2,7 @@ package com.example.jomdining.data
 
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import com.example.jomdining.databaseentities.Transactions
 import kotlinx.coroutines.flow.Flow
 
 interface JomDiningRepository {
@@ -22,4 +23,9 @@ interface JomDiningRepository {
 //    suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
 //
 //    suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
+
+    /*
+        ITEMS UNDER TransactionsDao
+     */
+    suspend fun getCurrentActiveTransactionStream(transactionID: Int): Transactions
 }
