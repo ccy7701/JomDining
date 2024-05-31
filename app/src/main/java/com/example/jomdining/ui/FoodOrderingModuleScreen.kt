@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -51,13 +52,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.jomdining.R
-import com.example.jomdining.data.TempMenuItems
 import com.example.jomdining.databaseentities.Menu
 import java.util.Locale
 
@@ -95,6 +94,7 @@ fun FoodOrderingModuleScreen(
                     )
                 }
                 OrderSummary(
+                    viewModel = viewModel,
                     modifier = Modifier
                         .weight(0.4f)
                         .fillMaxHeight()
@@ -102,6 +102,24 @@ fun FoodOrderingModuleScreen(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun JomDiningTopAppBar(
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = {
+            Text(title)
+        },
+        modifier = modifier,
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    )
 }
 
 @Composable
@@ -196,7 +214,10 @@ fun MenuItemCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderSummary(modifier: Modifier = Modifier) {
+fun OrderSummary(
+    viewModel: JomDiningViewModel,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .background(Color(0xFFE6E6E6))
@@ -217,8 +238,10 @@ fun OrderSummary(modifier: Modifier = Modifier) {
         LazyColumn(
             modifier = Modifier.weight(1f) // Make it take available space and be scrollable
         ) {
-            items(4) {
-                OrderItemCard()
+            items(viewModel.orderItemUi.orderItemsList) { pair ->
+                OrderItemCard(
+
+                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -312,7 +335,6 @@ fun OrderSummary(modifier: Modifier = Modifier) {
         }
     }
 }
-
 @Composable
 fun OrderItemCard(modifier: Modifier = Modifier) {
     Card(
@@ -394,95 +416,4 @@ fun OrderItemCard(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun JomDiningTopAppBar(
-    title: String,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = {
-            Text(title)
-        },
-        modifier = modifier,
-        colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary
-        )
-    )
-}
-@Preview
-@Composable
-fun MenuItemCardPreview() {
-    val menuItem =
-        Menu(
-            menuItemID = 1,
-            menuItemName = stringResource(R.string.chicken_chop),
-            menuItemPrice = 12.34,
-            menuItemType = stringResource(R.string.main_course),
-            menuItemImagePath = "file:///android_asset/chickenChop.png"
-        )
-    MenuItemCard(
-        menuItem = menuItem,
-    )
-}
 
-@Composable
-fun TestMenuItemGrid(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFFCEDFFF)
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        modifier = modifier
-            .background(backgroundColor)
-    ) {
-        items(TempMenuItems.menuItems) { menuItem ->
-            MenuItemCard(menuItem)
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(
-    name = "pixel_tablet_landscape",
-    device = "spec: width=2560dp, height=1600dp, orientation=landscape",
-    showBackground = true,
-    backgroundColor = 0xCEDFFF
-)
-@Composable
-fun FoodOrderingModulePreview(
-    modifier: Modifier = Modifier
-) {
-    Scaffold(
-        topBar = {
-            JomDiningTopAppBar(
-                title = "JomDining"
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            Row(
-                modifier = modifier.fillMaxSize()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(0.6f)
-                        .fillMaxSize()
-                ) {
-                    TestMenuItemGrid(modifier = modifier)
-                }
-                OrderSummary(
-                    modifier = Modifier
-                        .weight(0.4f)
-                        .fillMaxHeight()
-                        .background(Color(0xFFD9E6FF))
-                )
-            }
-        }
-    }
-}
