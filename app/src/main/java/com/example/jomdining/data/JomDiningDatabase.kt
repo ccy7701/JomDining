@@ -4,14 +4,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.jomdining.daos.MenuDao
 import com.example.jomdining.daos.OrderItemDao
 import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
+import com.example.jomdining.databaseentities.MenuConverter
 import com.example.jomdining.databaseentities.MenuItemIngredient
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Stock
 import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.databaseentities.TransactionsConverter
 import kotlinx.coroutines.InternalCoroutinesApi
 
 @Database(

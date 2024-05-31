@@ -1,5 +1,6 @@
 package com.example.jomdining.ui
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,9 +13,12 @@ import com.example.jomdining.JomDiningApplication
 import com.example.jomdining.data.JomDiningRepository
 import com.example.jomdining.data.OfflineRepository
 import com.example.jomdining.data.UserPreferencesRepository
+import com.example.jomdining.databaseentities.Menu
+import com.example.jomdining.databaseentities.OrderItem
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class JomDiningViewModel(
     private val repository: JomDiningRepository,
@@ -28,7 +32,11 @@ class JomDiningViewModel(
         private set
 
     init {
-        getAllMenuItems()
+        runBlocking {
+            getAllMenuItems()
+            // THIS IS CURRENTLY HARDCODED FOR TESTING!
+            getAllCurrentOrderItems(1)
+        }
     }
 
     // ...
@@ -38,7 +46,7 @@ class JomDiningViewModel(
     /*
         ALL ITEMS UNDER MenuDao
      */
-    private fun getAllMenuItems() {
+    fun getAllMenuItems() {
         viewModelScope.launch {
             menuUi = menuUi.copy(
                 menuItems = repository.getAllMenuItems()
@@ -51,47 +59,90 @@ class JomDiningViewModel(
     /*
         ALL ITEMS UNDER OrderItemDao
      */
-    fun increaseOrDecreaseOrderItemQuantity(
-        transactionID: Int,
-        menuItemID: Int,
-        toIncrease: Boolean
-    ) {
+//    fun getCurrentOrderItems(transactionID: Int) {
+//        viewModelScope.launch {
+//            orderItemUi = orderItemUi.copy(
+//                orderItemsList = repository.getAllOrderItemsByTransactionIDStream(transactionID)
+//                    .filterNotNull()
+//                    .first()
+//            )
+//            Log.d("orderItemsList", "Order items list successfully created with total of ${orderItemUi.orderItemsList.size} items.")
+//        }
+//    }
+
+    fun getAllCurrentOrderItems(transactionID: Int) {
         viewModelScope.launch {
-            val orderItem = repository.getOrderItemByID(transactionID, menuItemID)
-            orderItem?.let {
-                if (toIncrease) {
-                    repository.increaseOrderItemQuantity(transactionID, menuItemID)
-                } else {
-                    repository.decreaseOrderItemQuantity(transactionID, menuItemID)
-                }
+            // The value pairs will be stored in the following mutableList
+            val currentOrderItemsListWithMenus = mutableListOf<Pair<OrderItem, Menu>>()
+
+            // Firstly, a list of orderItems is generated
+            val currentOrderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
+                .filterNotNull()
+                .first()
+                // Log.d("COI_List", "Successfully created with total of ${currentOrderItems.size} items.")
+
+            // Then, the mutableList is populated with pairs of (OrderItem, Menu), iteratively through each OrderItem
+            currentOrderItems.forEach { orderItem ->
+                // Get the OrderItem
+                // Log.d("COI_Element", "Order item details: $orderItem")
+                // Get the corresponding Menu
+                val correspondingMenuItem = repository.getCorrespondingMenuItem(menuItemID = orderItem.menuItemID)
+                // Log.d("COI_MenuItem", "Found corresponding menu item: $correspondingMenuItem")
+                // Add the OrderItem and Menu to the mutableList
+                currentOrderItemsListWithMenus.add(Pair(orderItem, correspondingMenuItem))
             }
-            updateOrderItemQuantity(transactionID)
-            // You might need a different tutorial as reference.
-            // populate with somethingSomething.menuItemID for buttons and whatnot in the future
-        }
-    }
+            Log.d("COI_FinalList", "New list created with size ${currentOrderItemsListWithMenus.size}")
+            Log.d("COI_FinalListDetails", "Details: $currentOrderItemsListWithMenus")
 
-    private fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
-        viewModelScope.launch {
-            repository.increaseOrderItemQuantity(transactionID, menuItemID)
-        }
-    }
-
-    private fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
-        viewModelScope.launch {
-            repository.decreaseOrderItemQuantity(transactionID, menuItemID)
-        }
-    }
-
-    fun updateOrderItemQuantity(transactionID: Int) {
-        viewModelScope.launch {
+            // Update orderItemUi with the new list of order items
             orderItemUi = orderItemUi.copy(
-                orderItems = repository.getAllOrderItemsByTransactionID(transactionID)
-                    .filterNotNull()
-                    .first()
+                orderItemsList = currentOrderItemsListWithMenus
             )
+            Log.d("orderItemUi", "New orderItemsList created with size ${orderItemUi.orderItemsList.size}")
         }
     }
+
+//    fun increaseOrDecreaseOrderItemQuantity(
+//        transactionID: Int,
+//        menuItemID: Int,
+//        toIncrease: Boolean
+//    ) {
+//        viewModelScope.launch {
+//            val orderItem = repository.getOrderItemByID(transactionID, menuItemID)
+//            orderItem?.let {
+//                if (toIncrease) {
+//                    repository.increaseOrderItemQuantity(transactionID, menuItemID)
+//                } else {
+//                    repository.decreaseOrderItemQuantity(transactionID, menuItemID)
+//                }
+//            }
+//            updateOrderItemQuantity(transactionID)
+//            // You might need a different tutorial as reference.
+//            // populate with somethingSomething.menuItemID for buttons and whatnot in the future
+//        }
+//    }
+
+//    private fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
+//        viewModelScope.launch {
+//            repository.increaseOrderItemQuantity(transactionID, menuItemID)
+//        }
+//    }
+//
+//    private fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
+//        viewModelScope.launch {
+//            repository.decreaseOrderItemQuantity(transactionID, menuItemID)
+//        }
+//    }
+
+//    fun updateOrderItemQuantity(transactionID: Int) {
+//        viewModelScope.launch {
+//            orderItemUi = orderItemUi.copy(
+//                orderItemsList = repository.getAllOrderItemsByTransactionID(transactionID)
+//                    .filterNotNull()
+//                    .first()
+//            )
+//        }
+//    }
 
     /*
         EVERYTHING ELSE

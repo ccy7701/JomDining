@@ -13,11 +13,13 @@ interface JomDiningRepository {
     /*
         ITEMS UNDER OrderItemDao
      */
-    fun getOrderItemByID(transactionID: Int, menuItemID: Int): OrderItem
+    suspend fun getOrderItemByID(transactionID: Int, menuItemID: Int): OrderItem
 
-    fun getAllOrderItemsByTransactionID(transactionID: Int): Flow<List<OrderItem>>
+    suspend fun getCorrespondingMenuItem(menuItemID: Int): Menu
 
-    suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
+    fun getAllOrderItemsByTransactionIDStream(transactionID: Int): Flow<List<OrderItem>>
 
-    suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
+//    suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
+//
+//    suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
 }

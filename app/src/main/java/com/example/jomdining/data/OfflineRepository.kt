@@ -20,16 +20,19 @@ class OfflineRepository(
     /*
         ALL ITEMS UNDER orderItemDao
      */
-    override fun getOrderItemByID(transactionID: Int, menuItemID: Int) =
-        orderItemDao.getOrderItemByID(transactionID, menuItemID)
+    override suspend fun getOrderItemByID(transactionID: Int, menuItemID: Int) =
+        orderItemDao.getOrderItemByID(menuItemID)
 
-    override fun getAllOrderItemsByTransactionID(transactionID: Int) =
+    override suspend fun getCorrespondingMenuItem(menuItemID: Int) =
+        orderItemDao.getCorrespondingMenuItem(menuItemID)
+
+    override fun getAllOrderItemsByTransactionIDStream(transactionID: Int) =
         orderItemDao.getAllOrderItemsByTransactionID(transactionID)
 
-    override suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) =
-        orderItemDao.increaseOrderItemQuantity(transactionID, menuItemID)
-
-    override suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
-        orderItemDao.decreaseOrderItemQuantity(transactionID, menuItemID)
-    }
+//    override suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) =
+//        orderItemDao.increaseOrderItemQuantity(transactionID, menuItemID)
+//
+//    override suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
+//        orderItemDao.decreaseOrderItemQuantity(transactionID, menuItemID)
+//    }
 }
