@@ -71,7 +71,7 @@ fun FoodOrderingModuleScreen(
     // Fetch current order items list when this screen is composed
     LaunchedEffect(Unit) {
         // THIS IS CURRENTLY HARDCODED FOR TESTING!
-        viewModel.getAllCurrentOrderItems(1)
+        // viewModel.getAllCurrentOrderItems(1)
         // THIS IS ALSO CURRENTLY HARDCODED FOR TESTING!
         viewModel.getCurrentActiveTransaction(1)
     }
@@ -228,119 +228,128 @@ fun OrderSummary(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .background(Color(0xFFE6E6E6))
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Order #12345",  // NOTE: CURRENTLY HARDCODED
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-                .background(Color(0xFF34197C), shape = RoundedCornerShape(8.dp))
-                .padding(8.dp),
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(
-            modifier = Modifier.weight(1f) // Make it take available space and be scrollable
+    val currentActiveTransaction = viewModel.transactionsUi.currentActiveTransaction
+    Log.d("CAT_InComposableCtnt", "Content of currentActiveTransaction: $currentActiveTransaction")
+
+    if (currentActiveTransaction.isNotEmpty()) {
+        Log.d("CAT_TestOutput", "TransactionID: ${currentActiveTransaction.elementAt(0).transactionID}")
+        val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
+
+        Column(
+            modifier = modifier
+                .background(Color(0xFFE6E6E6))
+                .padding(16.dp)
         ) {
-            items(viewModel.orderItemUi.orderItemsList) { pair ->
-                val orderItem = pair.first
-                val correspondingMenuItem = pair.second
-                OrderItemCard(orderItemAndMenu = Pair(orderItem, correspondingMenuItem))
-                Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Order ${currentActiveTransaction.elementAt(0).transactionID}",
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    .background(Color(0xFF34197C), shape = RoundedCornerShape(8.dp))
+                    .padding(8.dp),
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn(
+                modifier = Modifier.weight(1f) // Make it take available space and be scrollable
+            ) {
+                items(currentOrderItemsList) { pair ->
+                    val orderItem = pair.first
+                    val correspondingMenuItem = pair.second
+                    OrderItemCard(orderItemAndMenu = Pair(orderItem, correspondingMenuItem))
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Total",
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-            )
-            Text(
-                text = "RM 65.00",
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Table No.",
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-            )
-            TextField(
-                value = "",
-                onValueChange = {},
+            Row(
                 modifier = Modifier
-                    .width(60.dp)
-                    .height(40.dp)
-                    .background(Color.White, shape = RoundedCornerShape(8.dp)),
-                colors = TextFieldDefaults.textFieldColors(
-                    textColor = Color.Black,
-                    containerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.Center // Center the buttons horizontally
-        ) {
-            Button(
-                onClick = { /* Place Order Action */ },
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(65.dp)
-                    .padding(vertical = 8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34197C))
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    "Place Order",
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                    text = "Total",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    text = String.format(Locale.getDefault(), "RM %.2f", currentActiveTransaction.elementAt(0).transactionTotalPrice),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Table No.",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                TextField(
+                    value = currentActiveTransaction.elementAt(0).tableNumber.toString(),
+                    onValueChange = {},
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(50.dp)
+                        .background(Color.White, shape = RoundedCornerShape(8.dp)),
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Color.Black,
+                        containerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
                     )
                 )
             }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.Center // Center the buttons horizontally
-        ) {
-            Button(
-                onClick = { /* Cancel Order Action */ },
+            Row(
                 modifier = Modifier
-                    .width(300.dp)
-                    .height(65.dp)
+                    .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
+                horizontalArrangement = Arrangement.Center // Center the buttons horizontally
             ) {
-                Text(
-                    "Cancel",
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                Button(
+                    onClick = { /* Place Order Action */ },
+                    modifier = Modifier
+                        .width(300.dp)
+                        .height(65.dp)
+                        .padding(vertical = 8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34197C))
+                ) {
+                    Text(
+                        "Place Order",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
                     )
-                )
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.Center // Center the buttons horizontally
+            ) {
+                Button(
+                    onClick = { /* Cancel Order Action */ },
+                    modifier = Modifier
+                        .width(300.dp)
+                        .height(65.dp)
+                        .padding(vertical = 8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
+                ) {
+                    Text(
+                        "Cancel",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    )
+                }
             }
         }
     }
@@ -423,7 +432,7 @@ fun OrderItemCard(
                 }
                 Text(
                     text = currentOrderItem.orderItemQuantity.toString(),
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Box(
                     modifier = Modifier

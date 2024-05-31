@@ -15,6 +15,7 @@ import com.example.jomdining.data.OfflineRepository
 import com.example.jomdining.data.UserPreferencesRepository
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import com.example.jomdining.databaseentities.Transactions
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -29,6 +30,9 @@ class JomDiningViewModel(
         private set
 
     var orderItemUi by mutableStateOf(OrderItemUi())
+        private set
+
+    var transactionsUi by mutableStateOf(TransactionsUi())
         private set
 
     init {
@@ -129,9 +133,23 @@ class JomDiningViewModel(
      */
     fun getCurrentActiveTransaction(transactionID: Int) {
         viewModelScope.launch {
-            // The fetched Transaction object will be stored in this val
+            // The fetched current active transaction will be stored in this mutableList
+            val currentActiveTransactionList = mutableListOf<Transactions>()
+
+            // Also, the fetched Transaction object will be stored in this val
             val currentActiveTransaction = repository.getCurrentActiveTransactionStream(transactionID)
-            Log.d("CAT_val", "Successfully fetched current active transaction: $currentActiveTransaction")
+            Log.d("CAT_fetch", "Successfully fetched current active transaction: $currentActiveTransaction")
+
+            // Update TransactionsUi with the new current active transaction
+            currentActiveTransactionList.add(currentActiveTransaction)
+            transactionsUi = transactionsUi.copy(
+                currentActiveTransaction = currentActiveTransactionList
+            )
+            Log.d("CAT_toList", "Details of current active transaction moved to List: $currentActiveTransactionList")
+
+            // Then, using the fetched Transaction object, fetched all its order items
+            getAllCurrentOrderItems(currentActiveTransaction.transactionID)
+            Log.d("CAT_orderItems", "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}")
         }
     }
 
