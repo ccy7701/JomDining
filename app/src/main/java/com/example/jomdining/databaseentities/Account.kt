@@ -24,11 +24,10 @@ import kotlinx.serialization.json.Json
 data class Account(
     @PrimaryKey(autoGenerate = true)
     val accountID: Int,
+    val accountUsername: String,
     val accountPassword: String,
-    val employeeName: String,
-    val employeePosition: String,
-    val employeePhoneNumber: String,
-    val employeeEmail: String
+    val accountEmail: String,
+    val accountPhoneNumber: String
 )
 
 @ProvidedTypeConverter

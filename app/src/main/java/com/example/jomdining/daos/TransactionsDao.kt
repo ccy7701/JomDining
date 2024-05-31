@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import androidx.room.TypeConverters
 import com.example.jomdining.databaseentities.AccountConverter
 import com.example.jomdining.databaseentities.MenuConverter
@@ -31,4 +32,10 @@ interface TransactionsDao {
     suspend fun removeTransaction(transaction: Transactions)
 
     // THERE IS MORE TO BE ADDED LATER
+    @Query("""
+        SELECT * FROM transactions
+        WHERE transactionID = :transactionID
+        AND isActive = 1
+    """)
+    suspend fun getCurrentActiveTransaction(transactionID: Int): Transactions
 }

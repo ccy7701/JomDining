@@ -15,6 +15,7 @@ import com.example.jomdining.data.OfflineRepository
 import com.example.jomdining.data.UserPreferencesRepository
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import com.example.jomdining.databaseentities.Transactions
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -31,17 +32,14 @@ class JomDiningViewModel(
     var orderItemUi by mutableStateOf(OrderItemUi())
         private set
 
+    var transactionsUi by mutableStateOf(TransactionsUi())
+        private set
+
     init {
         runBlocking {
             getAllMenuItems()
-            // THIS IS CURRENTLY HARDCODED FOR TESTING!
-            getAllCurrentOrderItems(1)
         }
     }
-
-    // ...
-
-    // ...
 
     /*
         ALL ITEMS UNDER MenuDao
@@ -55,20 +53,6 @@ class JomDiningViewModel(
             )
         }
     }
-
-    /*
-        ALL ITEMS UNDER OrderItemDao
-     */
-//    fun getCurrentOrderItems(transactionID: Int) {
-//        viewModelScope.launch {
-//            orderItemUi = orderItemUi.copy(
-//                orderItemsList = repository.getAllOrderItemsByTransactionIDStream(transactionID)
-//                    .filterNotNull()
-//                    .first()
-//            )
-//            Log.d("orderItemsList", "Order items list successfully created with total of ${orderItemUi.orderItemsList.size} items.")
-//        }
-//    }
 
     fun getAllCurrentOrderItems(transactionID: Int) {
         viewModelScope.launch {
@@ -145,6 +129,31 @@ class JomDiningViewModel(
 //    }
 
     /*
+        ALL ITEMS UNDER TransactionsDao
+     */
+    fun getCurrentActiveTransaction(transactionID: Int) {
+        viewModelScope.launch {
+            // The fetched current active transaction will be stored in this mutableList
+            val currentActiveTransactionList = mutableListOf<Transactions>()
+
+            // Also, the fetched Transaction object will be stored in this val
+            val currentActiveTransaction = repository.getCurrentActiveTransactionStream(transactionID)
+            Log.d("CAT_fetch", "Successfully fetched current active transaction: $currentActiveTransaction")
+
+            // Update TransactionsUi with the new current active transaction
+            currentActiveTransactionList.add(currentActiveTransaction)
+            transactionsUi = transactionsUi.copy(
+                currentActiveTransaction = currentActiveTransactionList
+            )
+            Log.d("CAT_toList", "Details of current active transaction moved to List: $currentActiveTransactionList")
+
+            // Then, using the fetched Transaction object, fetched all its order items
+            getAllCurrentOrderItems(currentActiveTransaction.transactionID)
+            Log.d("CAT_orderItems", "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}")
+        }
+    }
+
+    /*
         EVERYTHING ELSE
      */
     fun updateInputPreferences(input: String) {
@@ -165,7 +174,7 @@ class JomDiningViewModel(
 //                        application.database.menuItemIngredientDao(),
                         application.database.orderItemDao(),
 //                        application.database.stockDao(),
-//                        application.database.transactionsDao()
+                        application.database.transactionsDao()
                     )
                 JomDiningViewModel(repository, application.userPreferencesRepository)
             }

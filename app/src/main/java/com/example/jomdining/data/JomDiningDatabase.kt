@@ -8,6 +8,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.jomdining.daos.MenuDao
 import com.example.jomdining.daos.OrderItemDao
+import com.example.jomdining.daos.TransactionsDao
 import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.MenuConverter
@@ -36,7 +37,7 @@ abstract class JomDiningDatabase: RoomDatabase() {
     // abstract fun menuItemIngredientDao(): MenuItemIngredientDao
     abstract fun orderItemDao(): OrderItemDao
     // abstract fun stockDao(): StockDao
-    // abstract fun transactionsDao(): TransactionsDao
+    abstract fun transactionsDao(): TransactionsDao
 
     companion object {
         @Volatile
