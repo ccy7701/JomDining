@@ -57,7 +57,6 @@ import com.example.jomdining.data.TestOrderItemsWithMenus
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.ui.JomDiningTopAppBar
 import com.example.jomdining.ui.MenuItemCard
-import com.example.jomdining.ui.OrderItemCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(
@@ -123,7 +122,7 @@ fun MenuItemCardPreview() {
 @Preview
 @Composable
 fun OrderItemCardPreview() {
-    OrderItemCard()
+    TestOrderItemCard()
 }
 
 @Composable

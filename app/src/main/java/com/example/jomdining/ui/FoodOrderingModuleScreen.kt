@@ -58,6 +58,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
+import com.example.jomdining.databaseentities.OrderItem
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -161,7 +162,7 @@ fun MenuItemCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 val imagePath = menuItem.menuItemImagePath
-                Log.d("IMAGE_PATH", "Current image path is $imagePath")
+                // Log.d("IMAGE_PATH", "Current image path is $imagePath")
                 val assetManager = LocalContext.current.assets
                 val inputStream = try {
                     assetManager.open(imagePath)
@@ -224,7 +225,7 @@ fun OrderSummary(
             .padding(16.dp)
     ) {
         Text(
-            text = "Order #12345",
+            text = "Order #12345",  // NOTE: CURRENTLY HARDCODED
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
             modifier = Modifier
                 .fillMaxWidth()
@@ -239,9 +240,9 @@ fun OrderSummary(
             modifier = Modifier.weight(1f) // Make it take available space and be scrollable
         ) {
             items(viewModel.orderItemUi.orderItemsList) { pair ->
-                OrderItemCard(
-
-                )
+                val orderItem = pair.first
+                val correspondingMenuItem = pair.second
+                OrderItemCard(orderItemAndMenu = Pair(orderItem, correspondingMenuItem))
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -336,7 +337,14 @@ fun OrderSummary(
     }
 }
 @Composable
-fun OrderItemCard(modifier: Modifier = Modifier) {
+fun OrderItemCard(
+    orderItemAndMenu: Pair<OrderItem, Menu>,
+    modifier: Modifier = Modifier
+) {
+    Log.d("CMP_OrderItemCard", "Composable function invoked. Details: $orderItemAndMenu")
+    val currentOrderItem = orderItemAndMenu.first
+    val correspondingMenuItem = orderItemAndMenu.second
+
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
@@ -352,13 +360,21 @@ fun OrderItemCard(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            val imagePath = correspondingMenuItem.menuItemImagePath
+            val assetManager = LocalContext.current.assets
+            val inputStream =
+                try {
+                    assetManager.open(imagePath)
+                } catch (e: Exception) {
+                    Log.e("ImagePathLoadError", "Error loading image from assets: $e")
+                }
             Image(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data("file:///android_asset/images/chickenChop.png")
+                        .data("file:///android_asset/$imagePath")
                         .build()
                 ),
-                contentDescription = "Ordered Item",
+                contentDescription = "Ordered Item: ${correspondingMenuItem.menuItemName}",
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(8.dp))
@@ -368,8 +384,15 @@ fun OrderItemCard(modifier: Modifier = Modifier) {
                     .weight(1f)
                     .padding(horizontal = 8.dp)
             ) {
-                Text("Fried Chicken", fontWeight = FontWeight.Bold)
-                Text("RM 20.00", color = Color(0xFF7C4DFF))
+                val currentOrderItemCost = currentOrderItem.orderItemQuantity * correspondingMenuItem.menuItemPrice
+                Text(
+                    text = correspondingMenuItem.menuItemName,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = String.format(Locale.getDefault(), "RM %.2f", currentOrderItemCost),
+                    color = Color(0xFF7C4DFF)
+                )
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -389,7 +412,10 @@ fun OrderItemCard(modifier: Modifier = Modifier) {
                         tint = Color.White
                     )
                 }
-                Text("1", modifier = Modifier.padding(horizontal = 8.dp))
+                Text(
+                    text = currentOrderItem.orderItemQuantity.toString(),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
                 Box(
                     modifier = Modifier
                         .size(32.dp)
