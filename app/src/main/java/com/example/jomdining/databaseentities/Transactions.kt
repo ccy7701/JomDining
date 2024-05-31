@@ -39,7 +39,8 @@ data class Transactions(
     val transactionTotalPrice: Float,
     val transactionPayment: Float,
     val transactionBalance: Float,
-    val tableNumber: Int
+    val tableNumber: Int,
+    val isActive: Int
 )
 
 @Serializable
