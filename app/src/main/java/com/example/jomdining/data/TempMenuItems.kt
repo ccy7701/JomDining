@@ -1,6 +1,7 @@
 package com.example.jomdining.data
 
 import com.example.jomdining.databaseentities.Menu
+import com.example.jomdining.databaseentities.OrderItem
 
 object TempMenuItems {
     val menuItems = listOf(
@@ -17,5 +18,13 @@ object TempMenuItems {
         Menu(11, "TEST-Sprite(L)-3", 6.13, "beverage", "images/sprite.png"),
         Menu(12, "TEST-Sprite(L)-4", 6.13, "beverage", "images/sprite.png"),
         Menu(13, "TEST-Sprite(L)-5", 6.13, "beverage", "images/sprite.png")
+    )
+}
+
+object TempOrderItemsList {
+    val orderItemsList = listOf(
+        OrderItem(1, 1, 5, 0),
+        OrderItem(2, 1, 7, 0),
+        OrderItem(8, 1, 11, 0)
     )
 }
