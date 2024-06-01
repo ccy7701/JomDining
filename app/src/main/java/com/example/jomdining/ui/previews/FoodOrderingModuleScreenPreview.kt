@@ -317,7 +317,15 @@ fun TestOrderItemCard(modifier: Modifier = Modifier) {
                         tint = Color.White
                     )
                 }
-                Text("1", modifier = Modifier.padding(horizontal = 8.dp))
+                Box(
+                    modifier = Modifier.width(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "1",
+                        textAlign = TextAlign.Center
+                    )
+                }
                 Box(
                     modifier = Modifier
                         .size(32.dp)

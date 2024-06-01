@@ -86,47 +86,31 @@ class JomDiningViewModel(
         }
     }
 
-//    fun increaseOrDecreaseOrderItemQuantity(
-//        transactionID: Int,
-//        menuItemID: Int,
-//        toIncrease: Boolean
-//    ) {
-//        viewModelScope.launch {
-//            val orderItem = repository.getOrderItemByID(transactionID, menuItemID)
-//            orderItem?.let {
-//                if (toIncrease) {
-//                    repository.increaseOrderItemQuantity(transactionID, menuItemID)
-//                } else {
-//                    repository.decreaseOrderItemQuantity(transactionID, menuItemID)
-//                }
-//            }
-//            updateOrderItemQuantity(transactionID)
-//            // You might need a different tutorial as reference.
-//            // populate with somethingSomething.menuItemID for buttons and whatnot in the future
-//        }
-//    }
+    fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
+        viewModelScope.launch {
+            try {
+                repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
+                getAllCurrentOrderItems(transactionID)
+                Log.d("OIQty_Inc",  "Order item quantity for orderItem with menuItemID $menuItemID successfully increased by 1.")
+            } catch (e: Exception) {
+                Log.e("OIQty_Inc_Err", "FAILED TO INCREASE ORDER ITEM QUANTITY: $e")
+            }
+        }
+    }
 
-//    private fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
-//        viewModelScope.launch {
-//            repository.increaseOrderItemQuantity(transactionID, menuItemID)
-//        }
-//    }
-//
-//    private fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
-//        viewModelScope.launch {
-//            repository.decreaseOrderItemQuantity(transactionID, menuItemID)
-//        }
-//    }
+    fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
+        viewModelScope.launch {
+            try {
+                repository.decreaseOrderItemQuantityStream(transactionID, menuItemID)
+                getAllCurrentOrderItems(transactionID)
+                Log.d("OIQty_Dec", "Order item quantity for orderItem with menuItemID $menuItemID successfully decreased by 1.")
+            } catch (e: Exception) {
+                Log.e("OIQty_Dec_Err", "FAILED TO DECREASE ORDER ITEM QUANTITY: $e")
+            }
+        }
+    }
 
-//    fun updateOrderItemQuantity(transactionID: Int) {
-//        viewModelScope.launch {
-//            orderItemUi = orderItemUi.copy(
-//                orderItemsList = repository.getAllOrderItemsByTransactionID(transactionID)
-//                    .filterNotNull()
-//                    .first()
-//            )
-//        }
-//    }
+    // there's probably something else that needs to be invoked in increase/decreaseOrderItemQuantity...
 
     /*
         ALL ITEMS UNDER TransactionsDao

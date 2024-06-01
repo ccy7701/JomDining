@@ -31,12 +31,11 @@ class OfflineRepository(
     override fun getAllOrderItemsByTransactionIDStream(transactionID: Int) =
         orderItemDao.getAllOrderItemsByTransactionID(transactionID)
 
-//    override suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) =
-//        orderItemDao.increaseOrderItemQuantity(transactionID, menuItemID)
-//
-//    override suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
-//        orderItemDao.decreaseOrderItemQuantity(transactionID, menuItemID)
-//    }
+    override suspend fun increaseOrderItemQuantityStream(transactionID: Int, menuItemID: Int) =
+        orderItemDao.increaseOrderItemQuantity(transactionID, menuItemID)
+
+    override suspend fun decreaseOrderItemQuantityStream(transactionID: Int, menuItemID: Int) =
+        orderItemDao.decreaseOrderItemQuantity(transactionID, menuItemID)
 
     /*
         ALL ITEMS UNDER TransactionsDao

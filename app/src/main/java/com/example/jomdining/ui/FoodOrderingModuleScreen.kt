@@ -258,7 +258,10 @@ fun OrderSummary(
                 items(currentOrderItemsList) { pair ->
                     val orderItem = pair.first
                     val correspondingMenuItem = pair.second
-                    OrderItemCard(orderItemAndMenu = Pair(orderItem, correspondingMenuItem))
+                    OrderItemCard(
+                        viewModel = viewModel,
+                        orderItemAndMenu = Pair(orderItem, correspondingMenuItem)
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -356,6 +359,7 @@ fun OrderSummary(
 }
 @Composable
 fun OrderItemCard(
+    viewModel: JomDiningViewModel,
     orderItemAndMenu: Pair<OrderItem, Menu>,
     modifier: Modifier = Modifier
 ) {
@@ -421,25 +425,40 @@ fun OrderItemCard(
                         .size(32.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(Color.Red)
-                        .clickable { /* Decrease Quantity */ },
+                        .clickable {
+                            viewModel.decreaseOrderItemQuantity(
+                                currentOrderItem.transactionID,
+                                currentOrderItem.menuItemID
+                            )
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Remove,
-                        contentDescription = "Reduce Quantity",
+                        contentDescription = "Decrease Quantity",
                         tint = Color.White
                     )
                 }
-                Text(
-                    text = currentOrderItem.orderItemQuantity.toString(),
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
+                Box(
+                    modifier = Modifier.width(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = currentOrderItem.orderItemQuantity.toString(),
+                        textAlign = TextAlign.Center
+                    )
+                }
                 Box(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(Color.Green)
-                        .clickable { /* Increase Quantity */ },
+                        .clickable {
+                            viewModel.increaseOrderItemQuantity(
+                                currentOrderItem.transactionID,
+                                currentOrderItem.menuItemID
+                            )
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -448,7 +467,7 @@ fun OrderItemCard(
                         tint = Color.White
                     )
                 }
-                IconButton(onClick = { /* Delete Item */ }) {
+                IconButton(onClick = { /* Delete Item */ } ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete Item",

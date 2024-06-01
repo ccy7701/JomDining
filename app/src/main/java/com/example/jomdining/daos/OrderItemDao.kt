@@ -51,19 +51,21 @@ interface OrderItemDao {
     """)
     suspend fun getCorrespondingMenuItem(menuItemID: Int): Menu
 
-//    @Query("""
-//        UPDATE order_item
-//        SET orderItemQuantity = orderItemQuantity + 1
-//        WHERE transactionID = :transactionID
-//        AND menuItemID = :menuItemID
-//    """)
-//    suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
-//
-//    @Query("""
-//        UPDATE order_item
-//        SET orderItemQuantity = orderItemQuantity - 1
-//        WHERE transactionID = :transactionID
-//        AND menuItemID = :menuItemID
-//    """)
-//    suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
+    // Increase the order item quantity (this will be invoked when the [+] button is pressed)
+    @Query("""
+        UPDATE order_item
+        SET orderItemQuantity = orderItemQuantity + 1
+        WHERE transactionID = :transactionID
+        AND menuItemID = :menuItemID
+    """)
+    suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
+
+    // Decrease the order item quantity (this will be invoked when the [-] button is pressed)
+    @Query("""
+        UPDATE order_item
+        SET orderItemQuantity = orderItemQuantity - 1
+        WHERE transactionID = :transactionID
+        AND menuItemID = :menuItemID
+    """)
+    suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
 }
