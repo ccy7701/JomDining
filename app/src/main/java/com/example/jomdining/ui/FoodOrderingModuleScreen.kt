@@ -229,10 +229,10 @@ fun OrderSummary(
     modifier: Modifier = Modifier
 ) {
     val currentActiveTransaction = viewModel.transactionsUi.currentActiveTransaction
-    Log.d("CAT_InComposableCtnt", "Content of currentActiveTransaction: $currentActiveTransaction")
+    // Log.d("CAT_InComposableCtnt", "Content of currentActiveTransaction: $currentActiveTransaction")
 
     if (currentActiveTransaction.isNotEmpty()) {
-        Log.d("CAT_TestOutput", "TransactionID: ${currentActiveTransaction.elementAt(0).transactionID}")
+        // Log.d("CAT_TestOutput", "TransactionID: ${currentActiveTransaction.elementAt(0).transactionID}")
         val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
 
         Column(
@@ -363,7 +363,7 @@ fun OrderItemCard(
     orderItemAndMenu: Pair<OrderItem, Menu>,
     modifier: Modifier = Modifier
 ) {
-    Log.d("CMP_OrderItemCard", "Composable function invoked. Details: $orderItemAndMenu")
+    // Log.d("CMP_OrderItemCard", "Composable function invoked. Details: $orderItemAndMenu")
     val currentOrderItem = orderItemAndMenu.first
     val correspondingMenuItem = orderItemAndMenu.second
 
@@ -454,9 +454,10 @@ fun OrderItemCard(
                         .clip(RoundedCornerShape(4.dp))
                         .background(Color.Green)
                         .clickable {
-                            viewModel.increaseOrderItemQuantity(
-                                currentOrderItem.transactionID,
-                                currentOrderItem.menuItemID
+                            viewModel.addNewOrIncrementOrderItem(
+                                transactionID = currentOrderItem.transactionID,
+                                menuItemID = currentOrderItem.menuItemID,
+                                operationFlag = 2
                             )
                         },
                     contentAlignment = Alignment.Center

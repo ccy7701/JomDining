@@ -38,6 +38,8 @@ class JomDiningViewModel(
     init {
         runBlocking {
             getAllMenuItems()
+            // FOR TESTING ONLY
+            //addNewOrderItem(1, 1)
         }
     }
 
@@ -54,47 +56,63 @@ class JomDiningViewModel(
         }
     }
 
+    /*
+        ALL ITEMS UNDER OrderItemDao
+     */
+    fun addNewOrIncrementOrderItem(transactionID: Int, menuItemID: Int, operationFlag: Int) {
+        // The operation flag will be used to decide which control flow to use.
+        // operationFlag = 1 -> add new item to the list, operationFlag = 2 -> increment existing orderItemQuantity
+        viewModelScope.launch {
+            if (operationFlag == 1) {   // operationFlag = 1 -> add new item to the list
+                try {
+                    // invoke the function that inserts a new OrderItem to the DB
+                    repository.addNewOrderItemStream(transactionID, menuItemID)
+                    Log.d("ANOIOI_OF1_PASS", "New OrderItem added to the currently active transaction list.")
+                } catch (e: Exception) {
+                    Log.e("ANOIOI_OF1_FAIL", "Failed to add new OrderItem to currently active transaction list: $e")
+                }
+            } else if (operationFlag == 2) {    // operationFlag = 2 -> increase existing orderItemQuantity
+                try {
+                    // invoke the function that increments orderItemQuantity
+                    repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
+                    Log.d("ANOIOI_OF2_PASS", "Existing orderItemQuantity increased by 1.")
+                } catch (e: Exception) {
+                    Log.e("ANOIOI_OF2_FAIL", "Failed to increase existing orderItemQuantity by 1: $e")
+                }
+            }
+            getAllCurrentOrderItems(transactionID)
+        }
+    }
+
     fun getAllCurrentOrderItems(transactionID: Int) {
         viewModelScope.launch {
-            // The value pairs will be stored in the following mutableList
-            val currentOrderItemsListWithMenus = mutableListOf<Pair<OrderItem, Menu>>()
-
             // Firstly, a list of orderItems is generated
             val currentOrderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
                 .filterNotNull()
                 .first()
-                // Log.d("COI_List", "Successfully created with total of ${currentOrderItems.size} items.")
+                // Log.d("gACOI_OrderItemList", "Successfully created with total of ${currentOrderItems.size} items.")
+
+            // The value pairs will be stored in the following mutableList
+            val currentOrderItemsListWithMenus = mutableListOf<Pair<OrderItem, Menu>>()
 
             // Then, the mutableList is populated with pairs of (OrderItem, Menu), iteratively through each OrderItem
             currentOrderItems.forEach { orderItem ->
                 // Get the OrderItem
-                // Log.d("COI_Element", "Order item details: $orderItem")
+                // Log.d("gACOI_Element", "Order item details: $orderItem")
                 // Get the corresponding Menu
-                val correspondingMenuItem = repository.getCorrespondingMenuItem(menuItemID = orderItem.menuItemID)
-                // Log.d("COI_MenuItem", "Found corresponding menu item: $correspondingMenuItem")
+                val correspondingMenuItem = repository.getCorrespondingMenuItemStream(menuItemID = orderItem.menuItemID)
+                // Log.d("gACOI_MenuItem", "Found corresponding menu item: $correspondingMenuItem")
                 // Add the OrderItem and Menu to the mutableList
                 currentOrderItemsListWithMenus.add(Pair(orderItem, correspondingMenuItem))
             }
-            Log.d("COI_FinalList", "New list created with size ${currentOrderItemsListWithMenus.size}")
-            Log.d("COI_FinalListDetails", "Details: $currentOrderItemsListWithMenus")
+            // Log.d("gACOI_FinalList", "New list created with size ${currentOrderItemsListWithMenus.size}")
+            // Log.d("gACOI_FinalListDetails", "Details: $currentOrderItemsListWithMenus")
 
             // Update orderItemUi with the new list of order items
             orderItemUi = orderItemUi.copy(
                 orderItemsList = currentOrderItemsListWithMenus
             )
             Log.d("orderItemUi", "New orderItemsList created with size ${orderItemUi.orderItemsList.size}")
-        }
-    }
-
-    fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
-        viewModelScope.launch {
-            try {
-                repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
-                getAllCurrentOrderItems(transactionID)
-                Log.d("OIQty_Inc",  "Order item quantity for orderItem with menuItemID $menuItemID successfully increased.")
-            } catch (e: Exception) {
-                Log.e("OIQty_Inc_Err", "FAILED TO INCREASE ORDER ITEM QUANTITY: $e")
-            }
         }
     }
 

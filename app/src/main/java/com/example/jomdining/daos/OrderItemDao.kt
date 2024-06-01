@@ -21,6 +21,12 @@ import kotlinx.coroutines.flow.Flow
 )
 interface OrderItemDao {
     // Add a new row to the menu_item_ingredient table
+    @Query("""
+        INSERT INTO order_item (menuItemID, transactionID, orderItemQuantity, foodServed)
+        VALUES (:menuItemID, :transactionID, 1, 0)
+    """)
+    suspend fun addNewOrderItem(transactionID: Int, menuItemID: Int)
+
     @Insert(onConflict =  OnConflictStrategy.IGNORE)
     suspend fun addOrderItem(orderItem: OrderItem)
 

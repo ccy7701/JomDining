@@ -22,10 +22,13 @@ class OfflineRepository(
     /*
         ALL ITEMS UNDER OrderItemDao
      */
+    override suspend fun addNewOrderItemStream(transactionID: Int, menuItemID: Int) =
+        orderItemDao.addNewOrderItem(transactionID, menuItemID)
+
     override suspend fun getOrderItemByID(transactionID: Int, menuItemID: Int) =
         orderItemDao.getOrderItemByID(menuItemID)
 
-    override suspend fun getCorrespondingMenuItem(menuItemID: Int) =
+    override suspend fun getCorrespondingMenuItemStream(menuItemID: Int) =
         orderItemDao.getCorrespondingMenuItem(menuItemID)
 
     override fun getAllOrderItemsByTransactionIDStream(transactionID: Int) =
