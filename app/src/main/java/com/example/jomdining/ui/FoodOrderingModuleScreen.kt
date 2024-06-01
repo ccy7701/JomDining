@@ -60,6 +60,7 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import com.example.jomdining.databaseentities.Transactions
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,10 +72,9 @@ fun FoodOrderingModuleScreen(
     // Fetch current order items list when this screen is composed
     LaunchedEffect(Unit) {
         // THIS IS CURRENTLY HARDCODED FOR TESTING!
-        // viewModel.getAllCurrentOrderItems(1)
-        // THIS IS ALSO CURRENTLY HARDCODED FOR TESTING!
         viewModel.getCurrentActiveTransaction(1)
     }
+
 
     Scaffold(
         topBar = {
@@ -100,6 +100,9 @@ fun FoodOrderingModuleScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     MenuItemGrid(
                         viewModel = viewModel,
+                        // THIS IS CURRENTLY HARDCODED FOR TESTING!
+                        // currentActiveTransactionID = currentActiveTransaction.transactionID,
+                        currentActiveTransactionID = 1,
                         modifier = modifier
                     )
                 }
@@ -135,6 +138,7 @@ fun JomDiningTopAppBar(
 @Composable
 fun MenuItemGrid(
     viewModel: JomDiningViewModel,
+    currentActiveTransactionID: Int,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
@@ -144,19 +148,30 @@ fun MenuItemGrid(
             .background(backgroundColor)
     ) {
         items(viewModel.menuUi.menuItems) { menuItem ->
-            MenuItemCard(menuItem)
+            MenuItemCard(viewModel, currentActiveTransactionID /* THIS IS CURRENTLY HARDCODED! */, menuItem)
         }
     }
 }
 
 @Composable
 fun MenuItemCard(
+    viewModel: JomDiningViewModel,
+    currentActiveTransactionID: Int,
     menuItem: Menu,
     modifier: Modifier = Modifier
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        modifier = modifier.padding(16.dp),
+        modifier = modifier
+            .padding(16.dp)
+            .clickable {
+            viewModel.addNewOrIncrementOrderItem(
+                // THIS IS CURRENTLY HARDCODED!
+                transactionID = currentActiveTransactionID,
+                menuItemID = menuItem.menuItemID,
+                operationFlag = 1
+            )
+        },
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         )

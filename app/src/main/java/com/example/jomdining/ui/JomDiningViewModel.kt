@@ -77,7 +77,7 @@ class JomDiningViewModel(
                             break
                         }
                     }
-                    Log.d("ANOIOI_IsNewOrderItem", "With $menuItemID, value of isNewOrderItem returned as $isNewOrderItem")
+                    // Log.d("ANOIOI_IsNewOrderItem", "With $menuItemID, value of isNewOrderItem returned as $isNewOrderItem")
                     if (isNewOrderItem) {
                         // invoke the function that adds a new order item
                         repository.addNewOrderItemStream(transactionID, menuItemID)

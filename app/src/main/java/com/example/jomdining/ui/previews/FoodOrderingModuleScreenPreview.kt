@@ -1,5 +1,6 @@
 package com.example.jomdining.ui.previews
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -42,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -56,7 +60,9 @@ import com.example.jomdining.data.TempMenuItems
 import com.example.jomdining.data.TestOrderItemsWithMenus
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.ui.JomDiningTopAppBar
+import com.example.jomdining.ui.JomDiningViewModel
 import com.example.jomdining.ui.MenuItemCard
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(
@@ -114,9 +120,7 @@ fun MenuItemCardPreview() {
             menuItemType = stringResource(R.string.main_course),
             menuItemImagePath = "file:///android_asset/chickenChop.png"
         )
-    MenuItemCard(
-        menuItem = menuItem,
-    )
+    TestMenuItemCard(menuItem = menuItem,)
 }
 
 @Preview
@@ -136,7 +140,82 @@ fun TestMenuItemGrid(
             .background(backgroundColor)
     ) {
         items(TempMenuItems.menuItems) { menuItem ->
-            MenuItemCard(menuItem)
+            TestMenuItemCard(menuItem)
+        }
+    }
+}
+
+@Composable
+fun TestMenuItemCard(
+    menuItem: Menu,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+            .padding(16.dp)
+            .clickable {},
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                val imagePath = menuItem.menuItemImagePath
+                // Log.d("IMAGE_PATH", "Current image path is $imagePath")
+                val assetManager = LocalContext.current.assets
+                val inputStream = try {
+                    assetManager.open(imagePath)
+                } catch (e: Exception) {
+                    Log.e("IMAGE_FILE_ERROR", "Image file does not exist in assets: $e")
+                    null
+                }
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data("file:///android_asset/$imagePath")
+                            .build()
+                    ),
+                    contentDescription = menuItem.menuItemName,
+                    modifier = modifier
+                        .padding(bottom = 4.dp)
+                        .size(width = 120.dp, height = 120.dp)
+                        .aspectRatio(1f)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            Row {
+                Text(
+                    text = stringResource(
+                        R.string.menu_item_name_placeholder,
+                        menuItem.menuItemName
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(
+                        top = 8.dp,
+                        bottom = 8.dp
+                    )
+                )
+            }
+            Row {
+                Text(
+                    text = String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = Color(74, 22, 136)
+                )
+            }
         }
     }
 }

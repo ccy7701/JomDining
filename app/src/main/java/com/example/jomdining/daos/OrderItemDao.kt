@@ -38,6 +38,7 @@ interface OrderItemDao {
         SELECT * FROM order_item
         INNER JOIN menu AS menu ON order_item.menuItemID = menu.menuItemID
         WHERE transactionID = :transactionID
+        ORDER BY menu.menuItemType ASC
     """)
     fun getAllOrderItemsByTransactionID(transactionID: Int): Flow<List<OrderItem>>
 
