@@ -1,6 +1,7 @@
 package com.example.jomdining.ui
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -60,6 +61,7 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import com.example.jomdining.databaseentities.Transactions
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,10 +73,9 @@ fun FoodOrderingModuleScreen(
     // Fetch current order items list when this screen is composed
     LaunchedEffect(Unit) {
         // THIS IS CURRENTLY HARDCODED FOR TESTING!
-        // viewModel.getAllCurrentOrderItems(1)
-        // THIS IS ALSO CURRENTLY HARDCODED FOR TESTING!
         viewModel.getCurrentActiveTransaction(1)
     }
+
 
     Scaffold(
         topBar = {
@@ -100,6 +101,9 @@ fun FoodOrderingModuleScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     MenuItemGrid(
                         viewModel = viewModel,
+                        // THIS IS CURRENTLY HARDCODED FOR TESTING!
+                        // currentActiveTransactionID = currentActiveTransaction.transactionID,
+                        currentActiveTransactionID = 1,
                         modifier = modifier
                     )
                 }
@@ -135,6 +139,7 @@ fun JomDiningTopAppBar(
 @Composable
 fun MenuItemGrid(
     viewModel: JomDiningViewModel,
+    currentActiveTransactionID: Int,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
@@ -144,19 +149,30 @@ fun MenuItemGrid(
             .background(backgroundColor)
     ) {
         items(viewModel.menuUi.menuItems) { menuItem ->
-            MenuItemCard(menuItem)
+            MenuItemCard(viewModel, currentActiveTransactionID /* THIS IS CURRENTLY HARDCODED! */, menuItem)
         }
     }
 }
 
 @Composable
 fun MenuItemCard(
+    viewModel: JomDiningViewModel,
+    currentActiveTransactionID: Int,
     menuItem: Menu,
     modifier: Modifier = Modifier
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        modifier = modifier.padding(16.dp),
+        modifier = modifier
+            .padding(16.dp)
+            .clickable {
+                viewModel.addNewOrIncrementOrderItem(
+                    // THIS IS CURRENTLY HARDCODED!
+                    transactionID = currentActiveTransactionID,
+                    menuItemID = menuItem.menuItemID,
+                    operationFlag = 1
+                )
+            },
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         )
@@ -229,10 +245,10 @@ fun OrderSummary(
     modifier: Modifier = Modifier
 ) {
     val currentActiveTransaction = viewModel.transactionsUi.currentActiveTransaction
-    Log.d("CAT_InComposableCtnt", "Content of currentActiveTransaction: $currentActiveTransaction")
+    // Log.d("CAT_InComposableCtnt", "Content of currentActiveTransaction: $currentActiveTransaction")
 
     if (currentActiveTransaction.isNotEmpty()) {
-        Log.d("CAT_TestOutput", "TransactionID: ${currentActiveTransaction.elementAt(0).transactionID}")
+        // Log.d("CAT_TestOutput", "TransactionID: ${currentActiveTransaction.elementAt(0).transactionID}")
         val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
 
         Column(
@@ -258,7 +274,10 @@ fun OrderSummary(
                 items(currentOrderItemsList) { pair ->
                     val orderItem = pair.first
                     val correspondingMenuItem = pair.second
-                    OrderItemCard(orderItemAndMenu = Pair(orderItem, correspondingMenuItem))
+                    OrderItemCard(
+                        viewModel = viewModel,
+                        orderItemAndMenu = Pair(orderItem, correspondingMenuItem)
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -356,12 +375,14 @@ fun OrderSummary(
 }
 @Composable
 fun OrderItemCard(
+    viewModel: JomDiningViewModel,
     orderItemAndMenu: Pair<OrderItem, Menu>,
     modifier: Modifier = Modifier
 ) {
-    Log.d("CMP_OrderItemCard", "Composable function invoked. Details: $orderItemAndMenu")
+    // Log.d("CMP_OrderItemCard", "Composable function invoked. Details: $orderItemAndMenu")
     val currentOrderItem = orderItemAndMenu.first
     val correspondingMenuItem = orderItemAndMenu.second
+    val context = LocalContext.current
 
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -379,7 +400,7 @@ fun OrderItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             val imagePath = correspondingMenuItem.menuItemImagePath
-            val assetManager = LocalContext.current.assets
+            val assetManager = context.assets
             val inputStream =
                 try {
                     assetManager.open(imagePath)
@@ -421,25 +442,47 @@ fun OrderItemCard(
                         .size(32.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(Color.Red)
-                        .clickable { /* Decrease Quantity */ },
+                        .clickable {
+                            // If the orderItemQuantity already is at 1, display the Toast message indicating it.
+                            if (currentOrderItem.orderItemQuantity == 1) {
+                                Toast.makeText(context, "Order item quantity already at 1, cannot decrease further!", Toast.LENGTH_SHORT).show()
+                            }
+                            // Proceed as normal otherwise.
+                            viewModel.deleteOrDecrementOrderItem(
+                                transactionID = currentOrderItem.transactionID,
+                                menuItemID = currentOrderItem.menuItemID,
+                                operationFlag = 2
+                            )
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Remove,
-                        contentDescription = "Reduce Quantity",
+                        contentDescription = "Decrease Quantity",
                         tint = Color.White
                     )
                 }
-                Text(
-                    text = currentOrderItem.orderItemQuantity.toString(),
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
+                Box(
+                    modifier = Modifier.width(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = currentOrderItem.orderItemQuantity.toString(),
+                        textAlign = TextAlign.Center
+                    )
+                }
                 Box(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(Color.Green)
-                        .clickable { /* Increase Quantity */ },
+                        .clickable {
+                            viewModel.addNewOrIncrementOrderItem(
+                                transactionID = currentOrderItem.transactionID,
+                                menuItemID = currentOrderItem.menuItemID,
+                                operationFlag = 2
+                            )
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -448,7 +491,14 @@ fun OrderItemCard(
                         tint = Color.White
                     )
                 }
-                IconButton(onClick = { /* Delete Item */ }) {
+                IconButton(onClick = {
+                    viewModel.deleteOrDecrementOrderItem(
+                        transactionID = currentOrderItem.transactionID,
+                        menuItemID = currentOrderItem.menuItemID,
+                        operationFlag = 1
+                    )
+                    Toast.makeText(context, "${correspondingMenuItem.menuItemName} removed from order", Toast.LENGTH_SHORT).show()
+                } ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete Item",

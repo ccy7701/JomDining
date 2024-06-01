@@ -31,11 +31,16 @@ interface TransactionsDao {
     @Delete
     suspend fun removeTransaction(transaction: Transactions)
 
-    // THERE IS MORE TO BE ADDED LATER
     @Query("""
         SELECT * FROM transactions
         WHERE transactionID = :transactionID
         AND isActive = 1
     """)
     suspend fun getCurrentActiveTransaction(transactionID: Int): Transactions
+
+    // Update the running grand total of the currently active transaction
+//    @Query("""
+//
+//    """)
+
 }
