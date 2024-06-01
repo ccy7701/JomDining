@@ -91,7 +91,7 @@ class JomDiningViewModel(
             try {
                 repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
                 getAllCurrentOrderItems(transactionID)
-                Log.d("OIQty_Inc",  "Order item quantity for orderItem with menuItemID $menuItemID successfully increased by 1.")
+                Log.d("OIQty_Inc",  "Order item quantity for orderItem with menuItemID $menuItemID successfully increased.")
             } catch (e: Exception) {
                 Log.e("OIQty_Inc_Err", "FAILED TO INCREASE ORDER ITEM QUANTITY: $e")
             }
@@ -103,7 +103,7 @@ class JomDiningViewModel(
             try {
                 repository.decreaseOrderItemQuantityStream(transactionID, menuItemID)
                 getAllCurrentOrderItems(transactionID)
-                Log.d("OIQty_Dec", "Order item quantity for orderItem with menuItemID $menuItemID successfully decreased by 1.")
+                Log.d("OIQty_Dec", "Order item quantity for orderItem with menuItemID $menuItemID successfully decreased.")
             } catch (e: Exception) {
                 Log.e("OIQty_Dec_Err", "FAILED TO DECREASE ORDER ITEM QUANTITY: $e")
             }

@@ -61,9 +61,16 @@ interface OrderItemDao {
     suspend fun increaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
 
     // Decrease the order item quantity (this will be invoked when the [-] button is pressed)
+    // The query also includes a check for whether or not orderItemQuantity is already 1 at invocation,
+    // This will stop the value from going below 1.
     @Query("""
         UPDATE order_item
-        SET orderItemQuantity = orderItemQuantity - 1
+        SET orderItemQuantity = CASE
+            WHEN orderItemQuantity > 1 THEN
+                orderItemQuantity - 1
+            ELSE
+                orderItemQuantity
+        END
         WHERE transactionID = :transactionID
         AND menuItemID = :menuItemID
     """)
