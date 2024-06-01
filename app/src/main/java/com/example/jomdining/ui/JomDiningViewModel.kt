@@ -1,9 +1,11 @@
 package com.example.jomdining.ui
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -85,7 +87,7 @@ class JomDiningViewModel(
                     } else {
                         // invoke the function that increments orderItemQuantity
                         repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
-                        Log.d("ANOIOI_OF1_PASS2", "OrderItems exists in list. Existing orderItemQuanttiy increased by 1.")
+                        Log.d("ANOIOI_OF1_PASS2", "OrderItems exists in list. Existing orderItemQuantity increased by 1.")
                     }
                 } catch (e: Exception) {
                     Log.e("ANOIOI_OF1_FAIL", "Failed to add new OrderItem to currently active transaction list: $e")
@@ -107,14 +109,15 @@ class JomDiningViewModel(
         // The operation flag will be used to decide which control flow to use.
         // operationFlag = 1 -> delete order item from the list, operationFlag = 2 -> decrement existing orderItemQuantity
         viewModelScope.launch {
-            if (operationFlag == 1) {
+            if (operationFlag == 1) {   // operationFlag = 1 -> delete order item from the list
                 try {
                     // invoke the function that deletes an OrderItem from the DB
+                    repository.deleteOrderItemStream(transactionID, menuItemID)
                     Log.d("DODOI_OF1_PASS", "OrderItem deleted from the current active transaction list.")
                 } catch (e: Exception) {
                     Log.e("DODOI_OF1_FAIL", "Failed to delete OrderItem from currently active transaction list: $e")
                 }
-            } else if (operationFlag == 2) {
+            } else if (operationFlag == 2) {    // operationFlag = 2 -> decrement existing orderItemQuantity
                 try {
                     // invoke the function that decrements orderItemQuantity
                     repository.decreaseOrderItemQuantityStream(transactionID, menuItemID)

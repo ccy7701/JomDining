@@ -16,6 +16,8 @@ interface JomDiningRepository {
      */
     suspend fun addNewOrderItemStream(transactionID: Int, menuItemID: Int)
 
+    suspend fun deleteOrderItemStream(transactionID: Int, menuItemID: Int)
+
     suspend fun getOrderItemByID(transactionID: Int, menuItemID: Int): OrderItem
 
     suspend fun getCorrespondingMenuItemStream(menuItemID: Int): Menu

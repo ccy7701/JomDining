@@ -27,11 +27,12 @@ interface OrderItemDao {
     """)
     suspend fun addNewOrderItem(transactionID: Int, menuItemID: Int)
 
-    @Insert(onConflict =  OnConflictStrategy.IGNORE)
-    suspend fun addOrderItem(orderItem: OrderItem)
-
-    @Delete
-    suspend fun removeOrderItem(orderItem: OrderItem)
+    @Query("""
+        DELETE FROM order_item
+        WHERE order_item.transactionID = :transactionID
+        AND order_item.menuItemID = :menuItemID
+    """)
+    suspend fun deleteOrderItem(transactionID: Int, menuItemID: Int)
 
     // Get all order items using the current active transactionID
     @Query("""

@@ -1,6 +1,7 @@
 package com.example.jomdining.ui
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -165,13 +166,13 @@ fun MenuItemCard(
         modifier = modifier
             .padding(16.dp)
             .clickable {
-            viewModel.addNewOrIncrementOrderItem(
-                // THIS IS CURRENTLY HARDCODED!
-                transactionID = currentActiveTransactionID,
-                menuItemID = menuItem.menuItemID,
-                operationFlag = 1
-            )
-        },
+                viewModel.addNewOrIncrementOrderItem(
+                    // THIS IS CURRENTLY HARDCODED!
+                    transactionID = currentActiveTransactionID,
+                    menuItemID = menuItem.menuItemID,
+                    operationFlag = 1
+                )
+            },
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         )
@@ -381,6 +382,7 @@ fun OrderItemCard(
     // Log.d("CMP_OrderItemCard", "Composable function invoked. Details: $orderItemAndMenu")
     val currentOrderItem = orderItemAndMenu.first
     val correspondingMenuItem = orderItemAndMenu.second
+    val context = LocalContext.current
 
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -398,7 +400,7 @@ fun OrderItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             val imagePath = correspondingMenuItem.menuItemImagePath
-            val assetManager = LocalContext.current.assets
+            val assetManager = context.assets
             val inputStream =
                 try {
                     assetManager.open(imagePath)
@@ -441,6 +443,11 @@ fun OrderItemCard(
                         .clip(RoundedCornerShape(4.dp))
                         .background(Color.Red)
                         .clickable {
+                            // If the orderItemQuantity already is at 1, display the Toast message indicating it.
+                            if (currentOrderItem.orderItemQuantity == 1) {
+                                Toast.makeText(context, "Order item quantity already at 1, cannot decrease further!", Toast.LENGTH_SHORT).show()
+                            }
+                            // Proceed as normal otherwise.
                             viewModel.deleteOrDecrementOrderItem(
                                 transactionID = currentOrderItem.transactionID,
                                 menuItemID = currentOrderItem.menuItemID,
@@ -484,7 +491,14 @@ fun OrderItemCard(
                         tint = Color.White
                     )
                 }
-                IconButton(onClick = { /* Delete Item */ } ) {
+                IconButton(onClick = {
+                    viewModel.deleteOrDecrementOrderItem(
+                        transactionID = currentOrderItem.transactionID,
+                        menuItemID = currentOrderItem.menuItemID,
+                        operationFlag = 1
+                    )
+                    Toast.makeText(context, "${correspondingMenuItem.menuItemName} removed from order", Toast.LENGTH_SHORT).show()
+                } ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete Item",

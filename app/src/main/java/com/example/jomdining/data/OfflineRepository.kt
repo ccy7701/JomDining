@@ -25,6 +25,9 @@ class OfflineRepository(
     override suspend fun addNewOrderItemStream(transactionID: Int, menuItemID: Int) =
         orderItemDao.addNewOrderItem(transactionID, menuItemID)
 
+    override suspend fun deleteOrderItemStream(transactionID: Int, menuItemID: Int) =
+        orderItemDao.deleteOrderItem(transactionID, menuItemID)
+
     override suspend fun getOrderItemByID(transactionID: Int, menuItemID: Int) =
         orderItemDao.getOrderItemByID(menuItemID)
 
