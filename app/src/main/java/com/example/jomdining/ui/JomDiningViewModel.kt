@@ -61,7 +61,7 @@ class JomDiningViewModel(
      */
     fun addNewOrIncrementOrderItem(transactionID: Int, menuItemID: Int, operationFlag: Int) {
         // The operation flag will be used to decide which control flow to use.
-        // operationFlag = 1 -> add new item to the list, operationFlag = 2 -> increment existing orderItemQuantity
+        // operationFlag = 1 -> add new order item to the list, operationFlag = 2 -> increment existing orderItemQuantity
         viewModelScope.launch {
             if (operationFlag == 1) {   // operationFlag = 1 -> add new item to the list
                 try {
@@ -78,6 +78,30 @@ class JomDiningViewModel(
                     Log.d("ANOIOI_OF2_PASS", "Existing orderItemQuantity increased by 1.")
                 } catch (e: Exception) {
                     Log.e("ANOIOI_OF2_FAIL", "Failed to increase existing orderItemQuantity by 1: $e")
+                }
+            }
+            getAllCurrentOrderItems(transactionID)
+        }
+    }
+
+    fun deleteOrDecrementOrderItem(transactionID: Int, menuItemID: Int, operationFlag: Int) {
+        // The operation flag will be used to decide which control flow to use.
+        // operationFlag = 1 -> delete order item from the list, operationFlag = 2 -> decrement existing orderItemQuantity
+        viewModelScope.launch {
+            if (operationFlag == 1) {
+                try {
+                    // invoke the function that deletes an OrderItem from the DB
+                    Log.d("DODOI_OF1_PASS", "OrderItem deleted from the current active transaction list.")
+                } catch (e: Exception) {
+                    Log.e("DODOI_OF1_FAIL", "Failed to delete OrderItem from currently active transaction list: $e")
+                }
+            } else if (operationFlag == 2) {
+                try {
+                    // invoke the function that decrements orderItemQuantity
+                    repository.decreaseOrderItemQuantityStream(transactionID, menuItemID)
+                    Log.d("DODOI_OF2_PASS", "Existing orderItemQuantity decreased by 1.")
+                } catch (e: Exception) {
+                    Log.e("DODOI_OF2_FAIL", "Failed to decrease existing orderItemQuantity by 1: $e")
                 }
             }
             getAllCurrentOrderItems(transactionID)
@@ -115,20 +139,6 @@ class JomDiningViewModel(
             Log.d("orderItemUi", "New orderItemsList created with size ${orderItemUi.orderItemsList.size}")
         }
     }
-
-    fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int) {
-        viewModelScope.launch {
-            try {
-                repository.decreaseOrderItemQuantityStream(transactionID, menuItemID)
-                getAllCurrentOrderItems(transactionID)
-                Log.d("OIQty_Dec", "Order item quantity for orderItem with menuItemID $menuItemID successfully decreased.")
-            } catch (e: Exception) {
-                Log.e("OIQty_Dec_Err", "FAILED TO DECREASE ORDER ITEM QUANTITY: $e")
-            }
-        }
-    }
-
-    // there's probably something else that needs to be invoked in increase/decreaseOrderItemQuantity...
 
     /*
         ALL ITEMS UNDER TransactionsDao

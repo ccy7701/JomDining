@@ -426,9 +426,10 @@ fun OrderItemCard(
                         .clip(RoundedCornerShape(4.dp))
                         .background(Color.Red)
                         .clickable {
-                            viewModel.decreaseOrderItemQuantity(
-                                currentOrderItem.transactionID,
-                                currentOrderItem.menuItemID
+                            viewModel.deleteOrDecrementOrderItem(
+                                transactionID = currentOrderItem.transactionID,
+                                menuItemID = currentOrderItem.menuItemID,
+                                operationFlag = 2
                             )
                         },
                     contentAlignment = Alignment.Center
