@@ -39,7 +39,7 @@ class JomDiningViewModel(
         runBlocking {
             getAllMenuItems()
             // FOR TESTING ONLY
-            //addNewOrderItem(1, 1)
+            // addNewOrIncrementOrderItem(1, 8, 1)
         }
     }
 
@@ -66,8 +66,27 @@ class JomDiningViewModel(
             if (operationFlag == 1) {   // operationFlag = 1 -> add new item to the list
                 try {
                     // invoke the function that inserts a new OrderItem to the DB
-                    repository.addNewOrderItemStream(transactionID, menuItemID)
-                    Log.d("ANOIOI_OF1_PASS", "New OrderItem added to the currently active transaction list.")
+                    val currentOrderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
+                        .filterNotNull()
+                        .first()
+                    Log.d("ANOIOI_OF1_COI", "currentOrderItems content: $currentOrderItems")
+                    var isNewOrderItem = true
+                    for (orderItem in currentOrderItems) {
+                        if (orderItem.menuItemID == menuItemID) {
+                            isNewOrderItem = false
+                            break
+                        }
+                    }
+                    Log.d("ANOIOI_IsNewOrderItem", "With $menuItemID, value of isNewOrderItem returned as $isNewOrderItem")
+                    if (isNewOrderItem) {
+                        // invoke the function that adds a new order item
+                        repository.addNewOrderItemStream(transactionID, menuItemID)
+                        Log.d("ANOIOI_OF1_PASS1", "New OrderItem added to the currently active transaction list.")
+                    } else {
+                        // invoke the function that increments orderItemQuantity
+                        repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
+                        Log.d("ANOIOI_OF1_PASS2", "OrderItems exists in list. Existing orderItemQuanttiy increased by 1.")
+                    }
                 } catch (e: Exception) {
                     Log.e("ANOIOI_OF1_FAIL", "Failed to add new OrderItem to currently active transaction list: $e")
                 }
