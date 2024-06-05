@@ -43,18 +43,18 @@ import com.example.jomdining.R
 
 @Preview
 @Composable
-fun InventoryManagementScreenPreview(
+fun StockManagementScreenPreview(
     // viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier
 ) {
-    InventoryManagementScreen(
+    StockManagementScreen(
         modifier = modifier
     )
 }
 
 @SuppressLint("AutoboxingStateCreation")
 @Composable
-fun InventoryManagementScreen(
+fun StockManagementScreen(
     // viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
 ) {
