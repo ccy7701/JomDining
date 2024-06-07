@@ -198,7 +198,7 @@ fun MenuItemCard(
                 Image(
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data("file:///android_asset/$imagePath")
+                            .data("file:///android_asset/images/menu/$imagePath")
                             .build()
                     ),
                     contentDescription = menuItem.menuItemName,
@@ -410,7 +410,7 @@ fun OrderItemCard(
             Image(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data("file:///android_asset/$imagePath")
+                        .data("file:///android_asset/images/menu/$imagePath")
                         .build()
                 ),
                 contentDescription = "Ordered Item: ${correspondingMenuItem.menuItemName}",
