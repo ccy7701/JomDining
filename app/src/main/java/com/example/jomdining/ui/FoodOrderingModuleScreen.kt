@@ -76,7 +76,6 @@ fun FoodOrderingModuleScreen(
         viewModel.getCurrentActiveTransaction(1)
     }
 
-
     Scaffold(
         topBar = {
             JomDiningTopAppBar(

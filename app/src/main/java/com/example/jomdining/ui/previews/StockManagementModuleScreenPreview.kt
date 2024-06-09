@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,7 +44,61 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.jomdining.R
-import com.example.jomdining.ui.StockManagementScreen
+import com.example.jomdining.ui.JomDiningTopAppBar
+import com.example.jomdining.ui.StockManagementModuleScreen
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(
+    name = "pixel_tablet_landscape_alternate",
+    device = "spec: width=2560dp, height=1600dp, orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xCEDFFF
+)
+@Composable
+fun StockManagementModulePreviewAlternate(
+    modifier: Modifier = Modifier
+) {
+    Scaffold(
+        topBar = {
+            JomDiningTopAppBar(title = "JomDining")
+        },
+        containerColor = Color(0xCEDFFF)
+    ) { innerPadding ->
+        Column(
+            modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            Row(
+                modifier = modifier.fillMaxSize()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(0.6f)
+                        .fillMaxSize()
+                ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+//                    TestIngredientCardGrid(
+//                        // viewModel = viewModel,
+//                        modifier = modifier
+//                    )
+//                    IngredientCardGrid(
+//                        // viewModel = viewModel,
+//                        // note that in this grid, it ought to
+//                        // populate itself with all ingredients,
+//                        // followed by the ADD NEW INGREDIENT card at the very last
+//                    )
+                }
+//                TestEditPanel(
+//                    modifier = Modifier
+////                        .weight(0.4f)
+////                        .fillMaxHeight()
+////                        .background(Color(0xFFD9E6FF))
+//                )
+            }
+        }
+    }
+}
 
 @Preview(
     name = "pixel_tablet_landscape",
@@ -84,9 +140,9 @@ fun StockManagementModulePreview(
 //    TestStockManagementScreen(
 //        modifier = modifier
 //    )
-    TestStockManagementScreen(
-        modifier = modifier
-    )
+//    TestStockManagementScreen(
+//        modifier = modifier
+//    )
 }
 
 @SuppressLint("AutoboxingStateCreation")
