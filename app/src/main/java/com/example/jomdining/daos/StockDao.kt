@@ -35,7 +35,7 @@ interface StockDao {
 
     // Fetch all rows of stock
     @Query("SELECT * FROM stock ORDER BY stockItemID")
-    fun getAllStock(): Flow<List<Stock>>
+    fun getAllStockItems(): Flow<List<Stock>>
 
     @Query("""
         UPDATE stock

@@ -2,15 +2,18 @@ package com.example.jomdining.data
 
 import com.example.jomdining.daos.MenuDao
 import com.example.jomdining.daos.OrderItemDao
+import com.example.jomdining.daos.StockDao
 import com.example.jomdining.daos.TransactionsDao
+import com.example.jomdining.databaseentities.Stock
 import com.example.jomdining.databaseentities.Transactions
+import kotlinx.coroutines.flow.Flow
 
 class OfflineRepository(
 //    private val accountDao: AccountDao,
     private val menuDao: MenuDao,
 //    private val menuItemIngredientDao: MenuItemIngredientDao,
     private val orderItemDao: OrderItemDao,
-//    private val stockDao: StockDao,
+    private val stockDao: StockDao,
     private val transactionsDao: TransactionsDao
 ) : JomDiningRepository {
     /*
@@ -48,4 +51,10 @@ class OfflineRepository(
      */
     override suspend fun getCurrentActiveTransactionStream(transactionID: Int) =
         transactionsDao.getCurrentActiveTransaction(transactionID)
+
+    /*
+        ALL ITEMS UNDER StockDao
+     */
+    override fun getAllStockItems() =
+        stockDao.getAllStockItems()
 }
