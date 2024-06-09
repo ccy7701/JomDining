@@ -214,7 +214,7 @@ fun TestStockItemActionDisplay(
     modifier: Modifier,
     backgroundColor: Color = Color.LightGray
 ) {
-    var selectedIngredient by remember { mutableStateOf<String?>(null) }
+    var selectedIngredient by remember { mutableStateOf<String?>("Currently not null") }
     var ingredientName by remember { mutableStateOf("") }
     var stockCount by remember { mutableIntStateOf(0) }
     var ingredientImageUri by remember { mutableStateOf<String?>(null) }

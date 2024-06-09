@@ -44,7 +44,7 @@ class JomDiningViewModel(
     // All variables used in the StockManagementModuleScreen
     var selectedStockItem by mutableStateOf<String?>(null)
     var stockItemName by mutableStateOf("")
-    var stockItemCount by mutableIntStateOf(0)
+    var stockItemQuantity by mutableIntStateOf(0)
     var stockItemImageUri by mutableStateOf<String?>(null)
 
     init {

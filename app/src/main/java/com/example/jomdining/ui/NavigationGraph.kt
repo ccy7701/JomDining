@@ -29,6 +29,7 @@ fun NavigationGraph(startDestination: String = "login") {
         }
         composable("stock_management") {
             StockManagementModuleScreen(viewModel = viewModel)
+            // InventoryManagementScreen(viewModel = viewModel)
         }
         // Add other composable routes here
     }

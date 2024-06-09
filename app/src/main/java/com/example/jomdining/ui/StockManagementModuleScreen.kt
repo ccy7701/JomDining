@@ -19,11 +19,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,13 +37,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
+import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Stock
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,7 +108,7 @@ fun StockItemGrid(
         modifier = modifier.background(backgroundColor)
     ) {
         items(viewModel.stockUi.stockItems) { stockItem ->
-            StockItemCard(stockItem)
+            StockItemCard(viewModel, stockItem)
         }
         item {
             AddNewStockItemCard()
@@ -110,7 +119,8 @@ fun StockItemGrid(
 // Composable for an individual stock item card
 @Composable
 fun StockItemCard(
-    stockItem: Stock,
+    viewModel: JomDiningViewModel,
+    stockItem: Stock
 ) {
     Card(
         modifier = Modifier
@@ -118,7 +128,10 @@ fun StockItemCard(
             .height(350.dp)
             .padding(8.dp)
             .clickable {
-                // onClick() operation here
+                viewModel.selectedStockItem = "no_idea_what_to_put_here_yet"
+                viewModel.stockItemName = stockItem.stockItemName
+                viewModel.stockItemQuantity = stockItem.stockItemQuantity
+                viewModel.stockItemImageUri = stockItem.stockItemImagePath
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
@@ -206,11 +219,272 @@ fun AddNewStockItemCard() {
 fun StockItemActionDisplay(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xBFBFBFFF)
+    backgroundColor: Color = Color.LightGray
 ) {
     if (viewModel.selectedStockItem != null) {
-        Log.d("SelectedStockItem", "Currently not null. Value: ${viewModel.selectedStockItem}")
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = if (viewModel.selectedStockItem == "New Item") "Add New Item" else "Edit Item",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(100.dp))
+            Box(modifier = Modifier.size(100.dp)) {
+                viewModel.stockItemImageUri?.let { it ->
+                    val currentStockItemImageUri = "file:///android_asset/images/stock/$it"
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(currentStockItemImageUri)
+                                .build()
+                        ),
+                        contentDescription = viewModel.stockItemName,
+                        modifier = Modifier.fillMaxSize()
+                    )
+//                    Image(painter = rememberImagePainter(it), contentDescription = null, modifier = Modifier.fillMaxSize())
+                } ?: Image(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Icon(
+                    painter = painterResource(R.drawable.edit), // Use your own drawable resource
+                    contentDescription = "Change Image",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.6f))
+                        .padding(4.dp)
+                        .clickable { /* Handle image change action */ }
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            BasicTextField(
+                value = viewModel.stockItemName,
+                onValueChange = { viewModel.stockItemName = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Color.White,
+                        RoundedCornerShape(8.dp)
+                    ) // Change background color to white
+                    .padding(8.dp),
+                singleLine = true,
+                enabled = viewModel.selectedStockItem == "New Item"
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Stock:", fontWeight = FontWeight.Bold)
+                Row {
+                    Button(onClick = { (viewModel.stockItemQuantity)++ }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))) {
+                        Text(text = "+")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "${viewModel.stockItemQuantity}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = { (viewModel.stockItemQuantity)-- }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))) {
+                        Text(text = "-")
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(100.dp))
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { /* Save Action */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .background(Color(0xFF6200EE), RoundedCornerShape(8.dp))
+                ) {
+                    Text(text = "Save", color = Color.White)
+                }
+                Button(
+                    onClick = {
+                        viewModel.selectedStockItem = null
+                        viewModel.stockItemName = ""
+                        viewModel.stockItemQuantity = 0
+                        viewModel.stockItemImageUri = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .background(Color.Gray, RoundedCornerShape(8.dp))
+                ) {
+                    Text(text = "Cancel", color = Color.White)
+                }
+                Button(
+                    onClick = { /* Delete Action */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .background(Color.Red, RoundedCornerShape(8.dp))
+                ) {
+                    Text(text = "Delete", color = Color.White)
+                }
+            }
+        }
     } else {
-        Log.d("SelectedStockItem", "Currently null.")
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = "No item chosen", color = Color.Gray, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        }
     }
+//    if (viewModel.selectedStockItem != null) {
+//        Column(
+//            modifier = modifier
+//                .background(backgroundColor)
+//                .fillMaxSize(),
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Box(modifier = Modifier.size(100.dp)) {
+//                viewModel.stockItemImageUri?.let { it ->
+//                    Image(
+//                        painter = rememberAsyncImagePainter(it),
+//                        contentDescription = viewModel.selectedStockItem,
+//                        modifier = Modifier.fillMaxSize()
+//                    ) ?: Image(
+//                        painter = painterResource(R.drawable.ic_launcher_foreground),
+//                        contentDescription = null,
+//                        modifier = Modifier.fillMaxSize()
+//                    )
+//                    Icon(
+//                        painter = painterResource(R.drawable.edit),
+//                        contentDescription = "Change Image",
+//                        tint = Color.White,
+//                        modifier = Modifier
+//                            .align(Alignment.BottomEnd)
+//                            .size(24.dp)
+//                            .clip(CircleShape)
+//                            .background(Color.Black.copy(alpha = 0.6f))
+//                            .padding(4.dp)
+//                            .clickable {
+//                                /* image change action */
+//                            }
+//                    )
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    BasicTextField(
+//                        value = viewModel.stockItemName,
+//                        onValueChange = { viewModel.stockItemName = it },
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .background(
+//                                Color.White,
+//                                RoundedCornerShape(8.dp)
+//                            )
+//                            .padding(8.dp),
+//                        singleLine = true,
+//                        enabled = viewModel.selectedStockItem == "New Item" /* what is this? */
+//                    )
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.SpaceBetween,
+//                        modifier = Modifier.fillMaxWidth()
+//                    ) {
+//                        Text(
+//                            text = "Stock: ",
+//                            fontWeight = FontWeight.Bold
+//                        )
+//                        Row {
+//                            Button(
+//                                /*
+//                                    Note:
+//                                        We can decrease the stockItemCount mutableStateOfValue,
+//                                        then use that value to push an update to the database.
+//                                 */
+//                                onClick = { (viewModel.stockItemQuantity)++ },
+//                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+//                            ) {
+//                                Text(text = "+")
+//                            }
+//                            Spacer(modifier = Modifier.width(8.dp))
+//                            Text(
+//                                text = "${viewModel.stockItemQuantity}",
+//                                fontWeight = FontWeight.Bold,
+//                                fontSize = 20.sp
+//                            )
+//                            Spacer(modifier = Modifier.width(8.dp))
+//                            Button(
+//                                onClick = { (viewModel.stockItemQuantity)-- },
+//                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+//                            ) {
+//                                Text(text = "-")
+//                            }
+//                        }
+//                    }
+//                    Spacer(modifier = Modifier.height(100.dp))
+//                    Column(
+//                        verticalArrangement = Arrangement.spacedBy(8.dp),
+//                        modifier = Modifier.fillMaxWidth()
+//                    ) {
+//                        Button(
+//                            onClick = { /* Save action, i.e. Dao invocation. */ },
+//                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(48.dp)
+//                                .background(Color(0xFF6200EE), RoundedCornerShape(8.dp))
+//                        ) {
+//                            Text(text = "Save", color = Color.White)
+//                        }
+//                        Button(
+//                            onClick = {
+//                                viewModel.selectedStockItem = null
+//                                viewModel.stockItemName = ""
+//                                viewModel.stockItemQuantity = 0
+//                                viewModel.stockItemImageUri = null
+//                            },
+//                            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(48.dp)
+//                                .background(Color.Gray, RoundedCornerShape(8.dp))
+//                        ) {
+//                            Text(text = "Cancel", color = Color.White)
+//                        }
+//                        Button(
+//                            onClick = { /* Delete action, i.e. Dao invocation. But this is complicated. */ },
+//                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(48.dp)
+//                                .background(Color.Red, RoundedCornerShape(8.dp))
+//                        ) {
+//                            Text(text = "Delete", color = Color.White)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    } else {
+//        Log.d("SelectedStockItem", "Currently null.")
+//        Box(
+//            modifier = modifier
+//                .background(backgroundColor)
+//                .fillMaxSize(),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Text(
+//                text = "No item chosen",
+//                color = Color.Gray,
+//                fontSize = 20.sp,
+//                fontWeight = FontWeight.Bold
+//            )
+//        }
+//    }
 }
