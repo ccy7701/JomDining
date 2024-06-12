@@ -27,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.jomdining.R
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +77,7 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
         TextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.password)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .width(800.dp)

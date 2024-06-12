@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,11 +41,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -59,6 +64,8 @@ fun StockManagementModuleScreen(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     // Fetch stock items when this screen is composed
     viewModel.getAllStockItems()
 
@@ -72,6 +79,11 @@ fun StockManagementModuleScreen(
             modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        keyboardController?.hide()
+                    }
+                },
         ) {
             Row(
                 modifier = modifier.fillMaxSize()
@@ -113,12 +125,13 @@ fun StockItemGrid(
             StockItemCard(viewModel, stockItem)
         }
         item {
-            AddNewStockItemCard()
+            AddNewStockItemCard(viewModel)
         }
     }
 }
 
 // Composable for an individual stock item card
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StockItemCard(
     viewModel: JomDiningViewModel,
@@ -130,10 +143,11 @@ fun StockItemCard(
             .height(350.dp)
             .padding(8.dp)
             .clickable {
-                viewModel.selectedStockItem = "no_idea_what_to_put_here_yet"
+                viewModel.selectedStockItem = "existing_item"
                 viewModel.stockItemName = stockItem.stockItemName
                 viewModel.stockItemQuantity = stockItem.stockItemQuantity
                 viewModel.stockItemImageUri = stockItem.stockItemImagePath
+                Log.d("SIC_stockItemName", "Currently selected ${viewModel.stockItemName}")
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
@@ -158,6 +172,8 @@ fun StockItemCard(
                 text = stockItem.stockItemName,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(16.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -192,14 +208,19 @@ fun StockItemCard(
 
 // Composable for the add stock item card
 @Composable
-fun AddNewStockItemCard() {
+fun AddNewStockItemCard(
+    viewModel: JomDiningViewModel
+) {
     Card(
         modifier = Modifier
             .width(270.dp)
             .height(350.dp)
             .padding(8.dp)
             .clickable {
-//                onClick()
+                viewModel.selectedStockItem = "new_item"
+                viewModel.stockItemName = "New item"
+                viewModel.stockItemQuantity = 0
+                viewModel.stockItemImageUri = ""
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
@@ -209,7 +230,7 @@ fun AddNewStockItemCard() {
             modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = "Add New Item",
+                text = stringResource(R.string.add_new_item),
                 color = Color.Gray
             )
         }
@@ -217,6 +238,7 @@ fun AddNewStockItemCard() {
 }
 
 // Composable for the display of current action on the selected stock item card
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StockItemActionDisplay(
     viewModel: JomDiningViewModel,
@@ -231,55 +253,58 @@ fun StockItemActionDisplay(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = if (viewModel.selectedStockItem == "New Item") stringResource(R.string.add_new_item) else stringResource(R.string.edit_item),
+                text = if (viewModel.selectedStockItem == "new_item") stringResource(R.string.add_new_item) else stringResource(
+                    R.string.edit_item
+                ),
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Color.Black
             )
             Spacer(modifier = Modifier.height(12.dp))
             Box(modifier = Modifier.size(256.dp)) {
-                viewModel.stockItemImageUri?.let { it ->
-                    val currentStockItemImageUri = "file:///android_asset/images/stock/$it"
-                    Image(
-                        painter = rememberAsyncImagePainter(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(currentStockItemImageUri)
-                                .build()
-                        ),
-                        contentDescription = viewModel.stockItemName,
-                        modifier = Modifier.fillMaxSize()
+                viewModel.stockItemImageUri?.let {
+                    if (viewModel.selectedStockItem == "existing_item") {
+                        val currentStockItemImageUri = "file:///android_asset/images/stock/$it"
+                        Image(
+                            painter = rememberAsyncImagePainter(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(currentStockItemImageUri)
+                                    .build()
+                            ),
+                            contentDescription = viewModel.stockItemName,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else if (viewModel.selectedStockItem == "new_item") {
+                        Image(
+                            painter = rememberAsyncImagePainter(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(R.drawable.jomdininglogo)
+                                    .build()
+                            ),
+                            contentDescription = stringResource(R.string.add_new_item),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    Icon(
+                        painter = painterResource(R.drawable.edit), // Use your own drawable resource
+                        contentDescription = "Change Image",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(Color.Black.copy(alpha = 0.6f))
+                            .padding(4.dp)
+                            .clickable { /* Handle image change action */ }
                     )
-                } ?: Image(
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
-                )
-                Icon(
-                    painter = painterResource(R.drawable.edit), // Use your own drawable resource
-                    contentDescription = "Change Image",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(Color.Black.copy(alpha = 0.6f))
-                        .padding(4.dp)
-                        .clickable { /* Handle image change action */ }
-                )
+                }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            BasicTextField(
+            TextField(
                 value = viewModel.stockItemName,
                 onValueChange = { viewModel.stockItemName = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Color.White,
-                        RoundedCornerShape(8.dp)
-                    ) // Change background color to white
-                    .padding(8.dp),
-                singleLine = true,
-                enabled = viewModel.selectedStockItem == "New Item"
+                label = { Text(stringResource(R.string.stock_item_name)) },
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
             Row(
@@ -300,7 +325,10 @@ fun StockItemActionDisplay(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Button(onClick = { (viewModel.stockItemQuantity)++ }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))) {
+                        Button(
+                            onClick = { (viewModel.stockItemQuantity)++ },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                        ) {
                             Text(text = "+")
                         }
                         Spacer(modifier = Modifier.width(16.dp))
@@ -316,27 +344,33 @@ fun StockItemActionDisplay(
                             )
                         }
                         Spacer(modifier = Modifier.width(16.dp))
-                        Button(onClick = { (viewModel.stockItemQuantity)-- }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))) {
+                        Button(
+                            onClick = { (viewModel.stockItemQuantity)-- },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+                        ) {
                             Text(text = "-")
                         }
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
-                    onClick = { /* Save Action */ },
+                    onClick = {
+                        if (viewModel.selectedStockItem == "existing_item") { /* save action */ }
+                        else if (viewModel.selectedStockItem == "new_item") { /* insert action */ }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                         .background(Color(0xFF6200EE), RoundedCornerShape(8.dp))
                 ) {
-                    Text(text = "Save", color = Color.White)
+                    if (viewModel.selectedStockItem == "existing_item") { Text(text = "Save", color = Color.White) }
+                    else if (viewModel.selectedStockItem == "new_item") { Text(text = "Insert new item", color = Color.White) }
                 }
                 Button(
                     onClick = {
@@ -353,15 +387,17 @@ fun StockItemActionDisplay(
                 ) {
                     Text(text = "Cancel", color = Color.White)
                 }
-                Button(
-                    onClick = { /* Delete Action */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .background(Color.Red, RoundedCornerShape(8.dp))
-                ) {
-                    Text(text = "Delete", color = Color.White)
+                if (viewModel.selectedStockItem == "existing_item") {
+                    Button(
+                        onClick = { /* Delete Action */ },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .background(Color.Red, RoundedCornerShape(8.dp))
+                    ) {
+                        Text(text = "Delete", color = Color.White)
+                    }
                 }
             }
         }
@@ -370,148 +406,4 @@ fun StockItemActionDisplay(
             Text(text = "No item chosen", color = Color.Gray, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
     }
-//    if (viewModel.selectedStockItem != null) {
-//        Column(
-//            modifier = modifier
-//                .background(backgroundColor)
-//                .fillMaxSize(),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Box(modifier = Modifier.size(100.dp)) {
-//                viewModel.stockItemImageUri?.let { it ->
-//                    Image(
-//                        painter = rememberAsyncImagePainter(it),
-//                        contentDescription = viewModel.selectedStockItem,
-//                        modifier = Modifier.fillMaxSize()
-//                    ) ?: Image(
-//                        painter = painterResource(R.drawable.ic_launcher_foreground),
-//                        contentDescription = null,
-//                        modifier = Modifier.fillMaxSize()
-//                    )
-//                    Icon(
-//                        painter = painterResource(R.drawable.edit),
-//                        contentDescription = "Change Image",
-//                        tint = Color.White,
-//                        modifier = Modifier
-//                            .align(Alignment.BottomEnd)
-//                            .size(24.dp)
-//                            .clip(CircleShape)
-//                            .background(Color.Black.copy(alpha = 0.6f))
-//                            .padding(4.dp)
-//                            .clickable {
-//                                /* image change action */
-//                            }
-//                    )
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                    BasicTextField(
-//                        value = viewModel.stockItemName,
-//                        onValueChange = { viewModel.stockItemName = it },
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .background(
-//                                Color.White,
-//                                RoundedCornerShape(8.dp)
-//                            )
-//                            .padding(8.dp),
-//                        singleLine = true,
-//                        enabled = viewModel.selectedStockItem == "New Item" /* what is this? */
-//                    )
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        horizontalArrangement = Arrangement.SpaceBetween,
-//                        modifier = Modifier.fillMaxWidth()
-//                    ) {
-//                        Text(
-//                            text = "Stock: ",
-//                            fontWeight = FontWeight.Bold
-//                        )
-//                        Row {
-//                            Button(
-//                                /*
-//                                    Note:
-//                                        We can decrease the stockItemCount mutableStateOfValue,
-//                                        then use that value to push an update to the database.
-//                                 */
-//                                onClick = { (viewModel.stockItemQuantity)++ },
-//                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
-//                            ) {
-//                                Text(text = "+")
-//                            }
-//                            Spacer(modifier = Modifier.width(8.dp))
-//                            Text(
-//                                text = "${viewModel.stockItemQuantity}",
-//                                fontWeight = FontWeight.Bold,
-//                                fontSize = 20.sp
-//                            )
-//                            Spacer(modifier = Modifier.width(8.dp))
-//                            Button(
-//                                onClick = { (viewModel.stockItemQuantity)-- },
-//                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
-//                            ) {
-//                                Text(text = "-")
-//                            }
-//                        }
-//                    }
-//                    Spacer(modifier = Modifier.height(100.dp))
-//                    Column(
-//                        verticalArrangement = Arrangement.spacedBy(8.dp),
-//                        modifier = Modifier.fillMaxWidth()
-//                    ) {
-//                        Button(
-//                            onClick = { /* Save action, i.e. Dao invocation. */ },
-//                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .height(48.dp)
-//                                .background(Color(0xFF6200EE), RoundedCornerShape(8.dp))
-//                        ) {
-//                            Text(text = "Save", color = Color.White)
-//                        }
-//                        Button(
-//                            onClick = {
-//                                viewModel.selectedStockItem = null
-//                                viewModel.stockItemName = ""
-//                                viewModel.stockItemQuantity = 0
-//                                viewModel.stockItemImageUri = null
-//                            },
-//                            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .height(48.dp)
-//                                .background(Color.Gray, RoundedCornerShape(8.dp))
-//                        ) {
-//                            Text(text = "Cancel", color = Color.White)
-//                        }
-//                        Button(
-//                            onClick = { /* Delete action, i.e. Dao invocation. But this is complicated. */ },
-//                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .height(48.dp)
-//                                .background(Color.Red, RoundedCornerShape(8.dp))
-//                        ) {
-//                            Text(text = "Delete", color = Color.White)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    } else {
-//        Log.d("SelectedStockItem", "Currently null.")
-//        Box(
-//            modifier = modifier
-//                .background(backgroundColor)
-//                .fillMaxSize(),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            Text(
-//                text = "No item chosen",
-//                color = Color.Gray,
-//                fontSize = 20.sp,
-//                fontWeight = FontWeight.Bold
-//            )
-//        }
-//    }
 }
