@@ -57,4 +57,10 @@ class OfflineRepository(
      */
     override fun getAllStockItems() =
         stockDao.getAllStockItems()
+
+    override suspend fun addNewStockItemStream(stockItemName: String, stockItemQuantity: Int) =
+        stockDao.addNewStockItem(stockItemName, stockItemQuantity)
+
+    override suspend fun updateStockItemDetailsStream(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int) =
+        stockDao.updateStockItemDetails(stockItemID, newStockItemName, newStockItemQuantity)
 }

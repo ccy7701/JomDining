@@ -2,6 +2,7 @@ package com.example.jomdining.ui
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,9 +41,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -65,6 +68,7 @@ fun StockManagementModuleScreen(
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     // Fetch stock items when this screen is composed
     viewModel.getAllStockItems()
@@ -137,6 +141,8 @@ fun StockItemCard(
     viewModel: JomDiningViewModel,
     stockItem: Stock
 ) {
+    val focusManager = LocalFocusManager.current
+
     Card(
         modifier = Modifier
             .width(270.dp)
@@ -144,10 +150,12 @@ fun StockItemCard(
             .padding(8.dp)
             .clickable {
                 viewModel.selectedStockItem = "existing_item"
+                viewModel.stockItemID = stockItem.stockItemID
                 viewModel.stockItemName = stockItem.stockItemName
                 viewModel.stockItemQuantity = stockItem.stockItemQuantity
                 viewModel.stockItemImageUri = stockItem.stockItemImagePath
-                Log.d("SIC_stockItemName", "Currently selected ${viewModel.stockItemName}")
+                focusManager.clearFocus()
+                Log.d("SIC_stockItemName", "Currently selected stockItemID ${viewModel.stockItemID}, ${viewModel.stockItemName}")
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
@@ -161,7 +169,10 @@ fun StockItemCard(
             Image(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data("file:///android_asset/images/stock/${stockItem.stockItemImagePath}")
+                        .data(
+                            if (imagePath != "") { "file:///android_asset/images/stock/$imagePath" }
+                            else { R.drawable.jomdininglogo }
+                        )
                         .build()
                 ),
                 contentDescription = stockItem.stockItemName,
@@ -211,6 +222,8 @@ fun StockItemCard(
 fun AddNewStockItemCard(
     viewModel: JomDiningViewModel
 ) {
+    val focusManager = LocalFocusManager.current
+
     Card(
         modifier = Modifier
             .width(270.dp)
@@ -218,9 +231,12 @@ fun AddNewStockItemCard(
             .padding(8.dp)
             .clickable {
                 viewModel.selectedStockItem = "new_item"
+                viewModel.stockItemID = -1  // -1 as an indicator that this is a new stock item
                 viewModel.stockItemName = "New item"
                 viewModel.stockItemQuantity = 0
                 viewModel.stockItemImageUri = ""
+                focusManager.clearFocus()
+                Log.d("ASIC_newStockItem", "Currently adding new stock item, stockItemID set to ${viewModel.stockItemID}")
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
@@ -242,8 +258,10 @@ fun AddNewStockItemCard(
 @Composable
 fun StockItemActionDisplay(
     viewModel: JomDiningViewModel,
-    modifier: Modifier = Modifier,
+//    modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+
     if (viewModel.selectedStockItem != null) {
         Column(
             modifier = Modifier
@@ -268,7 +286,10 @@ fun StockItemActionDisplay(
                         Image(
                             painter = rememberAsyncImagePainter(
                                 model = ImageRequest.Builder(LocalContext.current)
-                                    .data(currentStockItemImageUri)
+                                    .data(
+                                        if (viewModel.stockItemImageUri != "") { currentStockItemImageUri }
+                                        else { R.drawable.jomdininglogo }
+                                    )
                                     .build()
                             ),
                             contentDescription = viewModel.stockItemName,
@@ -360,8 +381,33 @@ fun StockItemActionDisplay(
             ) {
                 Button(
                     onClick = {
-                        if (viewModel.selectedStockItem == "existing_item") { /* save action */ }
-                        else if (viewModel.selectedStockItem == "new_item") { /* insert action */ }
+                        if (viewModel.selectedStockItem == "existing_item") {
+                            viewModel.updateStockItemDetails(
+                                stockItemID = viewModel.stockItemID,
+                                newStockItemName = viewModel.stockItemName,
+                                newStockItemQuantity = viewModel.stockItemQuantity
+                            )
+                            // then, close down the StockItemActionDisplay, revert it to starting view
+                            viewModel.selectedStockItem = null
+                            viewModel.stockItemID = 0
+                            viewModel.stockItemName = ""
+                            viewModel.stockItemQuantity = 0
+                            viewModel.stockItemImageUri = null
+                            // then, display a Toast message indicating the process has passed.
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Stock item updated successfully!",
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+                        }
+                        else if (viewModel.selectedStockItem == "new_item") {
+                            viewModel.addNewStockItem(
+                                stockItemName = viewModel.stockItemName,
+                                stockItemQuantity = viewModel.stockItemQuantity
+                            )
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),
                     modifier = Modifier
@@ -375,6 +421,7 @@ fun StockItemActionDisplay(
                 Button(
                     onClick = {
                         viewModel.selectedStockItem = null
+                        viewModel.stockItemID = -1  // -1 as an indicator that this is a new stock item
                         viewModel.stockItemName = ""
                         viewModel.stockItemQuantity = 0
                         viewModel.stockItemImageUri = null

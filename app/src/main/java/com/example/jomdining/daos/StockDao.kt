@@ -26,8 +26,19 @@ import kotlinx.coroutines.flow.Flow
 )
 interface StockDao {
     // Add a new row to the stock table
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addStock(stock: Stock)
+    @Query("""
+        INSERT INTO stock (stockItemName, stockItemQuantity, stockItemImagePath)
+        VALUES (:stockItemName, :stockItemQuantity, '')
+    """)
+    suspend fun addNewStockItem(stockItemName: String, stockItemQuantity: Int)
+
+    // Edit an existing row in the stock table
+    @Query("""
+        UPDATE stock
+        SET stockItemName = :newStockItemName, stockItemQuantity = :newStockItemQuantity
+        WHERE stockItemID = :stockItemID
+    """)
+    suspend fun updateStockItemDetails(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int)
 
     // Remove a row from the stock table
     @Delete
@@ -37,10 +48,10 @@ interface StockDao {
     @Query("SELECT * FROM stock ORDER BY stockItemID")
     fun getAllStockItems(): Flow<List<Stock>>
 
-    @Query("""
-        UPDATE stock
-        SET stockItemQuantity = :newStockItemQuantity
-        WHERE stockItemID = :stockItemID
-    """)
-    fun updateStockItemQuantity(newStockItemQuantity: Int, stockItemID: Int)
+//    @Query("""
+//        UPDATE stock
+//        SET stockItemQuantity = :newStockItemQuantity
+//        WHERE stockItemID = :stockItemID
+//    """)
+//    fun updateStockItemQuantity(newStockItemQuantity: Int, stockItemID: Int)
 }

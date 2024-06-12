@@ -43,6 +43,7 @@ class JomDiningViewModel(
 
     // All variables used in the StockManagementModuleScreen
     var selectedStockItem by mutableStateOf<String?>(null)
+    var stockItemID by mutableIntStateOf(0)
     var stockItemName by mutableStateOf("")
     var stockItemQuantity by mutableIntStateOf(0)
     var stockItemImageUri by mutableStateOf<String?>(null)
@@ -198,6 +199,34 @@ class JomDiningViewModel(
     /*
         ALL ITEMS UNDER StockDao
      */
+    fun addNewStockItem(stockItemName: String, stockItemQuantity: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that inserts a new Stock item to the DB
+                repository.addNewStockItemStream(stockItemName, stockItemQuantity)
+                Log.d("addNewStockItem", "New stock item added successfully")
+            } catch (e: Exception) {
+                Log.e("addNewStockItem", "Error when adding new stock item: $e")
+            }
+            getAllStockItems()
+        }
+    }
+
+    fun updateStockItemDetails(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that update the Stock item details in the DB
+                repository.updateStockItemDetailsStream(stockItemID, newStockItemName, newStockItemQuantity)
+                Log.d("updateStockItemDtls",
+                    "Stock item updated successfully. New details: (stockItemID: $stockItemID | stockItemName: $newStockItemName | stockItemQuantity: $newStockItemQuantity"
+                )
+            } catch (e: Exception) {
+                Log.e("updateStockItemDtls", "Error when update stock item details: $e")
+            }
+            getAllStockItems()
+        }
+    }
+
     fun getAllStockItems() {
         viewModelScope.launch {
             stockUi = stockUi.copy(
@@ -205,6 +234,7 @@ class JomDiningViewModel(
                     .filterNotNull()
                     .first()
             )
+            Log.d("stockItems", "Total stock items: ${stockUi.stockItems.size}")
         }
     }
 

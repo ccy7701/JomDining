@@ -37,5 +37,9 @@ interface JomDiningRepository {
     /*
         ALL ITEMS UNDER StockDao
      */
+    suspend fun addNewStockItemStream(stockItemName: String, stockItemQuantity: Int)
+
+    suspend fun updateStockItemDetailsStream(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int)
+
     fun getAllStockItems(): Flow<List<Stock>>
 }
