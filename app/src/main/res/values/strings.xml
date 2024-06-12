@@ -18,5 +18,7 @@
     <string name="main_course">Main Course</string>
     <string name="side_dish">Side Dish</string>
     <string name="dessert">Dessert</string>
+    <string name="add_new_item">Add New Item</string>
+    <string name="edit_item">Edit Item</string>
 
 </resources>

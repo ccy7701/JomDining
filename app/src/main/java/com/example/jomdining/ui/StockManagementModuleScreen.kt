@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -88,6 +89,7 @@ fun StockManagementModuleScreen(
                     modifier = Modifier
                         .weight(0.4f)
                         .fillMaxSize()
+                        .background(Color.LightGray)
                 ) {
                     StockItemActionDisplay(viewModel)
                 }
@@ -219,19 +221,23 @@ fun AddNewStockItemCard() {
 fun StockItemActionDisplay(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.LightGray
 ) {
     if (viewModel.selectedStockItem != null) {
-        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = if (viewModel.selectedStockItem == "New Item") "Add New Item" else "Edit Item",
+                text = if (viewModel.selectedStockItem == "New Item") stringResource(R.string.add_new_item) else stringResource(R.string.edit_item),
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Color.Black
             )
-            Spacer(modifier = Modifier.height(100.dp))
-            Box(modifier = Modifier.size(100.dp)) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(modifier = Modifier.size(256.dp)) {
                 viewModel.stockItemImageUri?.let { it ->
                     val currentStockItemImageUri = "file:///android_asset/images/stock/$it"
                     Image(
@@ -243,7 +249,6 @@ fun StockItemActionDisplay(
                         contentDescription = viewModel.stockItemName,
                         modifier = Modifier.fillMaxSize()
                     )
-//                    Image(painter = rememberImagePainter(it), contentDescription = null, modifier = Modifier.fillMaxSize())
                 } ?: Image(
                     painter = painterResource(R.drawable.ic_launcher_foreground),
                     contentDescription = null,
@@ -276,30 +281,52 @@ fun StockItemActionDisplay(
                 singleLine = true,
                 enabled = viewModel.selectedStockItem == "New Item"
             )
-
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Stock:", fontWeight = FontWeight.Bold)
-                Row {
-                    Button(onClick = { (viewModel.stockItemQuantity)++ }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))) {
-                        Text(text = "+")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "${viewModel.stockItemQuantity}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = { (viewModel.stockItemQuantity)-- }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))) {
-                        Text(text = "-")
+                Column(modifier = Modifier.weight(0.35f)) {
+                    Text(
+                        text = "Stock:",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(0.6f),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Button(onClick = { (viewModel.stockItemQuantity)++ }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))) {
+                            Text(text = "+")
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Box(
+                            modifier = Modifier.width(64.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                text = "${viewModel.stockItemQuantity}",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Button(onClick = { (viewModel.stockItemQuantity)-- }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))) {
+                            Text(text = "-")
+                        }
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
                 Button(
                     onClick = { /* Save Action */ },

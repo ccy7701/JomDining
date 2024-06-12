@@ -34,4 +34,3 @@ fun NavigationGraph(startDestination: String = "login") {
         // Add other composable routes here
     }
 }
-
