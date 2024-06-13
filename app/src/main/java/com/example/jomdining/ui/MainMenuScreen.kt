@@ -88,7 +88,7 @@ fun MainMenuScreen(
                         .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally) // Adjust horizontal spacing here
                 ) {
-                    ButtonBox(navController, "Inventory Management", "inventory_management", Color(0xFF81C784))
+                    ButtonBox(navController, "Stock Management", "stock_management", Color(0xFF81C784))
                     ButtonBox(navController, "Menu Management", "menu_management", Color(0xFFFFD54F))
                 }
             }

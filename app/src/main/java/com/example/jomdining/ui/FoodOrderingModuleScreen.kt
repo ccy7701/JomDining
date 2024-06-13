@@ -61,7 +61,6 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
-import com.example.jomdining.databaseentities.Transactions
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,12 +69,14 @@ fun FoodOrderingModuleScreen(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
 ) {
+    // Fetch menu items when this screen is composed
+    viewModel.getAllMenuItems()
+
     // Fetch current order items list when this screen is composed
     LaunchedEffect(Unit) {
         // THIS IS CURRENTLY HARDCODED FOR TESTING!
         viewModel.getCurrentActiveTransaction(1)
     }
-
 
     Scaffold(
         topBar = {
@@ -173,6 +174,7 @@ fun MenuItemCard(
                     operationFlag = 1
                 )
             },
+        elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         )
@@ -187,18 +189,10 @@ fun MenuItemCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 val imagePath = menuItem.menuItemImagePath
-                // Log.d("IMAGE_PATH", "Current image path is $imagePath")
-                val assetManager = LocalContext.current.assets
-                val inputStream = try {
-                    assetManager.open(imagePath)
-                } catch (e: Exception) {
-                    Log.e("IMAGE_FILE_ERROR", "Image file does not exist in assets: $e")
-                    null
-                }
                 Image(
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data("file:///android_asset/$imagePath")
+                            .data("file:///android_asset/images/menu/$imagePath")
                             .build()
                     ),
                     contentDescription = menuItem.menuItemName,
@@ -400,17 +394,10 @@ fun OrderItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             val imagePath = correspondingMenuItem.menuItemImagePath
-            val assetManager = context.assets
-            val inputStream =
-                try {
-                    assetManager.open(imagePath)
-                } catch (e: Exception) {
-                    Log.e("ImagePathLoadError", "Error loading image from assets: $e")
-                }
             Image(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data("file:///android_asset/$imagePath")
+                        .data("file:///android_asset/images/menu/$imagePath")
                         .build()
                 ),
                 contentDescription = "Ordered Item: ${correspondingMenuItem.menuItemName}",
@@ -445,7 +432,13 @@ fun OrderItemCard(
                         .clickable {
                             // If the orderItemQuantity already is at 1, display the Toast message indicating it.
                             if (currentOrderItem.orderItemQuantity == 1) {
-                                Toast.makeText(context, "Order item quantity already at 1, cannot decrease further!", Toast.LENGTH_SHORT).show()
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Order item quantity already at 1, cannot decrease further!",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
                             }
                             // Proceed as normal otherwise.
                             viewModel.deleteOrDecrementOrderItem(

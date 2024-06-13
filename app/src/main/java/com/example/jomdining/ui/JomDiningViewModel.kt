@@ -1,11 +1,11 @@
 package com.example.jomdining.ui
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jomdining.JomDiningApplication
 import com.example.jomdining.data.JomDiningRepository
 import com.example.jomdining.data.OfflineRepository
+import com.example.jomdining.data.TempMenuItems.menuItems
 import com.example.jomdining.data.UserPreferencesRepository
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
@@ -37,11 +38,19 @@ class JomDiningViewModel(
     var transactionsUi by mutableStateOf(TransactionsUi())
         private set
 
+    var stockUi by mutableStateOf(StockUi())
+        private set
+
+    // All variables used in the StockManagementModuleScreen
+    var selectedStockItem by mutableStateOf<String?>(null)
+    var stockItemID by mutableIntStateOf(0)
+    var stockItemName by mutableStateOf("")
+    var stockItemQuantity by mutableIntStateOf(0)
+    var stockItemImageUri by mutableStateOf<String?>(null)
+
     init {
         runBlocking {
-            getAllMenuItems()
-            // FOR TESTING ONLY
-            // addNewOrIncrementOrderItem(1, 8, 1)
+            // getAllMenuItems()
         }
     }
 
@@ -188,6 +197,61 @@ class JomDiningViewModel(
     }
 
     /*
+        ALL ITEMS UNDER StockDao
+     */
+    fun addNewStockItem(stockItemName: String, stockItemQuantity: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that inserts a new Stock item to the DB
+                repository.addNewStockItemStream(stockItemName, stockItemQuantity)
+                Log.d("addNewStockItem", "New stock item added successfully")
+            } catch (e: Exception) {
+                Log.e("addNewStockItem", "Error when adding new stock item: $e")
+            }
+            getAllStockItems()
+        }
+    }
+
+    fun updateStockItemDetails(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that update the Stock item details in the DB
+                repository.updateStockItemDetailsStream(stockItemID, newStockItemName, newStockItemQuantity)
+                Log.d("updateStockItemDtls",
+                    "Stock item updated successfully. New details: (stockItemID: $stockItemID | stockItemName: $newStockItemName | stockItemQuantity: $newStockItemQuantity"
+                )
+            } catch (e: Exception) {
+                Log.e("updateStockItemDtls", "Error when update stock item details: $e")
+            }
+            getAllStockItems()
+        }
+    }
+
+    fun deleteStockItem(stockItemID: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that deletes the Stock item in the DB
+                repository.deleteStockItemStream(stockItemID)
+                Log.d("deleteStockItem", "Stock item deleted successfully.")
+            } catch (e: Exception) {
+                Log.e("deleteStockItem", "Error when deleting stock item: $e")
+            }
+            getAllStockItems()
+        }
+    }
+
+    fun getAllStockItems() {
+        viewModelScope.launch {
+            stockUi = stockUi.copy(
+                stockItems = repository.getAllStockItems()
+                    .filterNotNull()
+                    .first()
+            )
+            Log.d("stockItems", "Total stock items: ${stockUi.stockItems.size}")
+        }
+    }
+
+    /*
         EVERYTHING ELSE
      */
     fun updateInputPreferences(input: String) {
@@ -207,7 +271,7 @@ class JomDiningViewModel(
                         application.database.menuDao(),
 //                        application.database.menuItemIngredientDao(),
                         application.database.orderItemDao(),
-//                        application.database.stockDao(),
+                        application.database.stockDao(),
                         application.database.transactionsDao()
                     )
                 JomDiningViewModel(repository, application.userPreferencesRepository)

@@ -25,7 +25,8 @@ data class Stock (
     @PrimaryKey(autoGenerate = true)
     val stockItemID: Int,
     val stockItemName: String,
-    val stockItemQuantity: Int
+    val stockItemQuantity: Int,
+    val stockItemImagePath: String
 )
 
 @ProvidedTypeConverter
