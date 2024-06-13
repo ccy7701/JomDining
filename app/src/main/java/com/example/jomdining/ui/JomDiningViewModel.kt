@@ -227,6 +227,19 @@ class JomDiningViewModel(
         }
     }
 
+    fun deleteStockItem(stockItemID: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that deletes the Stock item in the DB
+                repository.deleteStockItemStream(stockItemID)
+                Log.d("deleteStockItem", "Stock item deleted successfully.")
+            } catch (e: Exception) {
+                Log.e("deleteStockItem", "Error when deleting stock item: $e")
+            }
+            getAllStockItems()
+        }
+    }
+
     fun getAllStockItems() {
         viewModelScope.launch {
             stockUi = stockUi.copy(

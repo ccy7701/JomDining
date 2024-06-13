@@ -22,5 +22,7 @@
     <string name="edit_item">Edit Item</string>
     <string name="password">Password</string>
     <string name="stock_item_name">Stock Item Name</string>
+    <string name="save">Save</string>
+    <string name="insert_new_item">Insert new item</string>
 
 </resources>

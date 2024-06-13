@@ -41,17 +41,13 @@ interface StockDao {
     suspend fun updateStockItemDetails(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int)
 
     // Remove a row from the stock table
-    @Delete
-    suspend fun removeStock(stock: Stock)
+    @Query("""
+        DELETE FROM stock
+        WHERE stockItemID = :stockItemID
+    """)
+    suspend fun deleteStockItem(stockItemID: Int)
 
     // Fetch all rows of stock
     @Query("SELECT * FROM stock ORDER BY stockItemID")
     fun getAllStockItems(): Flow<List<Stock>>
-
-//    @Query("""
-//        UPDATE stock
-//        SET stockItemQuantity = :newStockItemQuantity
-//        WHERE stockItemID = :stockItemID
-//    """)
-//    fun updateStockItemQuantity(newStockItemQuantity: Int, stockItemID: Int)
 }

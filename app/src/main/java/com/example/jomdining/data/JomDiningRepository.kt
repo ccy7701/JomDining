@@ -41,5 +41,7 @@ interface JomDiningRepository {
 
     suspend fun updateStockItemDetailsStream(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int)
 
+    suspend fun deleteStockItemStream(stockItemID: Int)
+
     fun getAllStockItems(): Flow<List<Stock>>
 }

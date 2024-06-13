@@ -63,4 +63,7 @@ class OfflineRepository(
 
     override suspend fun updateStockItemDetailsStream(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int) =
         stockDao.updateStockItemDetails(stockItemID, newStockItemName, newStockItemQuantity)
+
+    override suspend fun deleteStockItemStream(stockItemID: Int) =
+        stockDao.deleteStockItem(stockItemID)
 }

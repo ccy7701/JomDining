@@ -7,6 +7,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +26,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -54,11 +59,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Stock
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("AutoboxingStateCreation")
@@ -146,7 +153,7 @@ fun StockItemCard(
     Card(
         modifier = Modifier
             .width(270.dp)
-            .height(350.dp)
+            .height(380.dp)
             .padding(8.dp)
             .clickable {
                 viewModel.selectedStockItem = "existing_item"
@@ -155,7 +162,10 @@ fun StockItemCard(
                 viewModel.stockItemQuantity = stockItem.stockItemQuantity
                 viewModel.stockItemImageUri = stockItem.stockItemImagePath
                 focusManager.clearFocus()
-                Log.d("SIC_stockItemName", "Currently selected stockItemID ${viewModel.stockItemID}, ${viewModel.stockItemName}")
+                Log.d(
+                    "SIC_stockItemName",
+                    "Currently selected stockItemID ${viewModel.stockItemID}, ${viewModel.stockItemName}"
+                )
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
@@ -186,6 +196,11 @@ fun StockItemCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(16.dp)
+            )
+            Text(
+                text = "Stock: " + stockItem.stockItemQuantity,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Button(
@@ -227,7 +242,7 @@ fun AddNewStockItemCard(
     Card(
         modifier = Modifier
             .width(270.dp)
-            .height(350.dp)
+            .height(380.dp)
             .padding(8.dp)
             .clickable {
                 viewModel.selectedStockItem = "new_item"
@@ -236,7 +251,10 @@ fun AddNewStockItemCard(
                 viewModel.stockItemQuantity = 0
                 viewModel.stockItemImageUri = ""
                 focusManager.clearFocus()
-                Log.d("ASIC_newStockItem", "Currently adding new stock item, stockItemID set to ${viewModel.stockItemID}")
+                Log.d(
+                    "ASIC_newStockItem",
+                    "Currently adding new stock item, stockItemID set to ${viewModel.stockItemID}"
+                )
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF))
@@ -347,8 +365,11 @@ fun StockItemActionDisplay(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Button(
-                            onClick = { (viewModel.stockItemQuantity)++ },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                            onClick = {
+                                (viewModel.stockItemQuantity)++
+                                Log.d("stockItemQuantity", "Increased quantity by 1. Now ${viewModel.stockItemQuantity}")
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                         ) {
                             Text(text = "+")
                         }
@@ -366,7 +387,10 @@ fun StockItemActionDisplay(
                         }
                         Spacer(modifier = Modifier.width(16.dp))
                         Button(
-                            onClick = { (viewModel.stockItemQuantity)-- },
+                            onClick = {
+                                (viewModel.stockItemQuantity)--
+                                Log.d("stockItemQuantity", "Decreased quantity by 1. Now ${viewModel.stockItemQuantity}")
+                            },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
                         ) {
                             Text(text = "-")
@@ -387,27 +411,33 @@ fun StockItemActionDisplay(
                                 newStockItemName = viewModel.stockItemName,
                                 newStockItemQuantity = viewModel.stockItemQuantity
                             )
-                            // then, close down the StockItemActionDisplay, revert it to starting view
-                            viewModel.selectedStockItem = null
-                            viewModel.stockItemID = 0
-                            viewModel.stockItemName = ""
-                            viewModel.stockItemQuantity = 0
-                            viewModel.stockItemImageUri = null
-                            // then, display a Toast message indicating the process has passed.
-                            Toast
-                                .makeText(
-                                    context,
-                                    "Stock item updated successfully!",
-                                    Toast.LENGTH_SHORT
-                                )
-                                .show()
-                        }
-                        else if (viewModel.selectedStockItem == "new_item") {
+                        } else if (viewModel.selectedStockItem == "new_item") {
                             viewModel.addNewStockItem(
                                 stockItemName = viewModel.stockItemName,
                                 stockItemQuantity = viewModel.stockItemQuantity
                             )
                         }
+                        // then, display a Toast message indicating the process has passed.
+                        val toastText = if (viewModel.selectedStockItem == "existing_item") {
+                            "Stock item updated successfully!"
+                        } else if (viewModel.selectedStockItem == "new_item") {
+                            "New item inserted successfully!"
+                        } else {
+                            "Error encountered. Please try again."
+                        }
+                        Toast
+                            .makeText(
+                                context,
+                                toastText,
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
+                        // then, close down the StockItemActionDisplay, revert it to starting view
+                        viewModel.selectedStockItem = null
+                        viewModel.stockItemID = 0
+                        viewModel.stockItemName = ""
+                        viewModel.stockItemQuantity = 0
+                        viewModel.stockItemImageUri = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),
                     modifier = Modifier
@@ -415,8 +445,8 @@ fun StockItemActionDisplay(
                         .height(48.dp)
                         .background(Color(0xFF6200EE), RoundedCornerShape(8.dp))
                 ) {
-                    if (viewModel.selectedStockItem == "existing_item") { Text(text = "Save", color = Color.White) }
-                    else if (viewModel.selectedStockItem == "new_item") { Text(text = "Insert new item", color = Color.White) }
+                    if (viewModel.selectedStockItem == "existing_item") { Text(text = stringResource(R.string.save), color = Color.White) }
+                    else if (viewModel.selectedStockItem == "new_item") { Text(text = stringResource(R.string.insert_new_item), color = Color.White) }
                 }
                 Button(
                     onClick = {
@@ -435,15 +465,61 @@ fun StockItemActionDisplay(
                     Text(text = "Cancel", color = Color.White)
                 }
                 if (viewModel.selectedStockItem == "existing_item") {
+                    var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
+
                     Button(
-                        onClick = { /* Delete Action */ },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                        onClick = { showDeleteConfirmationDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Red),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
-                            .background(Color.Red, RoundedCornerShape(8.dp))
+                            .background(Red, RoundedCornerShape(8.dp))
                     ) {
                         Text(text = "Delete", color = Color.White)
+                    }
+
+                    // Confirmation Dialog
+                    if (showDeleteConfirmationDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDeleteConfirmationDialog = false },
+                            title = { Text(text = "Confirm Deletion") },
+                            text = { Text(text = "Are you sure you want to delete ${viewModel.stockItemName}?") },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        // Invoke the deletion function from the viewModel
+                                        viewModel.deleteStockItem(viewModel.stockItemID)
+                                        // Close down the StockItemActionDisplay, revert it to starting view
+                                        viewModel.selectedStockItem = null
+                                        viewModel.stockItemID = 0
+                                        viewModel.stockItemName = ""
+                                        viewModel.stockItemQuantity = 0
+                                        viewModel.stockItemImageUri = null
+                                        // Display a Toast message indicating the process has passed
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                "Stock item deleted successfully.",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                            .show()
+                                        // Hide the dialog
+                                        showDeleteConfirmationDialog = false
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Red)
+                                ) {
+                                    Text(text = "Confirm", color = Color.White)
+                                }
+                            },
+                            dismissButton = {
+                                Button(
+                                    onClick = { showDeleteConfirmationDialog = false }
+                                ) {
+                                    Text(text = "Cancel")
+                                }
+                            },
+                            properties = DialogProperties(dismissOnClickOutside = true)
+                        )
                     }
                 }
             }
