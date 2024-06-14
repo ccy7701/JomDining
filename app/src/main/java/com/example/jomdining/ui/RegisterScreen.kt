@@ -104,21 +104,25 @@ fun RegisterScreen(
             onClick = {
                 // First, check if password and confirmPassword are equal
                 if (password == confirmPassword) {
-                    // Push this new account information to the DB
-                    viewModel.registerAndCreateNewAccount(
-                        accountUsername = username,
-                        accountPassword = password,
-                        accountEmail = email
-                    )
-                    Toast
-                        .makeText(
-                            context,
-                            "New account registered successfully!",
-                            Toast.LENGTH_SHORT
+                    try {
+                        // Push this new account information to the DB
+                        viewModel.registerAndCreateNewAccount(
+                            accountUsername = username,
+                            accountPassword = password,
+                            accountEmail = email
                         )
-                        .show()
-                    // Then navigate back to the login menu
-                    navController.navigate("login")
+                        Toast
+                            .makeText(
+                                context,
+                                "New account registered successfully!",
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
+                        // Then navigate back to the login menu
+                        navController.navigate("login")
+                    } catch (e: Exception) {
+                        Log.d("AccountRegistration", "Error when registering new account: $e")
+                    }
                 } else {
                     Toast
                         .makeText(
