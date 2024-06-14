@@ -16,7 +16,7 @@ fun NavigationGraph(startDestination: String = "login") {
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
-            LoginScreen(navController = navController)
+            LoginScreen(viewModel = viewModel, navController = navController)
         }
         composable("register") {
             RegisterScreen(navController = navController)

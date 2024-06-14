@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.jomdining.daos.AccountDao
 import com.example.jomdining.daos.MenuDao
 import com.example.jomdining.daos.OrderItemDao
 import com.example.jomdining.daos.StockDao
@@ -29,7 +30,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
     exportSchema = false
 )
 abstract class JomDiningDatabase: RoomDatabase() {
-    // abstract fun accountDao(): AccountDao
+    abstract fun accountDao(): AccountDao
     abstract fun menuDao(): MenuDao
     // abstract fun menuItemIngredientDao(): MenuItemIngredientDao
     abstract fun orderItemDao(): OrderItemDao
