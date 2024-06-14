@@ -85,8 +85,10 @@ class JomDiningViewModel(
         viewModelScope.launch {
             try {
                 // invoke the function that creates a new account and pushes it to the DB
-                repository.createNewAccountStream(accountUsername, accountPassword, accountEmail)
-                Log.d("AccountRegistration", "New account with username $accountUsername registered successfully")
+                val newAccountID = repository.createNewAccountStream(accountUsername, accountPassword, accountEmail)
+                Log.d("AccountRegistration", "New account with username $accountUsername registered successfully [New accountID: $newAccountID]")
+                // invoke the function that creates a new Transactions item. a new account will have one active Transactions item at all times
+                createNewTransactionUnderAccount(newAccountID)
             } catch (e: Exception) {
                 Log.e("AccountRegistration", "Error when registering new account: $e")
             }
@@ -213,6 +215,18 @@ class JomDiningViewModel(
     /*
         ALL ITEMS UNDER TransactionsDao
      */
+    fun createNewTransactionUnderAccount(newAccountID: Long) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that creates a new Transactions item in the DB
+                repository.createNewTransactionUnderAccountStream(newAccountID)
+                Log.d("NewTransaction", "Created new Transactions item for accountID $newAccountID. This Transactions item is now currently active for this account.")
+            } catch (e: Exception) {
+                Log.e("NewTransaction", "Failed to create new Transactions item: $e")
+            }
+        }
+    }
+
     fun getCurrentActiveTransaction(transactionID: Int) {
         viewModelScope.launch {
             // The fetched current active transaction will be stored in this mutableList

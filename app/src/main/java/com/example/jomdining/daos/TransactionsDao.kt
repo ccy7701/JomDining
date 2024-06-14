@@ -25,8 +25,11 @@ import com.example.jomdining.databaseentities.TransactionsConverter
 )
 interface TransactionsDao {
     // Add a new row to the transaction table
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addTransaction(transaction: Transactions)
+    @Query("""
+        INSERT INTO transactions (accountID, transactionDateTime, transactionMethod, transactionTotalPrice, transactionPayment, transactionBalance, tableNumber, isActive) VALUES
+        (:newAccountID, "", "", 0.00, 0.00, 0.00, 0, 1)
+    """)
+    suspend fun createNewTransactionUnderAccount(newAccountID: Long)
 
     @Delete
     suspend fun removeTransaction(transaction: Transactions)

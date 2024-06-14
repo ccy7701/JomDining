@@ -24,8 +24,9 @@ class OfflineRepository(
     override suspend fun getAccountByLoginDetailsStream(loginUsername: String, loginPassword: String) =
         accountDao.getAccountByLoginDetails(loginUsername, loginPassword)
 
-    override suspend fun createNewAccountStream(accountUsername: String, accountPassword: String, accountEmail: String) =
-        accountDao.createNewAccount(accountUsername, accountPassword, accountEmail)
+    override suspend fun createNewAccountStream(accountUsername: String, accountPassword: String, accountEmail: String): Long {
+        return accountDao.createNewAccount(accountUsername, accountPassword, accountEmail)
+    }
 
     /*
         ALL ITEMS UNDER MenuDao
@@ -60,6 +61,9 @@ class OfflineRepository(
     /*
         ALL ITEMS UNDER TransactionsDao
      */
+    override suspend fun createNewTransactionUnderAccountStream(newAccountID: Long) =
+        transactionsDao.createNewTransactionUnderAccount(newAccountID)
+
     override suspend fun getCurrentActiveTransactionStream(transactionID: Int) =
         transactionsDao.getCurrentActiveTransaction(transactionID)
 

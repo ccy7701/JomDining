@@ -32,5 +32,5 @@ interface AccountDao {
         INSERT INTO account (accountUsername, accountPassword, accountEmail, accountPhoneNumber)
         VALUES (:accountUsername, :accountPassword, :accountEmail, '')
     """)
-    suspend fun createNewAccount(accountUsername: String, accountPassword: String, accountEmail: String)
+    suspend fun createNewAccount(accountUsername: String, accountPassword: String, accountEmail: String): Long
 }
