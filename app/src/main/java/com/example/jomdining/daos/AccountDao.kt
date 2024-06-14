@@ -21,15 +21,16 @@ import com.example.jomdining.databaseentities.TransactionsConverter
     TransactionsConverter::class
 )
 interface AccountDao {
-//    // Assumption: Login is made with email and password
-//    // BUT, userAuth has to happen somewhere else...
-//    @Query("SELECT * FROM account WHERE employeeEmail = :input")
-//    fun getAccountByEmail(input: String): Account?
-
     @Query("""
         SELECT * FROM account
         WHERE accountUsername = :loginUsername
         AND accountPassword = :loginPassword
     """)
     suspend fun getAccountByLoginDetails(loginUsername: String, loginPassword: String): Account
+
+    @Query("""
+        INSERT INTO account (accountUsername, accountPassword, accountEmail, accountPhoneNumber)
+        VALUES (:accountUsername, :accountPassword, :accountEmail, '')
+    """)
+    suspend fun createNewAccount(accountUsername: String, accountPassword: String, accountEmail: String)
 }

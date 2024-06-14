@@ -1,7 +1,5 @@
 package com.example.jomdining.ui
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -20,16 +18,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(
-    viewModel: JomDiningViewModel,
+fun TestRegisterScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -102,32 +97,8 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(35.dp))
         Button(
             onClick = {
-                // First, check if password and confirmPassword are equal
-                if (password == confirmPassword) {
-                    // Push this new account information to the DB
-                    viewModel.registerAndCreateNewAccount(
-                        accountUsername = username,
-                        accountPassword = password,
-                        accountEmail = email
-                    )
-                    Toast
-                        .makeText(
-                            context,
-                            "New account registered successfully!",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
-                    // Then navigate back to the login menu
-                    navController.navigate("login")
-                } else {
-                    Toast
-                        .makeText(
-                            context,
-                            "Password and confirm password fields do not match. Please try again.",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
-                }
+                // Implement registration logic here
+                navController.navigate("main_menu")
             },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
@@ -140,4 +111,11 @@ fun RegisterScreen(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TestRegisterScreenPreview() {
+    val navController = rememberNavController()
+    TestRegisterScreen(navController)
 }

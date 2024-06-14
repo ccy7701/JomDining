@@ -13,6 +13,8 @@ interface JomDiningRepository {
      */
     suspend fun getAccountByLoginDetailsStream(loginUsername: String, loginPassword: String): Account
 
+    suspend fun createNewAccountStream(accountUsername: String, accountPassword: String, accountEmail: String)
+
     /*
         ALL ITEMS UNDER MenuDao
      */

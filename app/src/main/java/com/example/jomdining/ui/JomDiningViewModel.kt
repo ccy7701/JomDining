@@ -76,6 +76,22 @@ class JomDiningViewModel(
     fun resetLoginAttempt() {
         _loginAttempted.value = false
     }
+    fun logout() {
+        _activeLoginAccount.value = null
+        _loginAttempted.value = false
+    }
+
+    fun registerAndCreateNewAccount(accountUsername: String, accountPassword: String, accountEmail: String) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that creates a new account and pushes it to the DB
+                repository.createNewAccountStream(accountUsername, accountPassword, accountEmail)
+                Log.d("AccountRegistration", "New account with username $accountUsername registered successfully")
+            } catch (e: Exception) {
+                Log.e("AccountRegistration", "Error when registering new account: $e")
+            }
+        }
+    }
 
     /*
         ALL ITEMS UNDER MenuDao

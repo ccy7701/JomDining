@@ -19,10 +19,10 @@ fun NavigationGraph(startDestination: String = "login") {
             LoginScreen(viewModel = viewModel, navController = navController)
         }
         composable("register") {
-            RegisterScreen(navController = navController)
+            RegisterScreen(viewModel = viewModel, navController = navController)
         }
         composable("main_menu") {
-            MainMenuScreen(navController = navController)
+            MainMenuScreen(viewModel = viewModel, navController = navController)
         }
         composable("food_ordering") {
             FoodOrderingModuleScreen(viewModel = viewModel)
