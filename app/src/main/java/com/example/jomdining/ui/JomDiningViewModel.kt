@@ -6,6 +6,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -16,6 +18,7 @@ import com.example.jomdining.data.JomDiningRepository
 import com.example.jomdining.data.OfflineRepository
 import com.example.jomdining.data.TempMenuItems.menuItems
 import com.example.jomdining.data.UserPreferencesRepository
+import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
@@ -41,6 +44,12 @@ class JomDiningViewModel(
     var stockUi by mutableStateOf(StockUi())
         private set
 
+    // All variables used to track currently active login session
+    private val _activeLoginAccount = MutableLiveData<Account?>()
+    private val _loginAttempted = MutableLiveData(false)
+    val activeLoginAccount: LiveData<Account?> get() = _activeLoginAccount
+    val loginAttempted: LiveData<Boolean> get() = _loginAttempted
+
     // All variables used in the StockManagementModuleScreen
     var selectedStockItem by mutableStateOf<String?>(null)
     var stockItemID by mutableIntStateOf(0)
@@ -48,9 +57,39 @@ class JomDiningViewModel(
     var stockItemQuantity by mutableIntStateOf(0)
     var stockItemImageUri by mutableStateOf<String?>(null)
 
-    init {
-        runBlocking {
-            // getAllMenuItems()
+    /*
+        ALL ITEMS UNDER AccountDao
+     */
+    fun getAccountByLoginDetails(loginUsername: String, loginPassword: String) {
+        viewModelScope.launch() {
+            try {
+                val fetchedAccount = repository.getAccountByLoginDetailsStream(loginUsername, loginPassword)
+                _activeLoginAccount.postValue(fetchedAccount)
+            } catch (e: Exception) {
+                Log.e("getAccByLoginDtls", "Error encountered: $e")
+                _activeLoginAccount.postValue(null)
+            } finally {
+                _loginAttempted.postValue(true)
+            }
+        }
+    }
+    fun resetLoginAttempt() {
+        _loginAttempted.value = false
+    }
+    fun logout() {
+        _activeLoginAccount.value = null
+        _loginAttempted.value = false
+    }
+
+    fun registerAndCreateNewAccount(accountUsername: String, accountPassword: String, accountEmail: String) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that creates a new account and pushes it to the DB
+                repository.createNewAccountStream(accountUsername, accountPassword, accountEmail)
+                Log.d("AccountRegistration", "New account with username $accountUsername registered successfully")
+            } catch (e: Exception) {
+                Log.e("AccountRegistration", "Error when registering new account: $e")
+            }
         }
     }
 
@@ -267,7 +306,7 @@ class JomDiningViewModel(
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as JomDiningApplication)
                 val repository =
                     OfflineRepository(
-//                        application.database.accountDao(),
+                        application.database.accountDao(),
                         application.database.menuDao(),
 //                        application.database.menuItemIngredientDao(),
                         application.database.orderItemDao(),

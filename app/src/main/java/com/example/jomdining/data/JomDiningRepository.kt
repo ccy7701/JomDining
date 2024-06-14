@@ -1,5 +1,6 @@
 package com.example.jomdining.data
 
+import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Stock
@@ -7,6 +8,13 @@ import com.example.jomdining.databaseentities.Transactions
 import kotlinx.coroutines.flow.Flow
 
 interface JomDiningRepository {
+    /*
+        ALL ITEMS UNDER AccountDao
+     */
+    suspend fun getAccountByLoginDetailsStream(loginUsername: String, loginPassword: String): Account
+
+    suspend fun createNewAccountStream(accountUsername: String, accountPassword: String, accountEmail: String)
+
     /*
         ALL ITEMS UNDER MenuDao
      */
