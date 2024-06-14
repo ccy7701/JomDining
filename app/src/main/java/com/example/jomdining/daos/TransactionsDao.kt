@@ -36,10 +36,17 @@ interface TransactionsDao {
 
     @Query("""
         SELECT * FROM transactions
-        WHERE transactionID = :transactionID
-        AND isActive = 1
+        WHERE accountID = :accountID AND isActive = 1
+        LIMIT 1
     """)
-    suspend fun getCurrentActiveTransaction(transactionID: Int): Transactions
+    suspend fun getCurrentActiveTransaction(accountID: Int): Transactions
+
+    @Query("""
+        UPDATE transactions
+        SET transactionTotalPrice = :runningTotal
+        WHERE accountID = :accountID and isActive = 1
+    """)
+    suspend fun updateRunningTotal(runningTotal: Long, accountID: Int)
 
     // Update the running grand total of the currently active transaction
 //    @Query("""

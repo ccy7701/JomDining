@@ -41,7 +41,9 @@ interface JomDiningRepository {
         ALL ITEMS UNDER TransactionsDao
      */
     suspend fun createNewTransactionUnderAccountStream(newAccountID: Long)
-    suspend fun getCurrentActiveTransactionStream(transactionID: Int): Transactions
+    suspend fun getCurrentActiveTransactionStream(accountID: Int): Transactions
+
+    suspend fun updateRunningTotalStream(runningTotal: Long, accountID: Int)
 
     /*
         ALL ITEMS UNDER StockDao

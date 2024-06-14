@@ -64,8 +64,11 @@ class OfflineRepository(
     override suspend fun createNewTransactionUnderAccountStream(newAccountID: Long) =
         transactionsDao.createNewTransactionUnderAccount(newAccountID)
 
-    override suspend fun getCurrentActiveTransactionStream(transactionID: Int) =
-        transactionsDao.getCurrentActiveTransaction(transactionID)
+    override suspend fun getCurrentActiveTransactionStream(accountID: Int) =
+        transactionsDao.getCurrentActiveTransaction(accountID)
+
+    override suspend fun updateRunningTotalStream(runningTotal: Long, accountID: Int) =
+        transactionsDao.updateRunningTotal(runningTotal, accountID)
 
     /*
         ALL ITEMS UNDER StockDao

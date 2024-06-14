@@ -2,6 +2,7 @@ package com.example.jomdining.ui
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,10 @@ class JomDiningViewModel(
     private val _loginAttempted = MutableLiveData(false)
     val activeLoginAccount: LiveData<Account?> get() = _activeLoginAccount
     val loginAttempted: LiveData<Boolean> get() = _loginAttempted
+
+    // All variables used in FoodOrderingModuleScreen
+//    private val _totalPrice = MutableLiveData<Double>()
+//    val totalPrice: LiveData<Double> get() = _totalPrice
 
     // All variables used in the StockManagementModuleScreen
     var selectedStockItem by mutableStateOf<String?>(null)
@@ -227,13 +232,13 @@ class JomDiningViewModel(
         }
     }
 
-    fun getCurrentActiveTransaction(transactionID: Int) {
+    fun getCurrentActiveTransaction(accountID: Int) {
         viewModelScope.launch {
             // The fetched current active transaction will be stored in this mutableList
             val currentActiveTransactionList = mutableListOf<Transactions>()
 
             // Also, the fetched Transaction object will be stored in this val
-            val currentActiveTransaction = repository.getCurrentActiveTransactionStream(transactionID)
+            val currentActiveTransaction = repository.getCurrentActiveTransactionStream(accountID)
             Log.d("CAT_fetch", "Successfully fetched current active transaction: $currentActiveTransaction")
 
             // Update TransactionsUi with the new current active transaction
@@ -246,6 +251,12 @@ class JomDiningViewModel(
             // Then, using the fetched Transaction object, fetched all its order items
             getAllCurrentOrderItems(currentActiveTransaction.transactionID)
             Log.d("CAT_orderItems", "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}")
+        }
+    }
+
+    fun updateRunningTotal(runningTotal: Long, accountID: Int) {
+        viewModelScope.launch {
+
         }
     }
 

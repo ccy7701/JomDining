@@ -45,6 +45,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,10 +79,14 @@ fun FoodOrderingModuleScreen(
     // Fetch menu items when this screen is composed
     viewModel.getAllMenuItems()
 
-    // Fetch current order items list when this screen is composed
-    LaunchedEffect(Unit) {
-        // THIS IS CURRENTLY HARDCODED FOR TESTING!
-        viewModel.getCurrentActiveTransaction(1)
+    // Then, fetch current order items list when this screen is composed
+    val activeLoginAccount by viewModel.activeLoginAccount.observeAsState()
+    LaunchedEffect(activeLoginAccount) {
+        activeLoginAccount?.let { account ->
+            account.accountID.let { accountID ->
+                viewModel.getCurrentActiveTransaction(accountID)
+            }
+        }
     }
 
     Scaffold(
@@ -367,6 +378,7 @@ fun OrderSummary(
         }
     }
 }
+
 @Composable
 fun OrderItemCard(
     viewModel: JomDiningViewModel,
