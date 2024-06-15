@@ -1,10 +1,13 @@
 package com.example.jomdining.ui
 
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,14 +28,18 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,48 +47,72 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodOrderingModuleScreen(
     viewModel: JomDiningViewModel,
+    navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     // Fetch menu items when this screen is composed
     viewModel.getAllMenuItems()
 
-    // Fetch current order items list when this screen is composed
-    LaunchedEffect(Unit) {
-        // THIS IS CURRENTLY HARDCODED FOR TESTING!
-        viewModel.getCurrentActiveTransaction(1)
+    // Then, fetch current order items list when this screen is composed
+    val activeLoginAccount by viewModel.activeLoginAccount.observeAsState()
+    LaunchedEffect(activeLoginAccount) {
+        activeLoginAccount?.let { account ->
+            account.accountID.let { accountID ->
+                viewModel.getCurrentActiveTransaction(accountID)
+            }
+        }
     }
+    val activeTransaction by viewModel.activeTransaction.observeAsState()
 
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "JomDining"
+                title = "Food Ordering"
             )
         },
         containerColor = Color(0xFFCEDFFF)
@@ -90,6 +121,11 @@ fun FoodOrderingModuleScreen(
             modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        keyboardController?.hide()
+                    }
+                }
         ) {
             Row(
                 modifier = modifier.fillMaxSize()
@@ -100,16 +136,19 @@ fun FoodOrderingModuleScreen(
                         .fillMaxSize()
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    MenuItemGrid(
-                        viewModel = viewModel,
-                        // THIS IS CURRENTLY HARDCODED FOR TESTING!
-                        // currentActiveTransactionID = currentActiveTransaction.transactionID,
-                        currentActiveTransactionID = 1,
-                        modifier = modifier
-                    )
+                    if (activeTransaction != null) {
+                        MenuItemGrid(
+                            viewModel = viewModel,
+                            currentActiveTransactionID = activeTransaction!!.transactionID,
+                            modifier = modifier
+                        )
+                    } else {
+                        Text("Loading transaction...")
+                    }
                 }
                 OrderSummary(
                     viewModel = viewModel,
+                    navController = navController,
                     modifier = Modifier
                         .weight(0.4f)
                         .fillMaxHeight()
@@ -150,7 +189,7 @@ fun MenuItemGrid(
             .background(backgroundColor)
     ) {
         items(viewModel.menuUi.menuItems) { menuItem ->
-            MenuItemCard(viewModel, currentActiveTransactionID /* THIS IS CURRENTLY HARDCODED! */, menuItem)
+            MenuItemCard(viewModel, currentActiveTransactionID, menuItem)
         }
     }
 }
@@ -168,7 +207,6 @@ fun MenuItemCard(
             .padding(16.dp)
             .clickable {
                 viewModel.addNewOrIncrementOrderItem(
-                    // THIS IS CURRENTLY HARDCODED!
                     transactionID = currentActiveTransactionID,
                     menuItemID = menuItem.menuItemID,
                     operationFlag = 1
@@ -236,26 +274,38 @@ fun MenuItemCard(
 @Composable
 fun OrderSummary(
     viewModel: JomDiningViewModel,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val currentActiveTransaction = viewModel.transactionsUi.currentActiveTransaction
-    // Log.d("CAT_InComposableCtnt", "Content of currentActiveTransaction: $currentActiveTransaction")
+    val context = LocalContext.current
 
-    if (currentActiveTransaction.isNotEmpty()) {
-        // Log.d("CAT_TestOutput", "TransactionID: ${currentActiveTransaction.elementAt(0).transactionID}")
-        val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
+    val activeTransaction by viewModel.activeTransaction.observeAsState()
+    val currentActiveTransactionList = viewModel.transactionsUi.currentActiveTransactionList
 
+    var runningTotal by remember { mutableDoubleStateOf(0.0) }
+    // calculate runningTotal when currentOrderItemsList changes
+    val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
+    LaunchedEffect(currentOrderItemsList) {
+        runningTotal = currentOrderItemsList.sumOf{ (orderItem, menu) ->
+            orderItem.orderItemQuantity * menu.menuItemPrice
+        }
+    }
+    var totalPaymentAmountString by remember { mutableStateOf("") }
+    var paymentMethod by remember { mutableStateOf("-") }
+    var tableNumber by remember { mutableStateOf("-") }
+
+    if (currentActiveTransactionList.isNotEmpty()) {
+        // val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
         Column(
             modifier = modifier
                 .background(Color(0xFFE6E6E6))
                 .padding(16.dp)
         ) {
             Text(
-                text = "Order ${currentActiveTransaction.elementAt(0).transactionID}",
+                text = "Order ${currentActiveTransactionList.elementAt(0).transactionID}",
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp)
                     .background(Color(0xFF34197C), shape = RoundedCornerShape(8.dp))
                     .padding(8.dp),
                 color = Color.White,
@@ -278,16 +328,37 @@ fun OrderSummary(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Total",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                TextField(
+                    value = String.format(Locale.getDefault(), "%.2f", runningTotal),
+                    onValueChange = {},
+                    label = { Text(stringResource(R.string.total)) },
+                    readOnly = true,
+                    singleLine = true,
+                    leadingIcon = { Text("RM ") },
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Text(
-                    text = String.format(Locale.getDefault(), "RM %.2f", currentActiveTransaction.elementAt(0).transactionTotalPrice),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TextField(
+                    value = String.format(Locale.getDefault(), "%s", totalPaymentAmountString),
+                    onValueChange = { newAmount ->
+                        totalPaymentAmountString = newAmount
+                    },
+                    label = { Text(stringResource(R.string.total_payment_amount)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    ),
+                    leadingIcon = { Text("RM ") },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
             Row(
@@ -298,75 +369,267 @@ fun OrderSummary(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Table No.",
+                    text = stringResource(R.string.table_number),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
-                TextField(
-                    value = currentActiveTransaction.elementAt(0).tableNumber.toString(),
-                    onValueChange = {},
+                var tableNumberDropdownExpanded by remember { mutableStateOf(false) }
+                val allTableNumbers = (1..10).map { it.toString() }
+                Box(
                     modifier = Modifier
-                        .width(100.dp)
-                        .height(50.dp)
-                        .background(Color.White, shape = RoundedCornerShape(8.dp)),
-                    colors = TextFieldDefaults.textFieldColors(
-                        textColor = Color.Black,
-                        containerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.Center // Center the buttons horizontally
-            ) {
-                Button(
-                    onClick = { /* Place Order Action */ },
-                    modifier = Modifier
-                        .width(300.dp)
-                        .height(65.dp)
-                        .padding(vertical = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34197C))
+                        .width(144.dp)
+                        .height(48.dp)
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .clickable { tableNumberDropdownExpanded = true },
+                    contentAlignment = Alignment.CenterEnd
                 ) {
-                    Text(
-                        "Place Order",
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
-                    )
+                    Text(text = tableNumber, modifier = Modifier.padding(end = 8.dp))
+                    DropdownMenu(
+                        expanded = tableNumberDropdownExpanded,
+                        onDismissRequest = { tableNumberDropdownExpanded = false },
+                        modifier = Modifier
+                            .width(144.dp)
+                            .padding(top = 4.dp)
+                    ) {
+                        allTableNumbers.forEach { number ->
+                            DropdownMenuItem(
+                                text = { Text(number) },
+                                onClick = {
+                                    tableNumber = number
+                                    tableNumberDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
                 }
             }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.Center // Center the buttons horizontally
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(
-                    onClick = { /* Cancel Order Action */ },
+                Text(
+                    text = stringResource(R.string.payment_method),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                var paymentMethodDropdownExpanded by remember { mutableStateOf(false) }
+                val allPaymentMethods = listOf("Cash", "Card", "EWallet")
+                Box(
                     modifier = Modifier
-                        .width(300.dp)
-                        .height(65.dp)
-                        .padding(vertical = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
+                        .width(144.dp)
+                        .height(48.dp)
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .clickable { paymentMethodDropdownExpanded = true },
+                    contentAlignment = Alignment.CenterEnd
                 ) {
-                    Text(
-                        "Cancel",
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                    Text(text = paymentMethod, modifier = Modifier.padding(end = 8.dp))
+                    DropdownMenu(
+                        expanded = paymentMethodDropdownExpanded,
+                        onDismissRequest = { paymentMethodDropdownExpanded = false },
+                        modifier = Modifier
+                            .width(144.dp)
+                            .padding(top = 4.dp)
+                    ) {
+                        allPaymentMethods.forEach { method ->
+                            DropdownMenuItem(
+                                text = { Text(method) },
+                                onClick = {
+                                    paymentMethod = method
+                                    paymentMethodDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly // Center the buttons horizontally
+            ) {
+                Column {
+                    var showResetConfirmationDialog by remember { mutableStateOf(false) }
+                    Button(
+                        onClick = {
+                            if (currentOrderItemsList.isEmpty()) {
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "The order list is currently empty.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                                showResetConfirmationDialog = false
+                                return@Button
+                            } else {
+                                showResetConfirmationDialog = true
+                            }
+                        },
+                        modifier = Modifier.height(60.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
+                    ) {
+                        Text(
+                            "Reset",
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
                         )
-                    )
+                    }
+                    // Confirmation Dialog
+                    if (showResetConfirmationDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showResetConfirmationDialog = false },
+                            title = { Text(text = "Confirm Cancellation") },
+                            text = { Text(text = "Are you sure you want to cancel?") },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        currentOrderItemsList.forEach { (orderItem, _) ->
+                                            Log.d("OrderItemID", "${orderItem.menuItemID}")
+                                            val currentTransactionID = orderItem.transactionID
+                                            val currentMenuItemID = orderItem.menuItemID
+                                            viewModel.deleteOrDecrementOrderItem(
+                                                transactionID = currentTransactionID,
+                                                menuItemID = currentMenuItemID,
+                                                operationFlag = 1
+                                            )
+                                            Toast
+                                                .makeText(
+                                                    context,
+                                                    "Order cancelled and order list cleared.",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        }
+                                        totalPaymentAmountString = ""
+                                        tableNumber = "-"
+                                        paymentMethod = "-"
+                                        showResetConfirmationDialog = false
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Red)
+                                ) {
+                                    Text(text = "Yes")
+                                }
+                            },
+                            dismissButton = {
+                                Button(
+                                    onClick = {
+                                        showResetConfirmationDialog = false
+                                        Log.d("cancelOrder", "Order cancelled.")
+                                    }
+                                ) {
+                                    Text(text = "No")
+                                }
+                            },
+                            properties = DialogProperties(dismissOnClickOutside = true)
+                        )
+                    }
+                }
+                Column {
+                    Button(
+                        onClick = {
+                            try {
+                                // collect all the variables that will be pushed to the DB
+                                val pushTransactionID = activeTransaction?.transactionID
+                                val pushAccountID = activeTransaction?.accountID
+                                val pushDateTime = getCurrentDateTime()
+                                var pushPaymentMethod: String? = null
+                                val pushTransactionTotalPrice = runningTotal
+                                val pushTransactionPayment = totalPaymentAmountString.toDouble()
+                                val pushTransactionBalance = String.format(Locale.getDefault(), "%.2f", pushTransactionPayment - pushTransactionTotalPrice).toDouble()
+                                var pushTableNumber: Int? = null
+
+                                // The data has to go through all four checks and pass them all before pushing to DB
+                                if (currentOrderItemsList.isEmpty()) {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Can't confirm order with an empty order list",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
+                                if (paymentMethod == "-") {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Please make sure to select a payment method.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
+                                if (tableNumber == "-") {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Please make sure to select a table number.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
+                                if (pushTransactionPayment < pushTransactionTotalPrice) {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Total payment amount not sufficient. Please check again.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
+
+                                pushPaymentMethod = paymentMethod
+                                pushTableNumber = tableNumber.toInt()
+
+                                // If everything passes, the push to DB should be successful
+                                Log.d("ConfirmOrder", "DB push expected with the following values.")
+                                Log.d("ConfirmOrder", "$pushTransactionID, $pushAccountID, $pushDateTime, $pushPaymentMethod, $pushTransactionTotalPrice, $pushTransactionPayment, $pushTransactionBalance, $pushTableNumber, isActive -> 0")
+
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Order successfully placed!",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                                navController.navigate("main_menu")
+                                // THE ACTUAL DB BACKEND IS NOT DONE YET!
+                            } catch (e: Exception) {
+                                Log.e("ConfirmOrder", "Error: $e. Check your input again.")
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Please check the Total Payment Amount input again.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            }
+                        },
+                        modifier = Modifier.height(60.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34197C))
+                    ) {
+                        Text(
+                            stringResource(R.string.confirm_order),
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        )
+                    }
                 }
             }
         }
     }
 }
+
 @Composable
 fun OrderItemCard(
     viewModel: JomDiningViewModel,
@@ -503,4 +766,8 @@ fun OrderItemCard(
     }
 }
 
-
+fun getCurrentDateTime(): String {
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+    dateFormat.timeZone = TimeZone.getTimeZone("Asia/Kuala_Lumpur")
+    return dateFormat.format(Date())
+}

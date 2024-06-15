@@ -2,6 +2,7 @@ package com.example.jomdining.ui
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,10 @@ class JomDiningViewModel(
     val activeLoginAccount: LiveData<Account?> get() = _activeLoginAccount
     val loginAttempted: LiveData<Boolean> get() = _loginAttempted
 
+    // All variables used in FoodOrderingModuleScreen
+    private val _activeTransaction = MutableLiveData<Transactions?>()
+    val activeTransaction: LiveData<Transactions?> get() = _activeTransaction
+
     // All variables used in the StockManagementModuleScreen
     var selectedStockItem by mutableStateOf<String?>(null)
     var stockItemID by mutableIntStateOf(0)
@@ -85,8 +90,10 @@ class JomDiningViewModel(
         viewModelScope.launch {
             try {
                 // invoke the function that creates a new account and pushes it to the DB
-                repository.createNewAccountStream(accountUsername, accountPassword, accountEmail)
-                Log.d("AccountRegistration", "New account with username $accountUsername registered successfully")
+                val newAccountID = repository.createNewAccountStream(accountUsername, accountPassword, accountEmail)
+                Log.d("AccountRegistration", "New account with username $accountUsername registered successfully [New accountID: $newAccountID]")
+                // invoke the function that creates a new Transactions item. a new account will have one active Transactions item at all times
+                createNewTransactionUnderAccount(newAccountID)
             } catch (e: Exception) {
                 Log.e("AccountRegistration", "Error when registering new account: $e")
             }
@@ -213,25 +220,49 @@ class JomDiningViewModel(
     /*
         ALL ITEMS UNDER TransactionsDao
      */
-    fun getCurrentActiveTransaction(transactionID: Int) {
+    fun createNewTransactionUnderAccount(newAccountID: Long) {
         viewModelScope.launch {
+            try {
+                // invoke the function that creates a new Transactions item in the DB
+                repository.createNewTransactionUnderAccountStream(newAccountID)
+                Log.d("NewTransaction", "Created new Transactions item for accountID $newAccountID. This Transactions item is now currently active for this account.")
+            } catch (e: Exception) {
+                Log.e("NewTransaction", "Failed to create new Transactions item: $e")
+            }
+        }
+    }
+
+    fun getCurrentActiveTransaction(accountID: Int) {
+        viewModelScope.launch {
+            val transaction = repository.getCurrentActiveTransactionStream(accountID)
+            _activeTransaction.value = transaction
+
             // The fetched current active transaction will be stored in this mutableList
             val currentActiveTransactionList = mutableListOf<Transactions>()
 
             // Also, the fetched Transaction object will be stored in this val
-            val currentActiveTransaction = repository.getCurrentActiveTransactionStream(transactionID)
-            Log.d("CAT_fetch", "Successfully fetched current active transaction: $currentActiveTransaction")
+            val currentActiveTransaction = repository.getCurrentActiveTransactionStream(accountID)
+            Log.d(
+                "CAT_fetch",
+                "Successfully fetched current active transaction: $currentActiveTransaction"
+            )
 
             // Update TransactionsUi with the new current active transaction
             currentActiveTransactionList.add(currentActiveTransaction)
             transactionsUi = transactionsUi.copy(
-                currentActiveTransaction = currentActiveTransactionList
+                currentActiveTransactionList = currentActiveTransactionList
             )
-            Log.d("CAT_toList", "Details of current active transaction moved to List: $currentActiveTransactionList")
+            Log.d(
+                "CAT_toList",
+                "Details of current active transaction moved to List: $currentActiveTransactionList"
+            )
 
             // Then, using the fetched Transaction object, fetched all its order items
             getAllCurrentOrderItems(currentActiveTransaction.transactionID)
-            Log.d("CAT_orderItems", "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}")
+            Log.d(
+                "CAT_orderItems",
+                "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}"
+            )
         }
     }
 

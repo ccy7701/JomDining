@@ -13,7 +13,7 @@ interface JomDiningRepository {
      */
     suspend fun getAccountByLoginDetailsStream(loginUsername: String, loginPassword: String): Account
 
-    suspend fun createNewAccountStream(accountUsername: String, accountPassword: String, accountEmail: String)
+    suspend fun createNewAccountStream(accountUsername: String, accountPassword: String, accountEmail: String): Long
 
     /*
         ALL ITEMS UNDER MenuDao
@@ -40,7 +40,8 @@ interface JomDiningRepository {
     /*
         ALL ITEMS UNDER TransactionsDao
      */
-    suspend fun getCurrentActiveTransactionStream(transactionID: Int): Transactions
+    suspend fun createNewTransactionUnderAccountStream(newAccountID: Long)
+    suspend fun getCurrentActiveTransactionStream(accountID: Int): Transactions
 
     /*
         ALL ITEMS UNDER StockDao

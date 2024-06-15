@@ -25,22 +25,19 @@ import com.example.jomdining.databaseentities.TransactionsConverter
 )
 interface TransactionsDao {
     // Add a new row to the transaction table
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addTransaction(transaction: Transactions)
+    @Query("""
+        INSERT INTO transactions (accountID, transactionDateTime, transactionMethod, transactionTotalPrice, transactionPayment, transactionBalance, tableNumber, isActive) VALUES
+        (:newAccountID, "", "", 0.00, 0.00, 0.00, 1, 1)
+    """)
+    suspend fun createNewTransactionUnderAccount(newAccountID: Long)
 
     @Delete
     suspend fun removeTransaction(transaction: Transactions)
 
     @Query("""
         SELECT * FROM transactions
-        WHERE transactionID = :transactionID
-        AND isActive = 1
+        WHERE accountID = :accountID AND isActive = 1
+        LIMIT 1
     """)
-    suspend fun getCurrentActiveTransaction(transactionID: Int): Transactions
-
-    // Update the running grand total of the currently active transaction
-//    @Query("""
-//
-//    """)
-
+    suspend fun getCurrentActiveTransaction(accountID: Int): Transactions
 }
