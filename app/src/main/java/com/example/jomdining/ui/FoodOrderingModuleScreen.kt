@@ -1,9 +1,7 @@
 package com.example.jomdining.ui
 
-import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -80,8 +78,6 @@ import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -691,7 +687,7 @@ fun OrderItemCard(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(RoundedCornerShape(4.dp))
-                        .background(Color.Red)
+                        .background(Red)
                         .clickable {
                             // If the orderItemQuantity already is at 1, display the Toast message indicating it.
                             if (currentOrderItem.orderItemQuantity == 1) {
@@ -758,7 +754,7 @@ fun OrderItemCard(
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete Item",
-                        tint = Color.Red
+                        tint = Red
                     )
                 }
             }

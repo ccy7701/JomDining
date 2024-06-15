@@ -2,12 +2,7 @@ package com.example.jomdining.databaseentities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.ProvidedTypeConverter
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 @Serializable
 @Entity(
@@ -28,33 +23,8 @@ import kotlinx.serialization.json.Json
         )
     ]
 )
-@TypeConverters(
-//    AccountConverter::class,
-//    MenuConverter::class,
-//    MenuItemIngredientConverter::class,
-//    OrderItemConverter::class,
-//    StockConverter::class,
-//    TransactionsConverter::class
-)
 data class MenuItemIngredient(
     val menuItemID: Int,
     val stockItemID: Int,
     val ingredientQuantity: Int
 )
-
-@ProvidedTypeConverter
-class MenuItemIngredientConverter {
-    // Convert String to MenuItemIngredient
-    @TypeConverter
-    fun stringToMenuItemIngredient(menuItemIngredientJson: String?): MenuItemIngredient? {
-        return menuItemIngredientJson?.let {
-            Json.decodeFromString(it)
-        }
-    }
-
-    // Convert MenuItemIngredient to String
-    @TypeConverter
-    fun menuItemIngredientToString(menuItemIngredient: MenuItemIngredient?): String {
-        return Json.encodeToString(menuItemIngredient)
-    }
-}

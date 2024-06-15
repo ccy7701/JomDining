@@ -1,4 +1,4 @@
-package com.example.jomdining.ui
+package com.example.jomdining.ui.previews
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.jomdining.R
 
 @Preview(
@@ -101,7 +101,7 @@ fun InventoryManagementScreen(
                     Spacer(modifier = Modifier.height(100.dp))
                     Box(modifier = Modifier.size(100.dp)) {
                         ingredientImageUri?.let {
-                            Image(painter = rememberImagePainter(it), contentDescription = null, modifier = Modifier.fillMaxSize())
+                            Image(painter = rememberAsyncImagePainter(it), contentDescription = null, modifier = Modifier.fillMaxSize())
                         } ?: Image(painter = painterResource(R.drawable.ic_launcher_foreground), contentDescription = null, modifier = Modifier.fillMaxSize())
                         Icon(
                             painter = painterResource(R.drawable.edit), // Use your own drawable resource
@@ -200,7 +200,7 @@ fun IngredientCard(name: String, isAvailable: Boolean, imageUri: String, onClick
             verticalArrangement = Arrangement.Center, // Center vertically
             modifier = Modifier.fillMaxSize()
         ) {
-            val painter = rememberImagePainter(imageUri)
+            val painter = rememberAsyncImagePainter(imageUri)
             Image(painter = painter, contentDescription = null, modifier = Modifier.size(80.dp))
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = name, fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))

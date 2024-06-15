@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -29,14 +28,6 @@ import kotlinx.serialization.json.Json
         )
     ]
 )
-@TypeConverters(
-//    AccountConverter::class,
-//    MenuConverter::class,
-//    MenuItemIngredientConverter::class,
-//    OrderItemConverter::class,
-//    StockConverter::class,
-//    TransactionsConverter::class
-)
 data class OrderItem(
     @ColumnInfo(name = "menuItemID")
     val menuItemID: Int,
@@ -45,20 +36,3 @@ data class OrderItem(
     val orderItemQuantity: Int,
     val foodServed: Int
 )
-
-@ProvidedTypeConverter
-class OrderItemConverter {
-    // Convert String to OrderItem
-    @TypeConverter
-    fun stringToOrderItem(orderItemJson: String?): OrderItem? {
-        return orderItemJson?.let {
-            Json.decodeFromString(it)
-        }
-    }
-
-    // Convert OrderItem to String
-    @TypeConverter
-    fun orderItemToString(orderItem: OrderItem?): String {
-        return Json.encodeToString(orderItem)
-    }
-}

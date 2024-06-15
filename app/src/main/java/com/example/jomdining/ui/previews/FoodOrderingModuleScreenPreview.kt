@@ -1,6 +1,5 @@
 package com.example.jomdining.ui.previews
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -60,8 +59,6 @@ import com.example.jomdining.data.TempMenuItems
 import com.example.jomdining.data.TestOrderItemsWithMenus
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.ui.JomDiningTopAppBar
-import com.example.jomdining.ui.JomDiningViewModel
-import com.example.jomdining.ui.MenuItemCard
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,7 +117,7 @@ fun MenuItemCardPreview() {
             menuItemType = stringResource(R.string.main_course),
             menuItemImagePath = "file:///android_asset/chickenChop.png"
         )
-    TestMenuItemCard(menuItem = menuItem,)
+    TestMenuItemCard(menuItem = menuItem)
 }
 
 @Preview
@@ -170,13 +167,6 @@ fun TestMenuItemCard(
             ) {
                 val imagePath = menuItem.menuItemImagePath
                 // Log.d("IMAGE_PATH", "Current image path is $imagePath")
-                val assetManager = LocalContext.current.assets
-                val inputStream = try {
-                    assetManager.open(imagePath)
-                } catch (e: Exception) {
-                    Log.e("IMAGE_FILE_ERROR", "Image file does not exist in assets: $e")
-                    null
-                }
                 Image(
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
@@ -245,7 +235,7 @@ fun TestOrderSummary(
         LazyColumn(
             modifier = Modifier.weight(1f) // Make it take available space and be scrollable
         ) {
-            items(TestOrderItemsWithMenus.orderItemsWithMenus) { pair ->
+            items(TestOrderItemsWithMenus.orderItemsWithMenus) { _ ->
                 TestOrderItemCard()
                 Spacer(modifier = Modifier.height(8.dp))
             }

@@ -1,4 +1,4 @@
-package com.example.jomdining.ui
+package com.example.jomdining.ui.previews
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures

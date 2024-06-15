@@ -5,7 +5,6 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -22,14 +21,6 @@ import kotlinx.serialization.json.Json
         )
     ]
 )
-@TypeConverters(
-    //AccountConverter::class,
-    //MenuConverter::class,
-    //MenuItemIngredientConverter::class,
-    //OrderItemConverter::class,
-    //StockConverter::class,
-    //TransactionsConverter::class
-)
 data class Transactions(
     @PrimaryKey(autoGenerate = true)
     val transactionID: Int,
@@ -42,19 +33,3 @@ data class Transactions(
     val tableNumber: Int,
     val isActive: Int
 )
-
-@Serializable
-@ProvidedTypeConverter
-class TransactionsConverter {
-    @TypeConverter
-    fun stringToTransaction(transactionJson: String?): Transactions? {
-        return transactionJson?.let {
-            Json.decodeFromString(it)
-        }
-    }
-
-    @TypeConverter
-    fun transactionToString(transaction: Transactions?): String {
-        return Json.encodeToString(transaction)
-    }
-}

@@ -2,10 +2,8 @@ package com.example.jomdining.ui
 
 import android.util.Log
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,7 +15,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jomdining.JomDiningApplication
 import com.example.jomdining.data.JomDiningRepository
 import com.example.jomdining.data.OfflineRepository
-import com.example.jomdining.data.TempMenuItems.menuItems
 import com.example.jomdining.data.UserPreferencesRepository
 import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
@@ -26,7 +23,6 @@ import com.example.jomdining.databaseentities.Transactions
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class JomDiningViewModel(
     private val repository: JomDiningRepository,
@@ -66,7 +62,7 @@ class JomDiningViewModel(
         ALL ITEMS UNDER AccountDao
      */
     fun getAccountByLoginDetails(loginUsername: String, loginPassword: String) {
-        viewModelScope.launch() {
+        viewModelScope.launch {
             try {
                 val fetchedAccount = repository.getAccountByLoginDetailsStream(loginUsername, loginPassword)
                 _activeLoginAccount.postValue(fetchedAccount)
