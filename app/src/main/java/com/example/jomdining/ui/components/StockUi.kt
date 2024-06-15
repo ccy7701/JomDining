@@ -1,4 +1,4 @@
-package com.example.jomdining.ui
+package com.example.jomdining.ui.components
 
 import com.example.jomdining.databaseentities.Stock
 

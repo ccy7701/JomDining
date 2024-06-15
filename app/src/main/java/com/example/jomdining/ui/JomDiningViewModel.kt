@@ -20,6 +20,11 @@ import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.ui.components.MenuUi
+import com.example.jomdining.ui.components.OrderHistoryUi
+import com.example.jomdining.ui.components.OrderItemUi
+import com.example.jomdining.ui.components.StockUi
+import com.example.jomdining.ui.components.TransactionsUi
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -30,6 +35,9 @@ class JomDiningViewModel(
 ) : ViewModel() {
 
     var menuUi by mutableStateOf(MenuUi())
+        private set
+
+    var orderHistoryUi by mutableStateOf(OrderHistoryUi())
         private set
 
     var orderItemUi by mutableStateOf(OrderItemUi())
@@ -227,6 +235,8 @@ class JomDiningViewModel(
             }
         }
     }
+
+    // NOTE FOR 16/6: When you continue, refer here. This is the basis for the order history module.
 
     fun getCurrentActiveTransaction(accountID: Int) {
         viewModelScope.launch {
