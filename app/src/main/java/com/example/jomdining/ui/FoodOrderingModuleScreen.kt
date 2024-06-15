@@ -1,10 +1,13 @@
 package com.example.jomdining.ui
 
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +28,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -33,6 +37,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,7 +46,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -48,8 +53,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,10 +60,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,7 +75,12 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +88,8 @@ fun FoodOrderingModuleScreen(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     // Fetch menu items when this screen is composed
     viewModel.getAllMenuItems()
 
@@ -103,6 +116,11 @@ fun FoodOrderingModuleScreen(
             modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        keyboardController?.hide()
+                    }
+                }
         ) {
             Row(
                 modifier = modifier.fillMaxSize()
@@ -165,7 +183,7 @@ fun MenuItemGrid(
             .background(backgroundColor)
     ) {
         items(viewModel.menuUi.menuItems) { menuItem ->
-            MenuItemCard(viewModel, currentActiveTransactionID /* THIS IS CURRENTLY HARDCODED! */, menuItem)
+            MenuItemCard(viewModel, currentActiveTransactionID, menuItem)
         }
     }
 }
@@ -183,7 +201,6 @@ fun MenuItemCard(
             .padding(16.dp)
             .clickable {
                 viewModel.addNewOrIncrementOrderItem(
-                    // THIS IS CURRENTLY HARDCODED!
                     transactionID = currentActiveTransactionID,
                     menuItemID = menuItem.menuItemID,
                     operationFlag = 1
@@ -253,8 +270,10 @@ fun OrderSummary(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier
 ) {
-    val currentActiveTransaction = viewModel.transactionsUi.currentActiveTransaction
-    // Log.d("CAT_InComposableCtnt", "Content of currentActiveTransaction: $currentActiveTransaction")
+    val context = LocalContext.current
+
+    val activeTransaction by viewModel.activeTransaction.observeAsState()
+    val currentActiveTransactionList = viewModel.transactionsUi.currentActiveTransactionList
 
     var runningTotal by remember { mutableDoubleStateOf(0.0) }
     // calculate runningTotal when currentOrderItemsList changes
@@ -264,22 +283,22 @@ fun OrderSummary(
             orderItem.orderItemQuantity * menu.menuItemPrice
         }
     }
+    var totalPaymentAmountString by remember { mutableStateOf("") }
+    var paymentMethod by remember { mutableStateOf("-") }
+    var tableNumber by remember { mutableStateOf("-") }
 
-    if (currentActiveTransaction.isNotEmpty()) {
-        // Log.d("CAT_TestOutput", "TransactionID: ${currentActiveTransaction.elementAt(0).transactionID}")
+    if (currentActiveTransactionList.isNotEmpty()) {
         val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
-
         Column(
             modifier = modifier
                 .background(Color(0xFFE6E6E6))
                 .padding(16.dp)
         ) {
             Text(
-                text = "Order ${currentActiveTransaction.elementAt(0).transactionID}",
+                text = "Order ${currentActiveTransactionList.elementAt(0).transactionID}",
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp)
                     .background(Color(0xFF34197C), shape = RoundedCornerShape(8.dp))
                     .padding(8.dp),
                 color = Color.White,
@@ -302,17 +321,37 @@ fun OrderSummary(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Total",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                TextField(
+                    value = String.format(Locale.getDefault(), "%.2f", runningTotal),
+                    onValueChange = {},
+                    label = { Text(stringResource(R.string.total)) },
+                    readOnly = true,
+                    singleLine = true,
+                    leadingIcon = { Text("RM ") },
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Log.d("runningTotal", "Value: $runningTotal")
-                Text(
-                    text = String.format(Locale.getDefault(), "RM %.2f", runningTotal),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TextField(
+                    value = String.format(Locale.getDefault(), "%s", totalPaymentAmountString),
+                    onValueChange = { newAmount ->
+                        totalPaymentAmountString = newAmount
+                    },
+                    label = { Text(stringResource(R.string.total_payment_amount)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    ),
+                    leadingIcon = { Text("RM ") },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
             Row(
@@ -323,70 +362,177 @@ fun OrderSummary(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Table No.",
+                    text = stringResource(R.string.table_number),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
-                TextField(
-                    value = currentActiveTransaction.elementAt(0).tableNumber.toString(),
-                    onValueChange = {},
+                var tableNumberDropdownExpanded by remember { mutableStateOf(false) }
+                val allTableNumbers = (1..10).map { it.toString() }
+                Box(
                     modifier = Modifier
-                        .width(100.dp)
-                        .height(50.dp)
-                        .background(Color.White, shape = RoundedCornerShape(8.dp)),
-                    colors = TextFieldDefaults.textFieldColors(
-                        textColor = Color.Black,
-                        containerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.Center // Center the buttons horizontally
-            ) {
-                Button(
-                    onClick = { /* Place Order Action */ },
-                    modifier = Modifier
-                        .width(300.dp)
-                        .height(65.dp)
-                        .padding(vertical = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34197C))
+                        .width(144.dp)
+                        .height(48.dp)
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .clickable { tableNumberDropdownExpanded = true },
+                    contentAlignment = Alignment.CenterEnd
                 ) {
-                    Text(
-                        "Place Order",
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
-                    )
+                    Text(text = tableNumber, modifier = Modifier.padding(end = 8.dp))
+                    DropdownMenu(
+                        expanded = tableNumberDropdownExpanded,
+                        onDismissRequest = { tableNumberDropdownExpanded = false },
+                        modifier = Modifier
+                            .width(144.dp)
+                            .padding(top = 4.dp)
+                    ) {
+                        allTableNumbers.forEach { number ->
+                            DropdownMenuItem(
+                                text = { Text(number) },
+                                onClick = {
+                                    tableNumber = number
+                                    tableNumberDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
                 }
             }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.Center // Center the buttons horizontally
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(
-                    onClick = { /* Cancel Order Action */ },
+                Text(
+                    text = stringResource(R.string.payment_method),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                var paymentMethodDropdownExpanded by remember { mutableStateOf(false) }
+                val allPaymentMethods = listOf("Cash", "Card", "EWallet")
+                Box(
                     modifier = Modifier
-                        .width(300.dp)
-                        .height(65.dp)
-                        .padding(vertical = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
+                        .width(144.dp)
+                        .height(48.dp)
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .clickable { paymentMethodDropdownExpanded = true },
+                    contentAlignment = Alignment.CenterEnd
                 ) {
-                    Text(
-                        "Cancel",
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                    Text(text = paymentMethod, modifier = Modifier.padding(end = 8.dp))
+                    DropdownMenu(
+                        expanded = paymentMethodDropdownExpanded,
+                        onDismissRequest = { paymentMethodDropdownExpanded = false },
+                        modifier = Modifier
+                            .width(144.dp)
+                            .padding(top = 4.dp)
+                    ) {
+                        allPaymentMethods.forEach { method ->
+                            DropdownMenuItem(
+                                text = { Text(method) },
+                                onClick = {
+                                    paymentMethod = method
+                                    paymentMethodDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly // Center the buttons horizontally
+            ) {
+                Column {
+                    Button(
+                        onClick = { /* Cancel Order Action */ },
+                        modifier = Modifier.height(60.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
+                    ) {
+                        Text(
+                            "Cancel",
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
                         )
-                    )
+                    }
+                }
+                Column {
+                    Button(
+                        onClick = {
+                            try {
+                                // collect all the variables that will be pushed to the DB
+                                val pushTransactionID = activeTransaction?.transactionID
+                                val pushAccountID = activeTransaction?.accountID
+                                val pushDateTime = getCurrentDateTime()
+                                var pushPaymentMethod: String? = null
+                                val pushTransactionTotalPrice = runningTotal
+                                val pushTransactionPayment = totalPaymentAmountString.toDouble()
+                                val pushTransactionBalance = String.format(Locale.getDefault(), "%.2f", pushTransactionPayment - pushTransactionTotalPrice).toDouble()
+                                var pushTableNumber: Int? = null
+
+                                // The data has to go through all three checks and pass them all before pushing to DB
+                                if (paymentMethod == "-") {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Please make sure to select a payment method.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
+                                if (tableNumber == "-") {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Please make sure to select a table number.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
+                                if (pushTransactionPayment < pushTransactionTotalPrice) {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Total payment amount not sufficient. Please check again.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
+
+                                pushPaymentMethod = paymentMethod
+                                pushTableNumber = tableNumber.toInt()
+
+                                // If everything passes, the push to DB should be successful
+                                Log.d("ConfirmOrder", "DB push expected with the following values.")
+                                Log.d("ConfirmOrder", "$pushTransactionID, $pushAccountID, $pushDateTime, $pushPaymentMethod, $pushTransactionTotalPrice, $pushTransactionPayment, $pushTransactionBalance, $pushTableNumber, isActive -> 0")
+                            } catch (e: Exception) {
+                                Log.e("ConfirmOrder", "Error: $e. Check your input again.")
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Please check the Total Payment Amount input again.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            }
+                        },
+                        modifier = Modifier.height(60.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34197C))
+                    ) {
+                        Text(
+                            stringResource(R.string.confirm_order),
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -529,4 +675,8 @@ fun OrderItemCard(
     }
 }
 
-
+fun getCurrentDateTime(): String {
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+    dateFormat.timeZone = TimeZone.getTimeZone("Asia/Kuala_Lumpur")
+    return dateFormat.format(Date())
+}

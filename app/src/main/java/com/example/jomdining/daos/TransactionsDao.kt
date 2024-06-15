@@ -27,7 +27,7 @@ interface TransactionsDao {
     // Add a new row to the transaction table
     @Query("""
         INSERT INTO transactions (accountID, transactionDateTime, transactionMethod, transactionTotalPrice, transactionPayment, transactionBalance, tableNumber, isActive) VALUES
-        (:newAccountID, "", "", 0.00, 0.00, 0.00, 0, 1)
+        (:newAccountID, "", "", 0.00, 0.00, 0.00, 1, 1)
     """)
     suspend fun createNewTransactionUnderAccount(newAccountID: Long)
 

@@ -250,7 +250,7 @@ class JomDiningViewModel(
             // Update TransactionsUi with the new current active transaction
             currentActiveTransactionList.add(currentActiveTransaction)
             transactionsUi = transactionsUi.copy(
-                currentActiveTransaction = currentActiveTransactionList
+                currentActiveTransactionList = currentActiveTransactionList
             )
             Log.d(
                 "CAT_toList",
