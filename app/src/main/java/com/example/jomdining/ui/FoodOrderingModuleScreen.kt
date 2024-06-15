@@ -48,6 +48,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -88,6 +89,7 @@ fun FoodOrderingModuleScreen(
             }
         }
     }
+    val activeTransaction by viewModel.activeTransaction.observeAsState()
 
     Scaffold(
         topBar = {
@@ -111,13 +113,15 @@ fun FoodOrderingModuleScreen(
                         .fillMaxSize()
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    MenuItemGrid(
-                        viewModel = viewModel,
-                        // THIS IS CURRENTLY HARDCODED FOR TESTING!
-                        // currentActiveTransactionID = currentActiveTransaction.transactionID,
-                        currentActiveTransactionID = 1,
-                        modifier = modifier
-                    )
+                    if (activeTransaction != null) {
+                        MenuItemGrid(
+                            viewModel = viewModel,
+                            currentActiveTransactionID = activeTransaction!!.transactionID,
+                            modifier = modifier
+                        )
+                    } else {
+                        Text("Loading transaction...")
+                    }
                 }
                 OrderSummary(
                     viewModel = viewModel,
@@ -252,6 +256,15 @@ fun OrderSummary(
     val currentActiveTransaction = viewModel.transactionsUi.currentActiveTransaction
     // Log.d("CAT_InComposableCtnt", "Content of currentActiveTransaction: $currentActiveTransaction")
 
+    var runningTotal by remember { mutableDoubleStateOf(0.0) }
+    // calculate runningTotal when currentOrderItemsList changes
+    val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
+    LaunchedEffect(currentOrderItemsList) {
+        runningTotal = currentOrderItemsList.sumOf{ (orderItem, menu) ->
+            orderItem.orderItemQuantity * menu.menuItemPrice
+        }
+    }
+
     if (currentActiveTransaction.isNotEmpty()) {
         // Log.d("CAT_TestOutput", "TransactionID: ${currentActiveTransaction.elementAt(0).transactionID}")
         val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
@@ -296,8 +309,9 @@ fun OrderSummary(
                     text = "Total",
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
+                Log.d("runningTotal", "Value: $runningTotal")
                 Text(
-                    text = String.format(Locale.getDefault(), "RM %.2f", currentActiveTransaction.elementAt(0).transactionTotalPrice),
+                    text = String.format(Locale.getDefault(), "RM %.2f", runningTotal),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }

@@ -52,8 +52,8 @@ class JomDiningViewModel(
     val loginAttempted: LiveData<Boolean> get() = _loginAttempted
 
     // All variables used in FoodOrderingModuleScreen
-//    private val _totalPrice = MutableLiveData<Double>()
-//    val totalPrice: LiveData<Double> get() = _totalPrice
+    private val _activeTransaction = MutableLiveData<Transactions?>()
+    val activeTransaction: LiveData<Transactions?> get() = _activeTransaction
 
     // All variables used in the StockManagementModuleScreen
     var selectedStockItem by mutableStateOf<String?>(null)
@@ -234,29 +234,35 @@ class JomDiningViewModel(
 
     fun getCurrentActiveTransaction(accountID: Int) {
         viewModelScope.launch {
+            val transaction = repository.getCurrentActiveTransactionStream(accountID)
+            _activeTransaction.value = transaction
+
             // The fetched current active transaction will be stored in this mutableList
             val currentActiveTransactionList = mutableListOf<Transactions>()
 
             // Also, the fetched Transaction object will be stored in this val
             val currentActiveTransaction = repository.getCurrentActiveTransactionStream(accountID)
-            Log.d("CAT_fetch", "Successfully fetched current active transaction: $currentActiveTransaction")
+            Log.d(
+                "CAT_fetch",
+                "Successfully fetched current active transaction: $currentActiveTransaction"
+            )
 
             // Update TransactionsUi with the new current active transaction
             currentActiveTransactionList.add(currentActiveTransaction)
             transactionsUi = transactionsUi.copy(
                 currentActiveTransaction = currentActiveTransactionList
             )
-            Log.d("CAT_toList", "Details of current active transaction moved to List: $currentActiveTransactionList")
+            Log.d(
+                "CAT_toList",
+                "Details of current active transaction moved to List: $currentActiveTransactionList"
+            )
 
             // Then, using the fetched Transaction object, fetched all its order items
             getAllCurrentOrderItems(currentActiveTransaction.transactionID)
-            Log.d("CAT_orderItems", "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}")
-        }
-    }
-
-    fun updateRunningTotal(runningTotal: Long, accountID: Int) {
-        viewModelScope.launch {
-
+            Log.d(
+                "CAT_orderItems",
+                "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}"
+            )
         }
     }
 
