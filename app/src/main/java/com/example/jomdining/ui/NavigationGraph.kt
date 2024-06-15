@@ -25,7 +25,7 @@ fun NavigationGraph(startDestination: String = "login") {
             MainMenuScreen(viewModel = viewModel, navController = navController)
         }
         composable("food_ordering") {
-            FoodOrderingModuleScreen(viewModel = viewModel)
+            FoodOrderingModuleScreen(viewModel = viewModel, navController = navController)
         }
         composable("stock_management") {
             StockManagementModuleScreen(viewModel = viewModel)

@@ -33,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -60,6 +61,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -70,6 +72,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.jomdining.R
@@ -86,6 +90,7 @@ import java.util.TimeZone
 @Composable
 fun FoodOrderingModuleScreen(
     viewModel: JomDiningViewModel,
+    navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -107,7 +112,7 @@ fun FoodOrderingModuleScreen(
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "JomDining"
+                title = "Food Ordering"
             )
         },
         containerColor = Color(0xFFCEDFFF)
@@ -143,6 +148,7 @@ fun FoodOrderingModuleScreen(
                 }
                 OrderSummary(
                     viewModel = viewModel,
+                    navController = navController,
                     modifier = Modifier
                         .weight(0.4f)
                         .fillMaxHeight()
@@ -268,6 +274,7 @@ fun MenuItemCard(
 @Composable
 fun OrderSummary(
     viewModel: JomDiningViewModel,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -288,7 +295,7 @@ fun OrderSummary(
     var tableNumber by remember { mutableStateOf("-") }
 
     if (currentActiveTransactionList.isNotEmpty()) {
-        val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
+        // val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
         Column(
             modifier = modifier
                 .background(Color(0xFFE6E6E6))
@@ -443,18 +450,82 @@ fun OrderSummary(
                 horizontalArrangement = Arrangement.SpaceEvenly // Center the buttons horizontally
             ) {
                 Column {
+                    var showResetConfirmationDialog by remember { mutableStateOf(false) }
                     Button(
-                        onClick = { /* Cancel Order Action */ },
+                        onClick = {
+                            if (currentOrderItemsList.isEmpty()) {
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "The order list is currently empty.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                                showResetConfirmationDialog = false
+                                return@Button
+                            } else {
+                                showResetConfirmationDialog = true
+                            }
+                        },
                         modifier = Modifier.height(60.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
                     ) {
                         Text(
-                            "Cancel",
+                            "Reset",
                             color = Color.White,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
                             )
+                        )
+                    }
+                    // Confirmation Dialog
+                    if (showResetConfirmationDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showResetConfirmationDialog = false },
+                            title = { Text(text = "Confirm Cancellation") },
+                            text = { Text(text = "Are you sure you want to cancel?") },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        currentOrderItemsList.forEach { (orderItem, _) ->
+                                            Log.d("OrderItemID", "${orderItem.menuItemID}")
+                                            val currentTransactionID = orderItem.transactionID
+                                            val currentMenuItemID = orderItem.menuItemID
+                                            viewModel.deleteOrDecrementOrderItem(
+                                                transactionID = currentTransactionID,
+                                                menuItemID = currentMenuItemID,
+                                                operationFlag = 1
+                                            )
+                                            Toast
+                                                .makeText(
+                                                    context,
+                                                    "Order cancelled and order list cleared.",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        }
+                                        totalPaymentAmountString = ""
+                                        tableNumber = "-"
+                                        paymentMethod = "-"
+                                        showResetConfirmationDialog = false
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Red)
+                                ) {
+                                    Text(text = "Yes")
+                                }
+                            },
+                            dismissButton = {
+                                Button(
+                                    onClick = {
+                                        showResetConfirmationDialog = false
+                                        Log.d("cancelOrder", "Order cancelled.")
+                                    }
+                                ) {
+                                    Text(text = "No")
+                                }
+                            },
+                            properties = DialogProperties(dismissOnClickOutside = true)
                         )
                     }
                 }
@@ -472,7 +543,17 @@ fun OrderSummary(
                                 val pushTransactionBalance = String.format(Locale.getDefault(), "%.2f", pushTransactionPayment - pushTransactionTotalPrice).toDouble()
                                 var pushTableNumber: Int? = null
 
-                                // The data has to go through all three checks and pass them all before pushing to DB
+                                // The data has to go through all four checks and pass them all before pushing to DB
+                                if (currentOrderItemsList.isEmpty()) {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Can't confirm order with an empty order list",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
                                 if (paymentMethod == "-") {
                                     Toast
                                         .makeText(
@@ -510,6 +591,16 @@ fun OrderSummary(
                                 // If everything passes, the push to DB should be successful
                                 Log.d("ConfirmOrder", "DB push expected with the following values.")
                                 Log.d("ConfirmOrder", "$pushTransactionID, $pushAccountID, $pushDateTime, $pushPaymentMethod, $pushTransactionTotalPrice, $pushTransactionPayment, $pushTransactionBalance, $pushTableNumber, isActive -> 0")
+
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Order successfully placed!",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                                navController.navigate("main_menu")
+                                // THE ACTUAL DB BACKEND IS NOT DONE YET!
                             } catch (e: Exception) {
                                 Log.e("ConfirmOrder", "Error: $e. Check your input again.")
                                 Toast
