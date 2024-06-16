@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import com.example.jomdining.databaseentities.Transactions
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionsDao {
@@ -23,4 +24,10 @@ interface TransactionsDao {
         LIMIT 1
     """)
     suspend fun getCurrentActiveTransaction(accountID: Int): Transactions
+
+    @Query("""
+        SELECT * FROM transactions
+        WHERE accountID = :accountID AND isActive = 0
+    """)
+    fun getAllHistoricalTransactions(accountID: Int): Flow<List<Transactions>>
 }

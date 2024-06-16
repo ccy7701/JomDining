@@ -237,6 +237,7 @@ class JomDiningViewModel(
     }
 
     // NOTE FOR 16/6: When you continue, refer here. This is the basis for the order history module.
+    // Make the DAO function and repository functions accordingly
 
     fun getCurrentActiveTransaction(accountID: Int) {
         viewModelScope.launch {
@@ -269,6 +270,17 @@ class JomDiningViewModel(
                 "CAT_orderItems",
                 "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}"
             )
+        }
+    }
+
+    fun getAllHistoricalTransactions(accountID: Int) {
+        viewModelScope.launch {
+            orderHistoryUi = orderHistoryUi.copy(
+                orderHistoryList = repository.getAllHistoricalTransactionsStream(accountID)
+                    .filterNotNull()
+                    .first()
+            )
+            Log.d("orderHistoryList", "Total historical transactions: ${orderHistoryUi.orderHistoryList.size}")
         }
     }
 
