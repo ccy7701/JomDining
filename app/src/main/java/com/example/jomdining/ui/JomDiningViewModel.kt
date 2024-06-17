@@ -1,11 +1,14 @@
 package com.example.jomdining.ui
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -14,7 +17,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jomdining.JomDiningApplication
 import com.example.jomdining.data.JomDiningRepository
 import com.example.jomdining.data.OfflineRepository
+import com.example.jomdining.data.TempMenuItems.menuItems
 import com.example.jomdining.data.UserPreferencesRepository
+import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
@@ -37,11 +42,61 @@ class JomDiningViewModel(
     var transactionsUi by mutableStateOf(TransactionsUi())
         private set
 
-    init {
-        runBlocking {
-            getAllMenuItems()
-            // FOR TESTING ONLY
-            // addNewOrIncrementOrderItem(1, 8, 1)
+    var stockUi by mutableStateOf(StockUi())
+        private set
+
+    // All variables used to track currently active login session
+    private val _activeLoginAccount = MutableLiveData<Account?>()
+    private val _loginAttempted = MutableLiveData(false)
+    val activeLoginAccount: LiveData<Account?> get() = _activeLoginAccount
+    val loginAttempted: LiveData<Boolean> get() = _loginAttempted
+
+    // All variables used in FoodOrderingModuleScreen
+    private val _activeTransaction = MutableLiveData<Transactions?>()
+    val activeTransaction: LiveData<Transactions?> get() = _activeTransaction
+
+    // All variables used in the StockManagementModuleScreen
+    var selectedStockItem by mutableStateOf<String?>(null)
+    var stockItemID by mutableIntStateOf(0)
+    var stockItemName by mutableStateOf("")
+    var stockItemQuantity by mutableIntStateOf(0)
+    var stockItemImageUri by mutableStateOf<String?>(null)
+
+    /*
+        ALL ITEMS UNDER AccountDao
+     */
+    fun getAccountByLoginDetails(loginUsername: String, loginPassword: String) {
+        viewModelScope.launch() {
+            try {
+                val fetchedAccount = repository.getAccountByLoginDetailsStream(loginUsername, loginPassword)
+                _activeLoginAccount.postValue(fetchedAccount)
+            } catch (e: Exception) {
+                Log.e("getAccByLoginDtls", "Error encountered: $e")
+                _activeLoginAccount.postValue(null)
+            } finally {
+                _loginAttempted.postValue(true)
+            }
+        }
+    }
+    fun resetLoginAttempt() {
+        _loginAttempted.value = false
+    }
+    fun logout() {
+        _activeLoginAccount.value = null
+        _loginAttempted.value = false
+    }
+
+    fun registerAndCreateNewAccount(accountUsername: String, accountPassword: String, accountEmail: String) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that creates a new account and pushes it to the DB
+                val newAccountID = repository.createNewAccountStream(accountUsername, accountPassword, accountEmail)
+                Log.d("AccountRegistration", "New account with username $accountUsername registered successfully [New accountID: $newAccountID]")
+                // invoke the function that creates a new Transactions item. a new account will have one active Transactions item at all times
+                createNewTransactionUnderAccount(newAccountID)
+            } catch (e: Exception) {
+                Log.e("AccountRegistration", "Error when registering new account: $e")
+            }
         }
     }
 
@@ -165,25 +220,104 @@ class JomDiningViewModel(
     /*
         ALL ITEMS UNDER TransactionsDao
      */
-    fun getCurrentActiveTransaction(transactionID: Int) {
+    fun createNewTransactionUnderAccount(newAccountID: Long) {
         viewModelScope.launch {
+            try {
+                // invoke the function that creates a new Transactions item in the DB
+                repository.createNewTransactionUnderAccountStream(newAccountID)
+                Log.d("NewTransaction", "Created new Transactions item for accountID $newAccountID. This Transactions item is now currently active for this account.")
+            } catch (e: Exception) {
+                Log.e("NewTransaction", "Failed to create new Transactions item: $e")
+            }
+        }
+    }
+
+    fun getCurrentActiveTransaction(accountID: Int) {
+        viewModelScope.launch {
+            val transaction = repository.getCurrentActiveTransactionStream(accountID)
+            _activeTransaction.value = transaction
+
             // The fetched current active transaction will be stored in this mutableList
             val currentActiveTransactionList = mutableListOf<Transactions>()
 
             // Also, the fetched Transaction object will be stored in this val
-            val currentActiveTransaction = repository.getCurrentActiveTransactionStream(transactionID)
-            Log.d("CAT_fetch", "Successfully fetched current active transaction: $currentActiveTransaction")
+            val currentActiveTransaction = repository.getCurrentActiveTransactionStream(accountID)
+            Log.d(
+                "CAT_fetch",
+                "Successfully fetched current active transaction: $currentActiveTransaction"
+            )
 
             // Update TransactionsUi with the new current active transaction
             currentActiveTransactionList.add(currentActiveTransaction)
             transactionsUi = transactionsUi.copy(
-                currentActiveTransaction = currentActiveTransactionList
+                currentActiveTransactionList = currentActiveTransactionList
             )
-            Log.d("CAT_toList", "Details of current active transaction moved to List: $currentActiveTransactionList")
+            Log.d(
+                "CAT_toList",
+                "Details of current active transaction moved to List: $currentActiveTransactionList"
+            )
 
             // Then, using the fetched Transaction object, fetched all its order items
             getAllCurrentOrderItems(currentActiveTransaction.transactionID)
-            Log.d("CAT_orderItems", "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}")
+            Log.d(
+                "CAT_orderItems",
+                "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}"
+            )
+        }
+    }
+
+    /*
+        ALL ITEMS UNDER StockDao
+     */
+    fun addNewStockItem(stockItemName: String, stockItemQuantity: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that inserts a new Stock item to the DB
+                repository.addNewStockItemStream(stockItemName, stockItemQuantity)
+                Log.d("addNewStockItem", "New stock item added successfully")
+            } catch (e: Exception) {
+                Log.e("addNewStockItem", "Error when adding new stock item: $e")
+            }
+            getAllStockItems()
+        }
+    }
+
+    fun updateStockItemDetails(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that update the Stock item details in the DB
+                repository.updateStockItemDetailsStream(stockItemID, newStockItemName, newStockItemQuantity)
+                Log.d("updateStockItemDtls",
+                    "Stock item updated successfully. New details: (stockItemID: $stockItemID | stockItemName: $newStockItemName | stockItemQuantity: $newStockItemQuantity"
+                )
+            } catch (e: Exception) {
+                Log.e("updateStockItemDtls", "Error when update stock item details: $e")
+            }
+            getAllStockItems()
+        }
+    }
+
+    fun deleteStockItem(stockItemID: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that deletes the Stock item in the DB
+                repository.deleteStockItemStream(stockItemID)
+                Log.d("deleteStockItem", "Stock item deleted successfully.")
+            } catch (e: Exception) {
+                Log.e("deleteStockItem", "Error when deleting stock item: $e")
+            }
+            getAllStockItems()
+        }
+    }
+
+    fun getAllStockItems() {
+        viewModelScope.launch {
+            stockUi = stockUi.copy(
+                stockItems = repository.getAllStockItems()
+                    .filterNotNull()
+                    .first()
+            )
+            Log.d("stockItems", "Total stock items: ${stockUi.stockItems.size}")
         }
     }
 
@@ -203,11 +337,11 @@ class JomDiningViewModel(
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as JomDiningApplication)
                 val repository =
                     OfflineRepository(
-//                        application.database.accountDao(),
+                        application.database.accountDao(),
                         application.database.menuDao(),
 //                        application.database.menuItemIngredientDao(),
                         application.database.orderItemDao(),
-//                        application.database.stockDao(),
+                        application.database.stockDao(),
                         application.database.transactionsDao()
                     )
                 JomDiningViewModel(repository, application.userPreferencesRepository)

@@ -1,18 +1,27 @@
 package com.example.jomdining.data
 
+import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import com.example.jomdining.databaseentities.Stock
 import com.example.jomdining.databaseentities.Transactions
 import kotlinx.coroutines.flow.Flow
 
 interface JomDiningRepository {
     /*
-        ITEMS UNDER MenuDao
+        ALL ITEMS UNDER AccountDao
+     */
+    suspend fun getAccountByLoginDetailsStream(loginUsername: String, loginPassword: String): Account
+
+    suspend fun createNewAccountStream(accountUsername: String, accountPassword: String, accountEmail: String): Long
+
+    /*
+        ALL ITEMS UNDER MenuDao
      */
     fun getAllMenuItems(): Flow<List<Menu>>
 
     /*
-        ITEMS UNDER OrderItemDao
+        ALL ITEMS UNDER OrderItemDao
      */
     suspend fun addNewOrderItemStream(transactionID: Int, menuItemID: Int)
 
@@ -29,7 +38,19 @@ interface JomDiningRepository {
     suspend fun decreaseOrderItemQuantityStream(transactionID: Int, menuItemID: Int)
 
     /*
-        ITEMS UNDER TransactionsDao
+        ALL ITEMS UNDER TransactionsDao
      */
-    suspend fun getCurrentActiveTransactionStream(transactionID: Int): Transactions
+    suspend fun createNewTransactionUnderAccountStream(newAccountID: Long)
+    suspend fun getCurrentActiveTransactionStream(accountID: Int): Transactions
+
+    /*
+        ALL ITEMS UNDER StockDao
+     */
+    suspend fun addNewStockItemStream(stockItemName: String, stockItemQuantity: Int)
+
+    suspend fun updateStockItemDetailsStream(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int)
+
+    suspend fun deleteStockItemStream(stockItemID: Int)
+
+    fun getAllStockItems(): Flow<List<Stock>>
 }

@@ -1,18 +1,33 @@
 package com.example.jomdining.data
 
+import com.example.jomdining.daos.AccountDao
 import com.example.jomdining.daos.MenuDao
 import com.example.jomdining.daos.OrderItemDao
+import com.example.jomdining.daos.StockDao
 import com.example.jomdining.daos.TransactionsDao
+import com.example.jomdining.databaseentities.Account
+import com.example.jomdining.databaseentities.Stock
 import com.example.jomdining.databaseentities.Transactions
+import kotlinx.coroutines.flow.Flow
 
 class OfflineRepository(
-//    private val accountDao: AccountDao,
+    private val accountDao: AccountDao,
     private val menuDao: MenuDao,
 //    private val menuItemIngredientDao: MenuItemIngredientDao,
     private val orderItemDao: OrderItemDao,
-//    private val stockDao: StockDao,
+    private val stockDao: StockDao,
     private val transactionsDao: TransactionsDao
 ) : JomDiningRepository {
+    /*
+        ALL ITEMS UNDER AccountDao
+     */
+    override suspend fun getAccountByLoginDetailsStream(loginUsername: String, loginPassword: String) =
+        accountDao.getAccountByLoginDetails(loginUsername, loginPassword)
+
+    override suspend fun createNewAccountStream(accountUsername: String, accountPassword: String, accountEmail: String): Long {
+        return accountDao.createNewAccount(accountUsername, accountPassword, accountEmail)
+    }
+
     /*
         ALL ITEMS UNDER MenuDao
      */
@@ -46,6 +61,24 @@ class OfflineRepository(
     /*
         ALL ITEMS UNDER TransactionsDao
      */
-    override suspend fun getCurrentActiveTransactionStream(transactionID: Int) =
-        transactionsDao.getCurrentActiveTransaction(transactionID)
+    override suspend fun createNewTransactionUnderAccountStream(newAccountID: Long) =
+        transactionsDao.createNewTransactionUnderAccount(newAccountID)
+
+    override suspend fun getCurrentActiveTransactionStream(accountID: Int) =
+        transactionsDao.getCurrentActiveTransaction(accountID)
+
+    /*
+        ALL ITEMS UNDER StockDao
+     */
+    override fun getAllStockItems() =
+        stockDao.getAllStockItems()
+
+    override suspend fun addNewStockItemStream(stockItemName: String, stockItemQuantity: Int) =
+        stockDao.addNewStockItem(stockItemName, stockItemQuantity)
+
+    override suspend fun updateStockItemDetailsStream(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int) =
+        stockDao.updateStockItemDetails(stockItemID, newStockItemName, newStockItemQuantity)
+
+    override suspend fun deleteStockItemStream(stockItemID: Int) =
+        stockDao.deleteStockItem(stockItemID)
 }

@@ -18,5 +18,16 @@
     <string name="main_course">Main Course</string>
     <string name="side_dish">Side Dish</string>
     <string name="dessert">Dessert</string>
+    <string name="add_new_item">Add New Item</string>
+    <string name="edit_item">Edit Item</string>
+    <string name="password">Password</string>
+    <string name="stock_item_name">Stock Item Name</string>
+    <string name="save">Save</string>
+    <string name="insert_new_item">Insert new item</string>
+    <string name="table_number">Table Number</string>
+    <string name="total">Total</string>
+    <string name="payment_method">Payment method</string>
+    <string name="total_payment_amount">Total payment amount</string>
+    <string name="confirm_order">Confirm Order</string>
 
 </resources>
