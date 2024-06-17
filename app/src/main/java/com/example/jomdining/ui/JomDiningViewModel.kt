@@ -2,10 +2,8 @@ package com.example.jomdining.ui
 
 import android.util.Log
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,16 +15,19 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.jomdining.JomDiningApplication
 import com.example.jomdining.data.JomDiningRepository
 import com.example.jomdining.data.OfflineRepository
-import com.example.jomdining.data.TempMenuItems.menuItems
 import com.example.jomdining.data.UserPreferencesRepository
 import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.ui.components.MenuUi
+import com.example.jomdining.ui.components.OrderHistoryUi
+import com.example.jomdining.ui.components.OrderItemUi
+import com.example.jomdining.ui.components.StockUi
+import com.example.jomdining.ui.components.TransactionsUi
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class JomDiningViewModel(
     private val repository: JomDiningRepository,
@@ -34,6 +35,9 @@ class JomDiningViewModel(
 ) : ViewModel() {
 
     var menuUi by mutableStateOf(MenuUi())
+        private set
+
+    var orderHistoryUi by mutableStateOf(OrderHistoryUi())
         private set
 
     var orderItemUi by mutableStateOf(OrderItemUi())
@@ -66,7 +70,7 @@ class JomDiningViewModel(
         ALL ITEMS UNDER AccountDao
      */
     fun getAccountByLoginDetails(loginUsername: String, loginPassword: String) {
-        viewModelScope.launch() {
+        viewModelScope.launch {
             try {
                 val fetchedAccount = repository.getAccountByLoginDetailsStream(loginUsername, loginPassword)
                 _activeLoginAccount.postValue(fetchedAccount)
@@ -232,6 +236,9 @@ class JomDiningViewModel(
         }
     }
 
+    // NOTE FOR 16/6: When you continue, refer here. This is the basis for the order history module.
+    // Make the DAO function and repository functions accordingly
+
     fun getCurrentActiveTransaction(accountID: Int) {
         viewModelScope.launch {
             val transaction = repository.getCurrentActiveTransactionStream(accountID)
@@ -263,6 +270,17 @@ class JomDiningViewModel(
                 "CAT_orderItems",
                 "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}"
             )
+        }
+    }
+
+    fun getAllHistoricalTransactions(accountID: Int) {
+        viewModelScope.launch {
+            orderHistoryUi = orderHistoryUi.copy(
+                orderHistoryList = repository.getAllHistoricalTransactionsStream(accountID)
+                    .filterNotNull()
+                    .first()
+            )
+            Log.d("orderHistoryList", "Total historical transactions: ${orderHistoryUi.orderHistoryList.size}")
         }
     }
 

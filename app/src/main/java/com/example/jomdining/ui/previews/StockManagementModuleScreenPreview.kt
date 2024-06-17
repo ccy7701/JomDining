@@ -1,6 +1,5 @@
 package com.example.jomdining.ui.previews
 
-import android.graphics.Paint.Align
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -214,10 +213,10 @@ fun TestStockItemActionDisplay(
     modifier: Modifier,
     backgroundColor: Color = Color.LightGray
 ) {
-    var selectedIngredient by remember { mutableStateOf<String?>("Currently not null") }
+    val selectedIngredient by remember { mutableStateOf<String?>("Currently not null") }
     var ingredientName by remember { mutableStateOf("") }
     var stockCount by remember { mutableIntStateOf(0) }
-    var ingredientImageUri by remember { mutableStateOf<String?>(null) }
+    val ingredientImageUri by remember { mutableStateOf<String?>(null) }
 
     if (selectedIngredient != null) {
         Column(
@@ -238,10 +237,6 @@ fun TestStockItemActionDisplay(
                 ingredientImageUri?.let {
                     Image(
                         painter = rememberAsyncImagePainter(it),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize()
-                    ) ?: Image(
-                        painter = painterResource(R.drawable.ic_launcher_foreground),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize()
                     )

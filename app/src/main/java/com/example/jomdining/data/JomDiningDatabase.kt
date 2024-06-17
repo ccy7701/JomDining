@@ -51,12 +51,6 @@ abstract class JomDiningDatabase: RoomDatabase() {
                     .createFromAsset(
                         "database/jom_dining_database.db"
                     )
-//                    .addTypeConverter(AccountConverter())
-//                    .addTypeConverter(MenuConverter())
-//                    .addTypeConverter(MenuItemIngredientConverter())
-//                    .addTypeConverter(OrderItemConverter())
-//                    .addTypeConverter(StockConverter())
-//                    .addTypeConverter(TransactionsConverter())
                     .build()
                     .also {
                         Instance = it
