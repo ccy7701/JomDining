@@ -10,11 +10,21 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MenuDao {
-//    @Insert(onConflict = OnConflictStrategy.IGNORE)
-//    suspend fun addMenu(menu: Menu)
-
 //    @Delete
 //    suspend fun removeMenu(menu: Menu)
+
+    @Query("""
+        INSERT INTO menu (menuItemName, menuItemPrice, menuItemType, menuItemImagePath, menuItemAvailability)
+        VALUES (:menuItemName, :menuItemPrice, :menuItemType, "", 1)
+    """)
+    suspend fun addNewMenuItem(menuItemName: String, menuItemPrice: Double, menuItemType: String)
+
+    @Query("""
+        UPDATE menu
+        SET menuItemName = :menuItemName, menuItemPrice = :menuItemPrice, menuItemType = :menuItemType
+        WHERE menuItemID = :menuItemID
+    """)
+    suspend fun updateMenuItemDetails(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String)
 
     @Query("SELECT * FROM menu ORDER BY menuItemType")
     fun getAllMenuItems(): Flow<List<Menu>>

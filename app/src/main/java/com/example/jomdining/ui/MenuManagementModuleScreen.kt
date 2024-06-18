@@ -1,7 +1,9 @@
 package com.example.jomdining.ui
 
 import android.annotation.SuppressLint
+import android.graphics.Paint.Align
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +29,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -158,7 +162,9 @@ fun MenuCard(
                 viewModel.selectedMenuItem = "existing_item"
                 viewModel.menuItemID = menuItem.menuItemID
                 viewModel.menuItemName = menuItem.menuItemName
-                viewModel.menuItemPrice = String.format(Locale.getDefault(), "%.2f", menuItem.menuItemPrice)
+                viewModel.menuItemPrice =
+                    String.format(Locale.getDefault(), "%.2f", menuItem.menuItemPrice)
+                viewModel.menuItemType = menuItem.menuItemType
                 viewModel.menuItemImageUri = menuItem.menuItemImagePath
                 focusManager.clearFocus()
             },
@@ -179,7 +185,10 @@ fun MenuCard(
                 Image(
                     painter= rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data("file:///android_asset/images/menu/$imagePath")
+                            .data(
+                                if (imagePath != "") { "file:///android_asset/images/menu/$imagePath" }
+                                else { R.drawable.jomdininglogo }
+                            )
                             .build()
                     ),
                     contentDescription = menuItem.menuItemName,
@@ -259,6 +268,7 @@ fun AddMenuCard(
                 viewModel.menuItemID = -1
                 viewModel.menuItemName = "New menu item"
                 viewModel.menuItemPrice = ""
+                viewModel.menuItemType = ""
                 viewModel.menuItemImageUri = ""
                 focusManager.clearFocus()
                 Log.d(
@@ -354,13 +364,129 @@ fun EditMenuActionDisplay(
                 leadingIcon = { Text("RM ") },
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                var menuItemTypeDropdownExpanded by remember { mutableStateOf(false) }
+                val allMenuItemTypes = listOf("main_course", "side_dish", "beverage")
+                Text(
+                    text = stringResource(R.string.menu_item_type),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                )
+                Box(
+                    modifier = Modifier
+                        .width(144.dp)
+                        .height(48.dp)
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .clickable { menuItemTypeDropdownExpanded = true },
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Text(text = viewModel.menuItemType, modifier = Modifier.padding(end = 8.dp))
+                    DropdownMenu(
+                        expanded = menuItemTypeDropdownExpanded,
+                        onDismissRequest = { menuItemTypeDropdownExpanded = false },
+                        modifier = Modifier
+                            .width(144.dp)
+                            .padding(top = 4.dp)
+                    ) {
+                        allMenuItemTypes.forEach { type ->
+                            DropdownMenuItem(
+                                text = { Text(type) },
+                                onClick = {
+                                    viewModel.menuItemType = type
+                                    menuItemTypeDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
-                    onClick = { /* Handle save */ },
+                    onClick = {
+                        try {
+                            // First, parse the textfield string to double
+                            val pushMenuItemPrice = viewModel.menuItemPrice.toDoubleOrNull()
+                            val pushMenuItemType = viewModel.menuItemType
+
+                            // Then, the data has to go through all these checks and pass them all before pushing to the DB
+                            if (pushMenuItemType == "") {
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Please make sure to select a menu item type.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                                return@Button
+                            }
+                            if (pushMenuItemPrice == null) {
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Please check your menu item price input again.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                                return@Button
+                            }
+
+                            // Then, call the appropriate viewModel function
+                            if (viewModel.selectedMenuItem == "existing_item") {
+                                viewModel.updateMenuItemDetails(
+                                    menuItemID = viewModel.menuItemID,
+                                    menuItemName = viewModel.menuItemName,
+                                    menuItemPrice = pushMenuItemPrice,
+                                    menuItemType = pushMenuItemType
+                                )
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Menu item edited successfully.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            } else if (viewModel.selectedMenuItem == "new_item") {
+                                viewModel.addNewMenuItem(
+                                    menuItemName = viewModel.menuItemName,
+                                    menuItemPrice = pushMenuItemPrice,
+                                    menuItemType = pushMenuItemType
+                                )
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "New menu item added successfully.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            }
+
+                            // Then, clear the data at the viewModel.
+                            viewModel.selectedMenuItem = null
+                            viewModel.menuItemID = -1
+                            viewModel.menuItemName = ""
+                            viewModel.menuItemPrice = ""
+                            viewModel.menuItemImageUri = ""
+                        } catch (e: Exception) {
+                            Log.e("addOrEditMenuItem", "Error encountered: $e")
+                            Toast
+                                .makeText(
+                                    context,
+                                    "An error was encountered. Please try again.",
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A148C)),
                     modifier = Modifier.weight(1f)
                 ) {

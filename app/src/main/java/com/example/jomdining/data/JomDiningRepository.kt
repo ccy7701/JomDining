@@ -20,6 +20,10 @@ interface JomDiningRepository {
      */
     fun getAllMenuItems(): Flow<List<Menu>>
 
+    suspend fun addNewMenuItemStream(menuItemName: String, menuItemPrice: Double, menuItemType: String)
+
+    suspend fun updateMenuItemDetailsStream(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String)
+
     /*
         ALL ITEMS UNDER OrderItemDao
      */

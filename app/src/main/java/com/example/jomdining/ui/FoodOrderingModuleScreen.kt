@@ -585,9 +585,6 @@ fun OrderSummary(
                                 pushTableNumber = tableNumber.toInt()
 
                                 // If everything passes, the push to DB should be successful
-                                Log.d("ConfirmOrder", "DB push expected with the following values.")
-                                Log.d("ConfirmOrder", "$pushTransactionID, $pushAccountID, $pushDateTime, $pushPaymentMethod, $pushTransactionTotalPrice, $pushTransactionPayment, $pushTransactionBalance, $pushTableNumber, isActive -> 0")
-
                                 Toast
                                     .makeText(
                                         context,

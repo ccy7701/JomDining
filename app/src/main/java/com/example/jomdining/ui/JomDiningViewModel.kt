@@ -71,6 +71,7 @@ class JomDiningViewModel(
     var menuItemID by mutableIntStateOf(0)
     var menuItemName by mutableStateOf("")
     var menuItemPrice by mutableStateOf("")
+    var menuItemType by mutableStateOf("")
     var menuItemImageUri by mutableStateOf<String?> (null)
 
     /*
@@ -121,6 +122,32 @@ class JomDiningViewModel(
                     .filterNotNull()
                     .first()
             )
+        }
+    }
+
+    fun addNewMenuItem(menuItemName: String, menuItemPrice: Double, menuItemType: String) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that inserts a new Menu item to the DB
+                repository.addNewMenuItemStream(menuItemName, menuItemPrice, menuItemType)
+                Log.d("addNewMenuItem", "New menu item added successfully")
+            } catch (e: Exception) {
+                Log.e("addNewMenuItem", "Error when adding new menu item: $e")
+            }
+            getAllMenuItems()
+        }
+    }
+
+    fun updateMenuItemDetails(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that updates the Menu item details in the DB
+                repository.updateMenuItemDetailsStream(menuItemID, menuItemName, menuItemPrice, menuItemType)
+                Log.d("updateMenuItemDtls", "Menu item updated successfully. New details: (menuItemID: $menuItemID | menuItemName: $menuItemName | menuItemPrice: $menuItemPrice | menuItemType: $menuItemType)")
+            } catch (e: Exception) {
+                Log.e("updateMenuItemDtls", "Error when updating menu item details: $e")
+            }
+            getAllMenuItems()
         }
     }
 

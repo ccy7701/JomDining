@@ -30,6 +30,12 @@ class OfflineRepository(
     override fun getAllMenuItems() =
         menuDao.getAllMenuItems()
 
+    override suspend fun addNewMenuItemStream(menuItemName: String, menuItemPrice: Double, menuItemType: String) =
+        menuDao.addNewMenuItem(menuItemName, menuItemPrice, menuItemType)
+
+    override suspend fun updateMenuItemDetailsStream(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String) =
+        menuDao.updateMenuItemDetails(menuItemID, menuItemName, menuItemPrice, menuItemType)
+
     /*
         ALL ITEMS UNDER OrderItemDao
      */
