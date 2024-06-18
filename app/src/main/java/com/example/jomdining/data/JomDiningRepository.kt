@@ -20,8 +20,6 @@ interface JomDiningRepository {
      */
     fun getAllMenuItems(): Flow<List<Menu>>
 
-    suspend fun getMenuItemByIDStream(menuItemID: Int): Menu
-
     /*
         ALL ITEMS UNDER OrderItemDao
      */

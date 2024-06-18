@@ -30,9 +30,6 @@ class OfflineRepository(
     override fun getAllMenuItems() =
         menuDao.getAllMenuItems()
 
-    override suspend fun getMenuItemByIDStream(menuItemID: Int) =
-        menuDao.getMenuItemByID(menuItemID)
-
     /*
         ALL ITEMS UNDER OrderItemDao
      */

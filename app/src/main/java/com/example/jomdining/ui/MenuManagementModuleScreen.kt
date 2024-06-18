@@ -34,10 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,7 +53,6 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.jomdining.R
-import com.example.jomdining.data.TempMenuItems
 import com.example.jomdining.databaseentities.Menu
 import java.util.Locale
 
@@ -162,10 +157,6 @@ fun MenuCard(
                 viewModel.menuItemPrice = String.format(Locale.getDefault(), "%.2f", menuItem.menuItemPrice)
                 viewModel.menuItemImageUri = menuItem.menuItemImagePath
                 focusManager.clearFocus()
-                Log.d(
-                    "MC_menuItem",
-                    "Currently selected: ${viewModel.selectedMenuItem} | ${viewModel.menuItemID} | ${viewModel.menuItemName} | ${viewModel.menuItemPrice} | ${viewModel.menuItemImageUri}"
-                )
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
@@ -209,7 +200,7 @@ fun MenuCard(
                     modifier = Modifier.padding(top = 8.dp)
                 )
                 Text(
-                    text = String.format("RM %.2f", menuItem.menuItemPrice),
+                    text = String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice),
                     style = MaterialTheme.typography.bodyMedium,
                     fontSize = 24.sp,
                     modifier = Modifier.padding(top = 8.dp)
@@ -262,7 +253,7 @@ fun AddMenuCard(
             .clickable {
                 viewModel.selectedMenuItem = "new_item"
                 viewModel.menuItemID = -1
-                viewModel.menuItemName = "New item"
+                viewModel.menuItemName = "New menu item"
                 viewModel.menuItemPrice = ""
                 viewModel.menuItemImageUri = ""
                 focusManager.clearFocus()
@@ -314,7 +305,10 @@ fun EditMenuActionDisplay(
             Image(
                 painter= rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data("file:///android_asset/images/menu/$imagePath")
+                        .data(
+                            if (imagePath != "") { "file:///android_asset/images/menu/$imagePath" }
+                            else { R.drawable.jomdininglogo }
+                        )
                         .build()
                 ),
                 contentDescription = viewModel.menuItemName,
@@ -356,8 +350,6 @@ fun EditMenuActionDisplay(
                 leadingIcon = { Text("RM ") },
                 modifier = Modifier.fillMaxWidth()
             )
-            //
-            //
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -368,11 +360,18 @@ fun EditMenuActionDisplay(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A148C)),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = "Save", color = Color.White)
+                    if (viewModel.selectedMenuItem == "existing_item") { Text(text = stringResource(R.string.save), color = Color.White) }
+                    else if (viewModel.selectedMenuItem == "new_item") { Text(text = stringResource(R.string.insert_new_item), color = Color.White) }
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
-                    onClick = { /* Handle cancel */ },
+                    onClick = {
+                        viewModel.selectedMenuItem = null
+                        viewModel.menuItemID = -1
+                        viewModel.menuItemName = ""
+                        viewModel.menuItemPrice = ""
+                        viewModel.menuItemImageUri = ""
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
                     modifier = Modifier.weight(1f)
                 ) {
@@ -382,12 +381,16 @@ fun EditMenuActionDisplay(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Button(
-                onClick = { /* Handle deelte */ },
+                onClick = { /* Handle delete */ },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0000)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Delete", color = Color.White)
             }
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = stringResource(R.string.no_item_chosen), color = Color.Gray, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

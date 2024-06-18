@@ -30,5 +30,6 @@
     <string name="total_payment_amount">Total payment amount</string>
     <string name="confirm_order">Confirm Order</string>
     <string name="menu_item_name">Menu item name</string>
+    <string name="no_item_chosen">No item chosen</string>
 
 </resources>
