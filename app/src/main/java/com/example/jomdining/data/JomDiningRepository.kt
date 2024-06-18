@@ -26,6 +26,8 @@ interface JomDiningRepository {
 
     suspend fun updateMenuItemDetailsStream(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String)
 
+    suspend fun updateMenuItemAvailabilityStream(menuItemID: Int, availabilityToggle: Int)
+
     suspend fun retireMenuItemStream(menuItemID: Int)
 
     /*

@@ -152,6 +152,13 @@ class JomDiningViewModel(
         }
     }
 
+    fun updateMenuAvailability(menuItemID: Int, availabilityToggle: Int) {
+        viewModelScope.launch {
+            repository.updateMenuItemAvailabilityStream(menuItemID, availabilityToggle)
+            getAllMenuItems()
+        }
+    }
+
     fun retireMenuItem(menuItemID: Int) {
         viewModelScope.launch {
             try {

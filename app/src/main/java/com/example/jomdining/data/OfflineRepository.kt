@@ -40,6 +40,9 @@ class OfflineRepository(
     override suspend fun updateMenuItemDetailsStream(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String) =
         menuDao.updateMenuItemDetails(menuItemID, menuItemName, menuItemPrice, menuItemType)
 
+    override suspend fun updateMenuItemAvailabilityStream(menuItemID: Int, availabilityToggle: Int) =
+        menuDao.updateMenuAvailability(menuItemID, availabilityToggle)
+
     override suspend fun retireMenuItemStream(menuItemID: Int) =
         menuDao.retireMenuItem(menuItemID)
 

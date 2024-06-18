@@ -242,11 +242,10 @@ fun MenuCard(
                     )
                 } else {
                     Button(
-                        onClick = { /* isAvailable = true */ },
-//                    colors = ButtonDefaults.buttonColors(
-//                        containerColor = Color.Green, /* if (isAvailable) Color.Green else Color.Gray */
-//                    ),
-                        // button effect disappears if the above code is applied. KIV.
+                        onClick = { viewModel.updateMenuAvailability(menuItem.menuItemID, 1) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (menuItem.menuItemAvailability == 1) Color(0xFF415F91) else Color.LightGray
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
@@ -254,10 +253,10 @@ fun MenuCard(
                         Text(text = "Available")
                     }
                     Button(
-                        onClick = { /* isAvailable = false */ },
-//                    colors = ButtonDefaults.buttonColors(
-//                        containerColor = Color.Red, /* if (isAvailable) Color.Red else Color.Gray */
-//                    ),
+                        onClick = { viewModel.updateMenuAvailability(menuItem.menuItemID, 0) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (menuItem.menuItemAvailability == 0) Color(0xFF415F91) else Color.LightGray
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)

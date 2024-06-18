@@ -26,6 +26,13 @@ interface MenuDao {
     """)
     suspend fun updateMenuItemDetails(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String)
 
+    @Query("""
+        UPDATE menu
+        SET menuItemAvailability = :availabilityToggle
+        WHERE menuItemID = :menuItemID
+    """)
+    suspend fun updateMenuAvailability(menuItemID: Int, availabilityToggle: Int)
+
     // The idea behind using the menuItemAvailability flag is,
     // By default, active menu items have value 1, out of stock items have value 0, retired items have value -1.
     // Therefore it will not disturb historical transaction receipts.
