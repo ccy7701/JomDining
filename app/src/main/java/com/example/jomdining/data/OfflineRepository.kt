@@ -10,7 +10,6 @@ import com.example.jomdining.databaseentities.Menu
 class OfflineRepository(
     private val accountDao: AccountDao,
     private val menuDao: MenuDao,
-//    private val menuItemIngredientDao: MenuItemIngredientDao,
     private val orderItemDao: OrderItemDao,
     private val stockDao: StockDao,
     private val transactionsDao: TransactionsDao
