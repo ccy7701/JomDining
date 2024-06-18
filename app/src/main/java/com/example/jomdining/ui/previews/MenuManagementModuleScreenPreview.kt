@@ -39,6 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TextField
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.unit.sp
 import okhttp3.internal.platform.Jdk9Platform.Companion.isAvailable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,12 +101,6 @@ fun MenuCardPreview() {
     TestMenuCard(menuItem = menuItem)
 }
 
-@Preview
-@Composable
-fun OrderItemCardPreview_II() {
-    TestOrderItemCard_II()
-}
-
 @Composable
 fun TestMenuItemGrid_II(
     modifier: Modifier = Modifier,
@@ -129,10 +125,6 @@ fun TestMenuCard(
     menuItem: Menu,
     modifier: Modifier = Modifier
 ) {
-    // var isAvailable by remember { mutableStateOf(menuItem.isAvailable) }
-
-    val ingredientsList = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = modifier
@@ -143,16 +135,11 @@ fun TestMenuCard(
         )
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Group A: Food Image and Name
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 16.dp),
-                horizontalAlignment = Alignment.Start
-            ) {
+            // Group A: Menu image
+            Column(modifier = modifier.weight(0.3f)) {
                 Image(
                     painter= rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
@@ -161,43 +148,46 @@ fun TestMenuCard(
                     ),
                     contentDescription = menuItem.menuItemName,
                     modifier = Modifier
-                        .size(120.dp)
+                        .size(192.dp)
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
+            }
+            // Group B: Menu name and price
+            Column(
+                modifier = modifier.padding(16.dp).weight(0.3f)
+            ) {
+                // Menu name in the center with its price
                 Text(
                     text = menuItem.menuItemName,
                     style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 8.dp)
                 )
+                Text(
+                    text = String.format("RM %.2f", menuItem.menuItemPrice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
-            // Ingredient text in the center
-            Text(
-                text = "Ingredient: $ingredientsList",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp)
-            )
-            // Group B: Availabel and out of stock buttons
-            Column(
-                horizontalAlignment = Alignment.End,
-                modifier = Modifier.weight(1f)
-            ) {
+            // Group C: Available and out of stock buttons
+            Column(modifier = modifier.weight(0.4f)) {
                 Button(
                     onClick = { /* isAvailable = true */ },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Green, /* if (isAvailable) Color.Green else Color.Gray */
                     ),
+
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 8.dp)
                 ) {
                     Text(text = "Available")
                 }
                 Button(
-                    onClick = { /* isAvailable = true */ },
+                    onClick = { /* isAvailable = false */ },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Red, /* if (isAvailable) Color.Red else Color.Gray */
                     ),
@@ -359,6 +349,7 @@ fun TestEditMenuActionDisplay(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
                 modifier = Modifier.weight(1f)
             ) {
+                //this bbutton should be lighter shade, orwhiteish
                 Text(text = "Cancel", color = Color.White)
             }
         }
@@ -369,95 +360,6 @@ fun TestEditMenuActionDisplay(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Delete", color = Color.White)
-        }
-    }
-}
-
-@Composable
-fun TestOrderItemCard_II(
-    modifier: Modifier = Modifier
-) {
-    Card(
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter(
-                    model = "file:///android_asset/images/chickenChop.png"
-                ),
-                contentDescription = "Ordered Item",
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)
-            ) {
-                Text("Fried Chicken", fontWeight = FontWeight.Bold)
-                Text("RM 20.00", color = Color(0xFF7C4DFF))
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Color.Red)
-                        .clickable { /* Decrease Quantity */ },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Remove,
-                        contentDescription = "Reduce Quantity",
-                        tint = Color.White
-                    )
-                }
-                Box(
-                    modifier = Modifier.width(80.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "1",
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Color.Green)
-                        .clickable { /* Increase Quantity */ },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add Quantity",
-                        tint = Color.White
-                    )
-                }
-                IconButton(onClick = { /* Delete Item */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete Item",
-                        tint = Color.Red
-                    )
-                }
-            }
         }
     }
 }

@@ -19,6 +19,9 @@ interface MenuDao {
     @Query("SELECT * FROM menu ORDER BY menuItemType")
     fun getAllMenuItems(): Flow<List<Menu>>
 
+    @Query("SELECT * FROM menu WHERE menuItemID = :menuItemID")
+    suspend fun getMenuItemByID(menuItemID: Int): Menu
+
     @Query("SELECT * FROM menu WHERE menuItemType = :menuItemTypeInput")
     fun getAllMenuItemsByType(menuItemTypeInput: String): Menu?
 

@@ -2,6 +2,7 @@ package com.example.jomdining.ui
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -65,6 +66,13 @@ class JomDiningViewModel(
     var stockItemName by mutableStateOf("")
     var stockItemQuantity by mutableIntStateOf(0)
     var stockItemImageUri by mutableStateOf<String?>(null)
+
+    // All variables used in the MenuManagementModuleScreen
+    var selectedMenuItem by mutableStateOf<String?>(null)
+    var menuItemID by mutableIntStateOf(0)
+    var menuItemName by mutableStateOf("")
+    var menuItemPrice by mutableStateOf("")
+    var menuItemImageUri by mutableStateOf<String?> (null)
 
     /*
         ALL ITEMS UNDER AccountDao

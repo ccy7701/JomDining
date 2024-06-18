@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.jomdining.ui.previews.MenuManagementModulePreview
 
 @Composable
 fun NavigationGraph(startDestination: String = "login") {
@@ -29,6 +30,9 @@ fun NavigationGraph(startDestination: String = "login") {
         }
         composable("order_history") {
             OrderHistoryModuleScreen(viewModel = viewModel, navController = navController)
+        }
+        composable("menu_management") {
+            MenuManagementModuleScreen(viewModel = viewModel, navController = navController)
         }
         // Add other composable routes here
     }

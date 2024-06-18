@@ -1,1 +1,393 @@
 package com.example.jomdining.ui
+
+import android.annotation.SuppressLint
+import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.example.jomdining.R
+import com.example.jomdining.data.TempMenuItems
+import com.example.jomdining.databaseentities.Menu
+import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("AutoboxingStateCreation")
+@Composable
+fun MenuManagementModuleScreen(
+    viewModel: JomDiningViewModel,
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Fetch Menu items when this screen is composed
+    viewModel.getAllMenuItems()
+
+    Scaffold(
+        topBar = {
+            JomDiningTopAppBar(title = "JomDining")
+        },
+        containerColor = Color(0xFFCEDFFF)
+    ) { innerPadding ->
+        Column(
+            modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        keyboardController?.hide()
+                    }
+                }
+        ) {
+            Row(
+                modifier = modifier.fillMaxSize()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(0.6f)
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    // the left side composable
+                    MenuCardGrid(
+                        viewModel = viewModel,
+                        modifier = modifier
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(0.4f)
+                        .fillMaxSize()
+                        .background(Color.LightGray)
+                ) {
+                    EditMenuActionDisplay(
+                        viewModel = viewModel,
+                        modifier = modifier
+                    )
+                }
+            }
+        }
+    }
+}
+
+// Composable for the grid of menu item cards
+@Composable
+fun MenuCardGrid(
+    viewModel: JomDiningViewModel,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = Color(0xFFCEDFFF)
+) {
+    LazyColumn(
+        modifier = modifier
+            .background(backgroundColor)
+    ) {
+        items(viewModel.menuUi.menuItems) { menu ->
+            MenuCard(viewModel, menu)
+        }
+        item {
+            AddMenuCard(viewModel)
+        }
+    }
+}
+
+
+@Composable
+fun MenuCard(
+    viewModel: JomDiningViewModel,
+    menuItem: Menu,
+    modifier: Modifier = Modifier
+) {
+    val focusManager = LocalFocusManager.current
+
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+            .padding(16.dp)
+            .clickable {
+                viewModel.selectedMenuItem = "existing_item"
+                viewModel.menuItemID = menuItem.menuItemID
+                viewModel.menuItemName = menuItem.menuItemName
+                viewModel.menuItemPrice = String.format(Locale.getDefault(), "%.2f", menuItem.menuItemPrice)
+                viewModel.menuItemImageUri = menuItem.menuItemImagePath
+                focusManager.clearFocus()
+                Log.d(
+                    "MC_menuItem",
+                    "Currently selected: ${viewModel.selectedMenuItem} | ${viewModel.menuItemID} | ${viewModel.menuItemName} | ${viewModel.menuItemPrice} | ${viewModel.menuItemImageUri}"
+                )
+            },
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Group A: Menu image
+            Column(modifier = modifier.weight(0.3f)) {
+                val imagePath = menuItem.menuItemImagePath
+                Image(
+                    painter= rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data("file:///android_asset/images/menu/$imagePath")
+                            .build()
+                    ),
+                    contentDescription = menuItem.menuItemName,
+                    modifier = Modifier
+                        .size(192.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            // Group B: Menu name and price
+            Column(
+                modifier = modifier
+                    .padding(16.dp)
+                    .weight(0.3f)
+            ) {
+                // Menu name in the center with its price
+                Text(
+                    text = menuItem.menuItemName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                Text(
+                    text = String.format("RM %.2f", menuItem.menuItemPrice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+            // Group C: Available and out of stock buttons
+            Column(modifier = modifier.weight(0.4f)) {
+                Button(
+                    onClick = { /* isAvailable = true */ },
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.Green, /* if (isAvailable) Color.Green else Color.Gray */
+//                    ),
+                    // button effect disappears if the above code is applied. KIV.
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(text = "Available")
+                }
+                Button(
+                    onClick = { /* isAvailable = false */ },
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.Red, /* if (isAvailable) Color.Red else Color.Gray */
+//                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "Out of Stock",
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AddMenuCard(
+    viewModel: JomDiningViewModel,
+    modifier: Modifier = Modifier
+) {
+    val focusManager = LocalFocusManager.current
+
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+            .padding(16.dp)
+            .clickable {
+                viewModel.selectedMenuItem = "new_item"
+                viewModel.menuItemID = -1
+                viewModel.menuItemName = "New item"
+                viewModel.menuItemPrice = ""
+                viewModel.menuItemImageUri = ""
+                focusManager.clearFocus()
+                Log.d(
+                    "MC_menuItem",
+                    "Currently adding new menu item, menuItemID set to ${viewModel.menuItemID}"
+                )
+            },
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .height(192.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Add New Menu Item",
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 24.sp
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditMenuActionDisplay(
+    viewModel: JomDiningViewModel,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    if (viewModel.selectedMenuItem != null) {
+        Column(
+            modifier = modifier
+                .background(Color(0xFFE6E6E6))
+                .fillMaxHeight()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            val imagePath = viewModel.menuItemImageUri
+            Image(
+                painter= rememberAsyncImagePainter(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data("file:///android_asset/images/menu/$imagePath")
+                        .build()
+                ),
+                contentDescription = viewModel.menuItemName,
+                modifier = Modifier
+                    .size(192.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            TextField(
+                value = viewModel.menuItemName,
+                onValueChange = { viewModel.menuItemName = it },
+                label = { Text(stringResource(R.string.menu_item_name)) },
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.Black,
+                    containerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = viewModel.menuItemPrice,
+                onValueChange = {
+                    viewModel.menuItemPrice = it
+                },
+                label = { Text("Menu item price") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    textColor = Color.Black,
+                    containerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                leadingIcon = { Text("RM ") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            //
+            //
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(
+                    onClick = { /* Handle save */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A148C)),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Save", color = Color.White)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = { /* Handle cancel */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    // this button should be lighter shade, or white-ish
+                    Text(text = "Cancel", color = Color.White)
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = { /* Handle deelte */ },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0000)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Delete", color = Color.White)
+            }
+        }
+    }
+}

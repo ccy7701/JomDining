@@ -5,6 +5,7 @@ import com.example.jomdining.daos.MenuDao
 import com.example.jomdining.daos.OrderItemDao
 import com.example.jomdining.daos.StockDao
 import com.example.jomdining.daos.TransactionsDao
+import com.example.jomdining.databaseentities.Menu
 
 class OfflineRepository(
     private val accountDao: AccountDao,
@@ -29,6 +30,9 @@ class OfflineRepository(
      */
     override fun getAllMenuItems() =
         menuDao.getAllMenuItems()
+
+    override suspend fun getMenuItemByIDStream(menuItemID: Int) =
+        menuDao.getMenuItemByID(menuItemID)
 
     /*
         ALL ITEMS UNDER OrderItemDao

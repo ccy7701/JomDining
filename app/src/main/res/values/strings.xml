@@ -29,5 +29,6 @@
     <string name="payment_method">Payment method</string>
     <string name="total_payment_amount">Total payment amount</string>
     <string name="confirm_order">Confirm Order</string>
+    <string name="menu_item_name">Menu item name</string>
 
 </resources>
