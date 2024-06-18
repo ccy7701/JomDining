@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -46,6 +47,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -57,6 +60,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -166,11 +170,12 @@ fun MenuCard(
                     String.format(Locale.getDefault(), "%.2f", menuItem.menuItemPrice)
                 viewModel.menuItemType = menuItem.menuItemType
                 viewModel.menuItemImageUri = menuItem.menuItemImagePath
+                viewModel.menuItemAvailability = menuItem.menuItemAvailability
                 focusManager.clearFocus()
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = if (menuItem.menuItemAvailability == -1) Color(0xFFA95C68) else White
         )
     ) {
         Row(
@@ -208,6 +213,7 @@ fun MenuCard(
                 Text(
                     text = menuItem.menuItemName,
                     style = MaterialTheme.typography.bodyMedium,
+                    color = if (menuItem.menuItemAvailability == -1) White else Color.Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 8.dp)
@@ -215,37 +221,52 @@ fun MenuCard(
                 Text(
                     text = String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice),
                     style = MaterialTheme.typography.bodyMedium,
+                    color = if (menuItem.menuItemAvailability == -1) White else Color.Black,
                     fontSize = 24.sp,
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
             // Group C: Available and out of stock buttons
-            Column(modifier = modifier.weight(0.4f)) {
-                Button(
-                    onClick = { /* isAvailable = true */ },
+            Column(
+                modifier = modifier.weight(0.4f),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (menuItem.menuItemAvailability == -1) {
+                    Text(
+                        text = "MENU ITEM RETIRED",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = White,
+                        fontSize = 24.sp,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                } else {
+                    Button(
+                        onClick = { /* isAvailable = true */ },
 //                    colors = ButtonDefaults.buttonColors(
 //                        containerColor = Color.Green, /* if (isAvailable) Color.Green else Color.Gray */
 //                    ),
-                    // button effect disappears if the above code is applied. KIV.
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Text(text = "Available")
-                }
-                Button(
-                    onClick = { /* isAvailable = false */ },
+                        // button effect disappears if the above code is applied. KIV.
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Text(text = "Available")
+                    }
+                    Button(
+                        onClick = { /* isAvailable = false */ },
 //                    colors = ButtonDefaults.buttonColors(
 //                        containerColor = Color.Red, /* if (isAvailable) Color.Red else Color.Gray */
 //                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "Out of Stock",
-                        textAlign = TextAlign.Center
-                    )
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "Out of Stock",
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }
@@ -278,7 +299,7 @@ fun AddMenuCard(
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = White
         )
     ) {
         Row(
@@ -307,218 +328,303 @@ fun EditMenuActionDisplay(
     val context = LocalContext.current
 
     if (viewModel.selectedMenuItem != null) {
-        Column(
-            modifier = modifier
-                .background(Color(0xFFE6E6E6))
-                .fillMaxHeight()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            val imagePath = viewModel.menuItemImageUri
-            Image(
-                painter= rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(
-                            if (imagePath != "") { "file:///android_asset/images/menu/$imagePath" }
-                            else { R.drawable.jomdininglogo }
-                        )
-                        .build()
-                ),
-                contentDescription = viewModel.menuItemName,
-                modifier = Modifier
-                    .size(192.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            TextField(
-                value = viewModel.menuItemName,
-                onValueChange = { viewModel.menuItemName = it },
-                label = { Text(stringResource(R.string.menu_item_name)) },
-                colors = TextFieldDefaults.textFieldColors(
-                    textColor = Color.Black,
-                    containerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            TextField(
-                value = viewModel.menuItemPrice,
-                onValueChange = {
-                    viewModel.menuItemPrice = it
-                },
-                label = { Text("Menu item price") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                ),
-                colors = TextFieldDefaults.textFieldColors(
-                    textColor = Color.Black,
-                    containerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                leadingIcon = { Text("RM ") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        if (viewModel.menuItemAvailability == -1) {
+            Column(
+                modifier = modifier
+                    .background(Color(0xFFA95C68))
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                var menuItemTypeDropdownExpanded by remember { mutableStateOf(false) }
-                val allMenuItemTypes = listOf("main_course", "side_dish", "beverage")
-                Text(
-                    text = stringResource(R.string.menu_item_type),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-                )
-                Box(
+                val imagePath = viewModel.menuItemImageUri
+                Image(
+                    painter= rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(
+                                if (imagePath != "") { "file:///android_asset/images/menu/$imagePath" }
+                                else { R.drawable.jomdininglogo }
+                            )
+                            .build()
+                    ),
+                    contentDescription = viewModel.menuItemName,
                     modifier = Modifier
-                        .width(144.dp)
-                        .height(48.dp)
-                        .background(Color.White, shape = RoundedCornerShape(8.dp))
-                        .clickable { menuItemTypeDropdownExpanded = true },
-                    contentAlignment = Alignment.CenterEnd
+                        .size(192.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = viewModel.menuItemName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = White,
+                    fontSize = 24.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "This menu item was retired.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = White,
+                    fontSize = 24.sp
+                )
+            }
+        } else {
+            Column(
+                modifier = modifier
+                    .background(Color(0xFFE6E6E6))
+                    .fillMaxHeight()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                val imagePath = viewModel.menuItemImageUri
+                Image(
+                    painter= rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(
+                                if (imagePath != "") { "file:///android_asset/images/menu/$imagePath" }
+                                else { R.drawable.jomdininglogo }
+                            )
+                            .build()
+                    ),
+                    contentDescription = viewModel.menuItemName,
+                    modifier = Modifier
+                        .size(192.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = viewModel.menuItemName,
+                    onValueChange = { viewModel.menuItemName = it },
+                    label = { Text(stringResource(R.string.menu_item_name)) },
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Color.Black,
+                        containerColor = Color.White,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = viewModel.menuItemPrice,
+                    onValueChange = {
+                        viewModel.menuItemPrice = it
+                    },
+                    label = { Text("Menu item price") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    ),
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Color.Black,
+                        containerColor = Color.White,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    leadingIcon = { Text("RM ") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = viewModel.menuItemType, modifier = Modifier.padding(end = 8.dp))
-                    DropdownMenu(
-                        expanded = menuItemTypeDropdownExpanded,
-                        onDismissRequest = { menuItemTypeDropdownExpanded = false },
+                    var menuItemTypeDropdownExpanded by remember { mutableStateOf(false) }
+                    val allMenuItemTypes = listOf("main_course", "side_dish", "beverage")
+                    Text(
+                        text = stringResource(R.string.menu_item_type),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Box(
                         modifier = Modifier
                             .width(144.dp)
-                            .padding(top = 4.dp)
+                            .height(48.dp)
+                            .background(Color.White, shape = RoundedCornerShape(8.dp))
+                            .clickable { menuItemTypeDropdownExpanded = true },
+                        contentAlignment = Alignment.CenterEnd
                     ) {
-                        allMenuItemTypes.forEach { type ->
-                            DropdownMenuItem(
-                                text = { Text(type) },
-                                onClick = {
-                                    viewModel.menuItemType = type
-                                    menuItemTypeDropdownExpanded = false
-                                }
-                            )
+                        Text(text = viewModel.menuItemType, modifier = Modifier.padding(end = 8.dp))
+                        DropdownMenu(
+                            expanded = menuItemTypeDropdownExpanded,
+                            onDismissRequest = { menuItemTypeDropdownExpanded = false },
+                            modifier = Modifier
+                                .width(144.dp)
+                                .padding(top = 4.dp)
+                        ) {
+                            allMenuItemTypes.forEach { type ->
+                                DropdownMenuItem(
+                                    text = { Text(type) },
+                                    onClick = {
+                                        viewModel.menuItemType = type
+                                        menuItemTypeDropdownExpanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Button(
-                    onClick = {
-                        try {
-                            // First, parse the textfield string to double
-                            val pushMenuItemPrice = viewModel.menuItemPrice.toDoubleOrNull()
-                            val pushMenuItemType = viewModel.menuItemType
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = {
+                            try {
+                                // First, parse the textfield string to double
+                                val pushMenuItemPrice = viewModel.menuItemPrice.toDoubleOrNull()
+                                val pushMenuItemType = viewModel.menuItemType
 
-                            // Then, the data has to go through all these checks and pass them all before pushing to the DB
-                            if (pushMenuItemType == "") {
-                                Toast
-                                    .makeText(
-                                        context,
-                                        "Please make sure to select a menu item type.",
-                                        Toast.LENGTH_SHORT
-                                    )
-                                    .show()
-                                return@Button
-                            }
-                            if (pushMenuItemPrice == null) {
-                                Toast
-                                    .makeText(
-                                        context,
-                                        "Please check your menu item price input again.",
-                                        Toast.LENGTH_SHORT
-                                    )
-                                    .show()
-                                return@Button
-                            }
+                                // Then, the data has to go through all these checks and pass them all before pushing to the DB
+                                if (pushMenuItemType == "") {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Please make sure to select a menu item type.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
+                                if (pushMenuItemPrice == null) {
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Please check your menu item price input again.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    return@Button
+                                }
 
-                            // Then, call the appropriate viewModel function
-                            if (viewModel.selectedMenuItem == "existing_item") {
-                                viewModel.updateMenuItemDetails(
-                                    menuItemID = viewModel.menuItemID,
-                                    menuItemName = viewModel.menuItemName,
-                                    menuItemPrice = pushMenuItemPrice,
-                                    menuItemType = pushMenuItemType
-                                )
-                                Toast
-                                    .makeText(
-                                        context,
-                                        "Menu item edited successfully.",
-                                        Toast.LENGTH_SHORT
+                                // Then, call the appropriate viewModel function
+                                if (viewModel.selectedMenuItem == "existing_item") {
+                                    viewModel.updateMenuItemDetails(
+                                        menuItemID = viewModel.menuItemID,
+                                        menuItemName = viewModel.menuItemName,
+                                        menuItemPrice = pushMenuItemPrice,
+                                        menuItemType = pushMenuItemType
                                     )
-                                    .show()
-                            } else if (viewModel.selectedMenuItem == "new_item") {
-                                viewModel.addNewMenuItem(
-                                    menuItemName = viewModel.menuItemName,
-                                    menuItemPrice = pushMenuItemPrice,
-                                    menuItemType = pushMenuItemType
-                                )
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Menu item edited successfully.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                } else if (viewModel.selectedMenuItem == "new_item") {
+                                    viewModel.addNewMenuItem(
+                                        menuItemName = viewModel.menuItemName,
+                                        menuItemPrice = pushMenuItemPrice,
+                                        menuItemType = pushMenuItemType
+                                    )
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "New menu item added successfully.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                }
+
+                                // Then, clear the data at the viewModel.
+                                viewModel.selectedMenuItem = null
+                                viewModel.menuItemID = -1
+                                viewModel.menuItemName = ""
+                                viewModel.menuItemPrice = ""
+                                viewModel.menuItemImageUri = ""
+                            } catch (e: Exception) {
+                                Log.e("addOrEditMenuItem", "Error encountered: $e")
                                 Toast
                                     .makeText(
                                         context,
-                                        "New menu item added successfully.",
+                                        "An error was encountered. Please try again.",
                                         Toast.LENGTH_SHORT
                                     )
                                     .show()
                             }
-
-                            // Then, clear the data at the viewModel.
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A148C)),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        if (viewModel.selectedMenuItem == "existing_item") { Text(text = stringResource(R.string.save), color = Color.White) }
+                        else if (viewModel.selectedMenuItem == "new_item") { Text(text = stringResource(R.string.insert_new_item), color = Color.White) }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
                             viewModel.selectedMenuItem = null
                             viewModel.menuItemID = -1
                             viewModel.menuItemName = ""
                             viewModel.menuItemPrice = ""
                             viewModel.menuItemImageUri = ""
-                        } catch (e: Exception) {
-                            Log.e("addOrEditMenuItem", "Error encountered: $e")
-                            Toast
-                                .makeText(
-                                    context,
-                                    "An error was encountered. Please try again.",
-                                    Toast.LENGTH_SHORT
-                                )
-                                .show()
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A148C)),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    if (viewModel.selectedMenuItem == "existing_item") { Text(text = stringResource(R.string.save), color = Color.White) }
-                    else if (viewModel.selectedMenuItem == "new_item") { Text(text = stringResource(R.string.insert_new_item), color = Color.White) }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        // this button should be lighter shade, or white-ish
+                        Text(text = "Cancel", color = Color.White)
+                    }
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        viewModel.selectedMenuItem = null
-                        viewModel.menuItemID = -1
-                        viewModel.menuItemName = ""
-                        viewModel.menuItemPrice = ""
-                        viewModel.menuItemImageUri = ""
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    // this button should be lighter shade, or white-ish
-                    Text(text = "Cancel", color = Color.White)
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            if (viewModel.selectedMenuItem == "existing_item") {
-                var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
-
-                Button(
-                    onClick = { /* Handle delete */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0000)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = "Delete", color = Color.White)
+                Spacer(modifier = Modifier.height(8.dp))
+                if (viewModel.selectedMenuItem == "existing_item") {
+                    var showRetireConfirmationDialog by remember { mutableStateOf(false) }
+                    Button(
+                        onClick = { showRetireConfirmationDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0000)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = stringResource(R.string.retire_this_menu_item), color = Color.White)
+                    }
+                    // Confirmation dialog
+                    if (showRetireConfirmationDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showRetireConfirmationDialog = false},
+                            title = { Text(text = "Confirm retirement") },
+                            text = { Text(text = "Are you sure you want to retire ${viewModel.menuItemName}? This action cannot be undone!") },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        // Invoke the retirement function from the viewModel
+                                        viewModel.retireMenuItem(viewModel.menuItemID)
+                                        // Close down the MenuItemActionDisplay, revert it to starting view
+                                        viewModel.selectedMenuItem = null
+                                        viewModel.menuItemID = -1
+                                        viewModel.menuItemName = ""
+                                        viewModel.menuItemPrice = ""
+                                        viewModel.menuItemImageUri = ""
+                                        // Display a Toast message indicating the process has passed
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                "Menu item retired successfully.",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                            .show()
+                                        // Hide the dialog
+                                        showRetireConfirmationDialog = false
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Red)
+                                ) {
+                                    Text(text = "Confirm", color = Color.White)
+                                }
+                            },
+                            dismissButton = {
+                                Button(
+                                    onClick = { showRetireConfirmationDialog = false }
+                                ) {
+                                    Text(text = "Cancel")
+                                }
+                            },
+                            properties = DialogProperties(dismissOnClickOutside = true)
+                        )
+                    }
                 }
             }
         }

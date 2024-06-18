@@ -73,6 +73,7 @@ class JomDiningViewModel(
     var menuItemPrice by mutableStateOf("")
     var menuItemType by mutableStateOf("")
     var menuItemImageUri by mutableStateOf<String?> (null)
+    var menuItemAvailability by mutableIntStateOf(0)
 
     /*
         ALL ITEMS UNDER AccountDao
@@ -146,6 +147,19 @@ class JomDiningViewModel(
                 Log.d("updateMenuItemDtls", "Menu item updated successfully. New details: (menuItemID: $menuItemID | menuItemName: $menuItemName | menuItemPrice: $menuItemPrice | menuItemType: $menuItemType)")
             } catch (e: Exception) {
                 Log.e("updateMenuItemDtls", "Error when updating menu item details: $e")
+            }
+            getAllMenuItems()
+        }
+    }
+
+    fun retireMenuItem(menuItemID: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that retires the menu item by updating its availability flag
+                repository.retireMenuItemStream(menuItemID)
+                Log.d("retireMenuItem", "Menu item retired successfully.")
+            } catch (e: Exception) {
+                Log.e("retireMenuItem", "Error when retiring menu item: $e")
             }
             getAllMenuItems()
         }

@@ -6,6 +6,7 @@ import com.example.jomdining.daos.OrderItemDao
 import com.example.jomdining.daos.StockDao
 import com.example.jomdining.daos.TransactionsDao
 import com.example.jomdining.databaseentities.Menu
+import kotlinx.coroutines.flow.Flow
 
 class OfflineRepository(
     private val accountDao: AccountDao,
@@ -30,11 +31,17 @@ class OfflineRepository(
     override fun getAllMenuItems() =
         menuDao.getAllMenuItems()
 
+    override fun getAllMenuItemsExceptRetired(): Flow<List<Menu>> =
+        menuDao.getAllMenuItemsExceptRetired()
+
     override suspend fun addNewMenuItemStream(menuItemName: String, menuItemPrice: Double, menuItemType: String) =
         menuDao.addNewMenuItem(menuItemName, menuItemPrice, menuItemType)
 
     override suspend fun updateMenuItemDetailsStream(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String) =
         menuDao.updateMenuItemDetails(menuItemID, menuItemName, menuItemPrice, menuItemType)
+
+    override suspend fun retireMenuItemStream(menuItemID: Int) =
+        menuDao.retireMenuItem(menuItemID)
 
     /*
         ALL ITEMS UNDER OrderItemDao

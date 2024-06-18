@@ -26,6 +26,19 @@ interface MenuDao {
     """)
     suspend fun updateMenuItemDetails(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String)
 
+    // The idea behind using the menuItemAvailability flag is,
+    // By default, active menu items have value 1, out of stock items have value 0, retired items have value -1.
+    // Therefore it will not disturb historical transaction receipts.
+    @Query("""
+        UPDATE menu
+        SET menuItemAvailability = (-1)
+        WHERE menuItemID = :menuItemID
+    """)
+    suspend fun retireMenuItem(menuItemID: Int)
+
     @Query("SELECT * FROM menu ORDER BY menuItemType")
     fun getAllMenuItems(): Flow<List<Menu>>
+
+    @Query("SELECT * FROM menu WHERE menuItemAvailability != (-1) ORDER BY menuItemType")
+    fun getAllMenuItemsExceptRetired(): Flow<List<Menu>>
 }
