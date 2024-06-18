@@ -34,6 +34,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -380,12 +384,16 @@ fun EditMenuActionDisplay(
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = { /* Handle delete */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0000)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Delete", color = Color.White)
+            if (viewModel.selectedMenuItem == "existing_item") {
+                var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
+
+                Button(
+                    onClick = { /* Handle delete */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0000)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Delete", color = Color.White)
+                }
             }
         }
     } else {

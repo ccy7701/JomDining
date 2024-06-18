@@ -115,7 +115,8 @@ fun MenuItemCardPreview() {
             menuItemName = stringResource(R.string.chicken_chop),
             menuItemPrice = 12.34,
             menuItemType = stringResource(R.string.main_course),
-            menuItemImagePath = "file:///android_asset/chickenChop.png"
+            menuItemImagePath = "file:///android_asset/chickenChop.png",
+            menuItemAvailability = 1
         )
     TestMenuItemCard(menuItem = menuItem)
 }

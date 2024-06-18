@@ -96,7 +96,7 @@ fun MenuCardPreview() {
             menuItemPrice = 12.34,
             menuItemType = stringResource(R.string.main_course),
             menuItemImagePath = "file:///android_asset/chickenChop.png",
-            // isAvailable = true <-- not used anymore, remove later
+            menuItemAvailability = 1
         )
     TestMenuCard(menuItem = menuItem)
 }

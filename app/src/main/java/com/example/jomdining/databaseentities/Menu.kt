@@ -18,5 +18,6 @@ data class Menu(
     val menuItemName: String,
     val menuItemPrice: Double,
     val menuItemType: String,
-    val menuItemImagePath: String
+    val menuItemImagePath: String,
+    val menuItemAvailability: Int
 )
