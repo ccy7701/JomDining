@@ -1,7 +1,6 @@
 package com.example.jomdining.ui
 
 import android.annotation.SuppressLint
-import android.graphics.Paint.Align
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -400,7 +399,7 @@ fun EditMenuActionDisplay(
                     label = { Text(stringResource(R.string.menu_item_name)) },
                     colors = TextFieldDefaults.textFieldColors(
                         textColor = Color.Black,
-                        containerColor = Color.White,
+                        containerColor = White,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
@@ -419,7 +418,7 @@ fun EditMenuActionDisplay(
                     ),
                     colors = TextFieldDefaults.textFieldColors(
                         textColor = Color.Black,
-                        containerColor = Color.White,
+                        containerColor = White,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
@@ -444,7 +443,7 @@ fun EditMenuActionDisplay(
                         modifier = Modifier
                             .width(144.dp)
                             .height(48.dp)
-                            .background(Color.White, shape = RoundedCornerShape(8.dp))
+                            .background(White, shape = RoundedCornerShape(8.dp))
                             .clickable { menuItemTypeDropdownExpanded = true },
                         contentAlignment = Alignment.CenterEnd
                     ) {
@@ -476,7 +475,7 @@ fun EditMenuActionDisplay(
                     Button(
                         onClick = {
                             try {
-                                // First, parse the textfield string to double
+                                // First, parse the textField string to double
                                 val pushMenuItemPrice = viewModel.menuItemPrice.toDoubleOrNull()
                                 val pushMenuItemType = viewModel.menuItemType
 
@@ -552,8 +551,8 @@ fun EditMenuActionDisplay(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A148C)),
                         modifier = Modifier.weight(1f)
                     ) {
-                        if (viewModel.selectedMenuItem == "existing_item") { Text(text = stringResource(R.string.save), color = Color.White) }
-                        else if (viewModel.selectedMenuItem == "new_item") { Text(text = stringResource(R.string.insert_new_item), color = Color.White) }
+                        if (viewModel.selectedMenuItem == "existing_item") { Text(text = stringResource(R.string.save), color = White) }
+                        else if (viewModel.selectedMenuItem == "new_item") { Text(text = stringResource(R.string.insert_new_item), color = White) }
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -568,7 +567,7 @@ fun EditMenuActionDisplay(
                         modifier = Modifier.weight(1f)
                     ) {
                         // this button should be lighter shade, or white-ish
-                        Text(text = "Cancel", color = Color.White)
+                        Text(text = "Cancel", color = White)
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -579,7 +578,7 @@ fun EditMenuActionDisplay(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0000)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = stringResource(R.string.retire_this_menu_item), color = Color.White)
+                        Text(text = stringResource(R.string.retire_this_menu_item), color = White)
                     }
                     // Confirmation dialog
                     if (showRetireConfirmationDialog) {
@@ -611,7 +610,7 @@ fun EditMenuActionDisplay(
                                     },
                                     colors = ButtonDefaults.buttonColors(containerColor = Red)
                                 ) {
-                                    Text(text = "Confirm", color = Color.White)
+                                    Text(text = "Confirm", color = White)
                                 }
                             },
                             dismissButton = {

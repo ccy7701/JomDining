@@ -60,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -92,7 +93,7 @@ fun FoodOrderingModuleScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     // Fetch menu items when this screen is composed
-    viewModel.getAllMenuItems()
+    viewModel.getAllMenuItemsExceptRetired()
 
     // Then, fetch current order items list when this screen is composed
     val activeLoginAccount by viewModel.activeLoginAccount.observeAsState()
@@ -199,18 +200,22 @@ fun MenuItemCard(
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        modifier = modifier
-            .padding(16.dp)
-            .clickable {
-                viewModel.addNewOrIncrementOrderItem(
-                    transactionID = currentActiveTransactionID,
-                    menuItemID = menuItem.menuItemID,
-                    operationFlag = 1
-                )
-            },
+        modifier = if (menuItem.menuItemAvailability == 1) {
+            modifier
+                .padding(16.dp)
+                .clickable {
+                    viewModel.addNewOrIncrementOrderItem(
+                        transactionID = currentActiveTransactionID,
+                        menuItemID = menuItem.menuItemID,
+                        operationFlag = 1
+                    )
+                }
+        } else {
+            modifier.padding(16.dp)
+        },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
+            containerColor = if (menuItem.menuItemAvailability == 1) White else Color(0xFF565F71),
         )
     ) {
         Column(
@@ -255,11 +260,15 @@ fun MenuItemCard(
             }
             Row {
                 Text(
-                    text = String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice),
+                    text = if (menuItem.menuItemAvailability == 1) {
+                        String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice)
+                    } else {
+                        "NOT AVAILABLE"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    color = Color(74, 22, 136)
+                    color = if (menuItem.menuItemAvailability == 1) Color(0xFF4A1688) else White
                 )
             }
         }
@@ -304,7 +313,7 @@ fun OrderSummary(
                     .fillMaxWidth()
                     .background(Color(0xFF34197C), shape = RoundedCornerShape(8.dp))
                     .padding(8.dp),
-                color = Color.White,
+                color = White,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -374,7 +383,7 @@ fun OrderSummary(
                     modifier = Modifier
                         .width(144.dp)
                         .height(48.dp)
-                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .background(White, shape = RoundedCornerShape(8.dp))
                         .clickable { tableNumberDropdownExpanded = true },
                     contentAlignment = Alignment.CenterEnd
                 ) {
@@ -415,7 +424,7 @@ fun OrderSummary(
                     modifier = Modifier
                         .width(144.dp)
                         .height(48.dp)
-                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .background(White, shape = RoundedCornerShape(8.dp))
                         .clickable { paymentMethodDropdownExpanded = true },
                     contentAlignment = Alignment.CenterEnd
                 ) {
@@ -468,7 +477,7 @@ fun OrderSummary(
                     ) {
                         Text(
                             "Reset",
-                            color = Color.White,
+                            color = White,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
@@ -479,7 +488,7 @@ fun OrderSummary(
                     if (showResetConfirmationDialog) {
                         AlertDialog(
                             onDismissRequest = { showResetConfirmationDialog = false },
-                            title = { Text(text = "Confirm Cancellation") },
+                            title = { Text(text = "Confirm Reset") },
                             text = { Text(text = "Are you sure you want to cancel?") },
                             confirmButton = {
                                 Button(
@@ -593,7 +602,11 @@ fun OrderSummary(
                                     )
                                     .show()
                                 navController.navigate("main_menu")
+
                                 // THE ACTUAL DB BACKEND IS NOT DONE YET!
+                                // THE ACTUAL DB BACKEND IS NOT DONE YET!
+                                // THE ACTUAL DB BACKEND IS NOT DONE YET!
+
                             } catch (e: Exception) {
                                 Log.e("ConfirmOrder", "Error: $e. Check your input again.")
                                 Toast
@@ -610,7 +623,7 @@ fun OrderSummary(
                     ) {
                         Text(
                             stringResource(R.string.confirm_order),
-                            color = Color.White,
+                            color = White,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
@@ -629,7 +642,6 @@ fun OrderItemCard(
     orderItemAndMenu: Pair<OrderItem, Menu>,
     modifier: Modifier = Modifier
 ) {
-    // Log.d("CMP_OrderItemCard", "Composable function invoked. Details: $orderItemAndMenu")
     val currentOrderItem = orderItemAndMenu.first
     val correspondingMenuItem = orderItemAndMenu.second
     val context = LocalContext.current
@@ -637,7 +649,7 @@ fun OrderItemCard(
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
+            containerColor = White,
         ),
         modifier = modifier
             .fillMaxWidth()
@@ -708,7 +720,7 @@ fun OrderItemCard(
                     Icon(
                         imageVector = Icons.Default.Remove,
                         contentDescription = "Decrease Quantity",
-                        tint = Color.White
+                        tint = White
                     )
                 }
                 Box(
@@ -737,7 +749,7 @@ fun OrderItemCard(
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add Quantity",
-                        tint = Color.White
+                        tint = White
                     )
                 }
                 IconButton(onClick = {

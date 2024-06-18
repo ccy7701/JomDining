@@ -126,6 +126,16 @@ class JomDiningViewModel(
         }
     }
 
+    fun getAllMenuItemsExceptRetired() {
+        viewModelScope.launch {
+            menuUi = menuUi.copy(
+                menuItems = repository.getAllMenuItemsExceptRetired()
+                    .filterNotNull()
+                    .first()
+            )
+        }
+    }
+
     fun addNewMenuItem(menuItemName: String, menuItemPrice: Double, menuItemType: String) {
         viewModelScope.launch {
             try {

@@ -38,7 +38,6 @@ abstract class JomDiningDatabase: RoomDatabase() {
         @Volatile
         private var Instance: JomDiningDatabase? = null
 
-        @OptIn(InternalCoroutinesApi::class)
         fun getDatabase(context: Context): JomDiningDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(

@@ -170,7 +170,6 @@ fun OrderHistoryDetailsCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderHistoryList(
     viewModel: JomDiningViewModel,

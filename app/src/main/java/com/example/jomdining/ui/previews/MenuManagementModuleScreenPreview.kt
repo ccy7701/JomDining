@@ -4,15 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,9 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TextField
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.sp
-import okhttp3.internal.platform.Jdk9Platform.Companion.isAvailable
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(
@@ -166,7 +158,7 @@ fun TestMenuCard(
                     modifier = Modifier.padding(top = 8.dp)
                 )
                 Text(
-                    text = String.format("RM %.2f", menuItem.menuItemPrice),
+                    text = String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice),
                     style = MaterialTheme.typography.bodyMedium,
                     fontSize = 24.sp,
                     modifier = Modifier.padding(top = 8.dp)
@@ -349,7 +341,7 @@ fun TestEditMenuActionDisplay(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
                 modifier = Modifier.weight(1f)
             ) {
-                //this bbutton should be lighter shade, orwhiteish
+                //this button should be lighter shade, or white-ish
                 Text(text = "Cancel", color = Color.White)
             }
         }
