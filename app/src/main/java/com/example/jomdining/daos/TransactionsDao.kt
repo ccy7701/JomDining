@@ -27,6 +27,12 @@ interface TransactionsDao {
 
     @Query("""
         SELECT * FROM transactions
+        WHERE transactionID = :transactionID
+    """)
+    suspend fun getTransactionByID(transactionID: Int): Transactions
+
+    @Query("""
+        SELECT * FROM transactions
         WHERE accountID = :accountID AND isActive = 0
     """)
     fun getAllHistoricalTransactions(accountID: Int): Flow<List<Transactions>>

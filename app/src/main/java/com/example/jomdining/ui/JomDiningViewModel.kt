@@ -56,6 +56,7 @@ import com.example.jomdining.ui.components.StockUi
 import com.example.jomdining.ui.components.TransactionsUi
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -391,6 +392,23 @@ class JomDiningViewModel(
         }
     }
 
+    fun getTransactionDetailsByID(transactionID: Int) {
+        viewModelScope.launch {
+            val transaction = repository.getTransactionByIDStream(transactionID)
+            _activeTransaction.value = transaction
+
+            val currentActiveTransactionList = mutableListOf<Transactions>()
+            val currentActiveTransaction = repository.getTransactionByIDStream(transactionID)
+
+            currentActiveTransactionList.add(currentActiveTransaction)
+            transactionsUi = transactionsUi.copy(
+                currentActiveTransactionList = currentActiveTransactionList
+            )
+
+            getAllHistoricalOrderItems(currentActiveTransaction.transactionID)
+        }
+    }
+
     /*
         ALL ITEMS UNDER StockDao
      */
@@ -464,89 +482,11 @@ class JomDiningViewModel(
                     OfflineRepository(
                         application.database.accountDao(),
                         application.database.menuDao(),
-//                        application.database.menuItemIngredientDao(),
                         application.database.orderItemDao(),
                         application.database.stockDao(),
                         application.database.transactionsDao()
                     )
                 JomDiningViewModel(repository, application.userPreferencesRepository)
-            }
-        }
-    }
-}
-
-@Composable
-fun PastOrderItemCard(
-    viewModel: JomDiningViewModel,
-    orderItemAndMenu: Pair<OrderItem, Menu>,
-    modifier: Modifier = Modifier
-) {
-    val orderItem = orderItemAndMenu.first
-    val correspondingMenuItem = orderItemAndMenu.second
-    // val context = LocalContext.current
-
-    Card(
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = White
-        ),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            val imagePath = correspondingMenuItem.menuItemImagePath
-            Image(
-                painter = rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data("file:///android_asset/images/menu/$imagePath")
-                        .build()
-                ),
-                contentDescription = "Ordered Item: ${correspondingMenuItem.menuItemName}",
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)
-            ) {
-                Text(
-                    text = correspondingMenuItem.menuItemName,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = String.format(Locale.getDefault(), "RM %.2f", correspondingMenuItem.menuItemPrice),
-                    color = Color(0xFF7C4DFF)
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Box(
-                    modifier = Modifier.width(80.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = String.format(Locale.getDefault(), "x %s", orderItem.orderItemQuantity.toString()),
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Box(
-                    modifier = Modifier.width(80.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    val orderItemCost = orderItem.orderItemQuantity * correspondingMenuItem.menuItemPrice
-                    Text(
-                        text = String.format(Locale.getDefault(), "RM %.2f", orderItemCost)
-                    )
-                }
             }
         }
     }
