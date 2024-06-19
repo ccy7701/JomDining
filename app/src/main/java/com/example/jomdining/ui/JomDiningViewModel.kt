@@ -18,8 +18,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +50,7 @@ import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.ui.components.HistoricalTransactionsUi
 import com.example.jomdining.ui.components.MenuUi
 import com.example.jomdining.ui.components.OrderHistoryOrderItemsUi
 import com.example.jomdining.ui.components.OrderHistoryUi
@@ -80,6 +83,8 @@ class JomDiningViewModel(
     var transactionsUi by mutableStateOf(TransactionsUi())
         private set
 
+    var historicalTransactionsUi by mutableStateOf(HistoricalTransactionsUi())
+
     var stockUi by mutableStateOf(StockUi())
         private set
 
@@ -92,6 +97,8 @@ class JomDiningViewModel(
     // All variables used in FoodOrderingModuleScreen
     private val _activeTransaction = MutableLiveData<Transactions?>()
     val activeTransaction: LiveData<Transactions?> get() = _activeTransaction
+    private val _activeHistoricalTransaction = MutableLiveData<Transactions?>()
+    val activeHistoricalTransaction: LiveData<Transactions?> get() = _activeHistoricalTransaction
 
     // All variables used in the StockManagementModuleScreen
     var selectedStockItem by mutableStateOf<String?>(null)
@@ -392,20 +399,20 @@ class JomDiningViewModel(
         }
     }
 
-    fun getTransactionDetailsByID(transactionID: Int) {
+    fun getHistoricalTransactionDetailsByID(transactionID: Int) {
         viewModelScope.launch {
-            val transaction = repository.getTransactionByIDStream(transactionID)
-            _activeTransaction.value = transaction
+            val transaction = repository.getHistoricalTransactionByIDStream(transactionID)
+            _activeHistoricalTransaction.value = transaction
 
-            val currentActiveTransactionList = mutableListOf<Transactions>()
-            val currentActiveTransaction = repository.getTransactionByIDStream(transactionID)
+            val currentHistoricalTransactionList = mutableListOf<Transactions>()
+            val currentHistoricalTransaction = repository.getHistoricalTransactionByIDStream(transactionID)
 
-            currentActiveTransactionList.add(currentActiveTransaction)
-            transactionsUi = transactionsUi.copy(
-                currentActiveTransactionList = currentActiveTransactionList
+            currentHistoricalTransactionList.add(currentHistoricalTransaction)
+            historicalTransactionsUi = historicalTransactionsUi.copy(
+                currentHistoricalTransactionList = currentHistoricalTransactionList
             )
 
-            getAllHistoricalOrderItems(currentActiveTransaction.transactionID)
+            getAllHistoricalOrderItems(currentHistoricalTransaction.transactionID)
         }
     }
 

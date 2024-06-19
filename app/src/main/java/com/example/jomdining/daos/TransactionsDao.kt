@@ -29,7 +29,7 @@ interface TransactionsDao {
         SELECT * FROM transactions
         WHERE transactionID = :transactionID
     """)
-    suspend fun getTransactionByID(transactionID: Int): Transactions
+    suspend fun getHistoricalTransactionByID(transactionID: Int): Transactions
 
     @Query("""
         SELECT * FROM transactions

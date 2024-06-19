@@ -82,8 +82,8 @@ class OfflineRepository(
     override fun getAllHistoricalTransactionsStream(accountID: Int) =
         transactionsDao.getAllHistoricalTransactions(accountID)
 
-    override suspend fun getTransactionByIDStream(transactionID: Int) =
-        transactionsDao.getTransactionByID(transactionID)
+    override suspend fun getHistoricalTransactionByIDStream(transactionID: Int) =
+        transactionsDao.getHistoricalTransactionByID(transactionID)
 
     /*
         ALL ITEMS UNDER StockDao

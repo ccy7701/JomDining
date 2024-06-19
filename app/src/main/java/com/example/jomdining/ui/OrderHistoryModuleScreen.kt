@@ -29,9 +29,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -122,7 +127,7 @@ fun OrderHistoryDetailsDisplay(
 ) {
     val context = LocalContext.current
 
-    val transactionToDisplay by viewModel.activeTransaction.observeAsState()
+    val transactionToDisplay by viewModel.activeHistoricalTransaction.observeAsState()
     val currentHistoricalOrderItemsList = viewModel.orderHistoryOrderItemsUi.orderHistoryOrderItemsList
 
     Card(
@@ -297,7 +302,7 @@ fun OrderHistoryListCard(
             .background(White, shape = RoundedCornerShape(8.dp))
             .clickable {
                 viewModel.transactionIsSelected = 1
-                viewModel.getTransactionDetailsByID(transactionsObject.transactionID)
+                viewModel.getHistoricalTransactionDetailsByID(transactionsObject.transactionID)
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(

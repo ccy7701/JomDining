@@ -54,7 +54,7 @@ interface JomDiningRepository {
     suspend fun getCurrentActiveTransactionStream(accountID: Int): Transactions
     fun getAllHistoricalTransactionsStream(accountID: Int): Flow<List<Transactions>>
 
-    suspend fun getTransactionByIDStream(transactionID: Int): Transactions
+    suspend fun getHistoricalTransactionByIDStream(transactionID: Int): Transactions
 
     /*
         ALL ITEMS UNDER StockDao
