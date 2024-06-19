@@ -484,6 +484,7 @@ fun OrderSummary(
                             )
                         )
                     }
+
                     // Confirmation Dialog
                     if (showResetConfirmationDialog) {
                         AlertDialog(

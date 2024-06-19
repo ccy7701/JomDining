@@ -289,6 +289,7 @@ fun AddMenuCard(
                 viewModel.menuItemPrice = ""
                 viewModel.menuItemType = ""
                 viewModel.menuItemImageUri = ""
+                viewModel.menuItemAvailability = 1
                 focusManager.clearFocus()
                 Log.d(
                     "MC_menuItem",

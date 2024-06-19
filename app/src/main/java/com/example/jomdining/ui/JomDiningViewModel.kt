@@ -1,10 +1,36 @@
 package com.example.jomdining.ui
 
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +38,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.jomdining.JomDiningApplication
 import com.example.jomdining.data.JomDiningRepository
 import com.example.jomdining.data.OfflineRepository
@@ -21,6 +49,7 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.components.MenuUi
+import com.example.jomdining.ui.components.OrderHistoryOrderItemsUi
 import com.example.jomdining.ui.components.OrderHistoryUi
 import com.example.jomdining.ui.components.OrderItemUi
 import com.example.jomdining.ui.components.StockUi
@@ -28,6 +57,7 @@ import com.example.jomdining.ui.components.TransactionsUi
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class JomDiningViewModel(
     private val repository: JomDiningRepository,
@@ -38,6 +68,9 @@ class JomDiningViewModel(
         private set
 
     var orderHistoryUi by mutableStateOf(OrderHistoryUi())
+        private set
+
+    var orderHistoryOrderItemsUi by mutableStateOf(OrderHistoryOrderItemsUi())
         private set
 
     var orderItemUi by mutableStateOf(OrderItemUi())
@@ -75,6 +108,10 @@ class JomDiningViewModel(
     var menuItemImageUri by mutableStateOf<String?> (null)
     var menuItemAvailability by mutableIntStateOf(0)
 
+    // All variables used in the OrderHistoryModuleScreen
+    var transactionIsSelected by mutableIntStateOf(0)
+    var selectedTransactionID by mutableIntStateOf(0)
+
     /*
         ALL ITEMS UNDER AccountDao
      */
@@ -84,7 +121,7 @@ class JomDiningViewModel(
                 val fetchedAccount = repository.getAccountByLoginDetailsStream(loginUsername, loginPassword)
                 _activeLoginAccount.postValue(fetchedAccount)
             } catch (e: Exception) {
-                Log.e("getAccByLoginDtls", "Error encountered: $e")
+                Log.e("getAccByLoginDetails", "Error encountered: $e")
                 _activeLoginAccount.postValue(null)
             } finally {
                 _loginAttempted.postValue(true)
@@ -154,9 +191,9 @@ class JomDiningViewModel(
             try {
                 // invoke the function that updates the Menu item details in the DB
                 repository.updateMenuItemDetailsStream(menuItemID, menuItemName, menuItemPrice, menuItemType)
-                Log.d("updateMenuItemDtls", "Menu item updated successfully. New details: (menuItemID: $menuItemID | menuItemName: $menuItemName | menuItemPrice: $menuItemPrice | menuItemType: $menuItemType)")
+                Log.d("updateMenuItemDetails", "Menu item updated successfully. New details: (menuItemID: $menuItemID | menuItemName: $menuItemName | menuItemPrice: $menuItemPrice | menuItemType: $menuItemType)")
             } catch (e: Exception) {
-                Log.e("updateMenuItemDtls", "Error when updating menu item details: $e")
+                Log.e("updateMenuItemDetails", "Error when updating menu item details: $e")
             }
             getAllMenuItems()
         }
@@ -195,7 +232,7 @@ class JomDiningViewModel(
                     val currentOrderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
                         .filterNotNull()
                         .first()
-                    Log.d("ANOIOI_OF1_COI", "currentOrderItems content: $currentOrderItems")
+                    Log.d("AddOrInc_OF1_COI", "currentOrderItems content: $currentOrderItems")
                     var isNewOrderItem = true
                     for (orderItem in currentOrderItems) {
                         if (orderItem.menuItemID == menuItemID) {
@@ -207,22 +244,22 @@ class JomDiningViewModel(
                     if (isNewOrderItem) {
                         // invoke the function that adds a new order item
                         repository.addNewOrderItemStream(transactionID, menuItemID)
-                        Log.d("ANOIOI_OF1_PASS1", "New OrderItem added to the currently active transaction list.")
+                        Log.d("AddOrInc_OF1_PASS1", "New OrderItem added to the currently active transaction list.")
                     } else {
                         // invoke the function that increments orderItemQuantity
                         repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
-                        Log.d("ANOIOI_OF1_PASS2", "OrderItems exists in list. Existing orderItemQuantity increased by 1.")
+                        Log.d("AddOrInc_OF1_PASS2", "OrderItems exists in list. Existing orderItemQuantity increased by 1.")
                     }
                 } catch (e: Exception) {
-                    Log.e("ANOIOI_OF1_FAIL", "Failed to add new OrderItem to currently active transaction list: $e")
+                    Log.e("AddOrInc_OF1_FAIL", "Failed to add new OrderItem to currently active transaction list: $e")
                 }
             } else if (operationFlag == 2) {    // operationFlag = 2 -> increase existing orderItemQuantity
                 try {
                     // invoke the function that increments orderItemQuantity
                     repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
-                    Log.d("ANOIOI_OF2_PASS", "Existing orderItemQuantity increased by 1.")
+                    Log.d("AddOrInc_OF2_PASS", "Existing orderItemQuantity increased by 1.")
                 } catch (e: Exception) {
-                    Log.e("ANOIOI_OF2_FAIL", "Failed to increase existing orderItemQuantity by 1: $e")
+                    Log.e("AddOrInc_OF2_FAIL", "Failed to increase existing orderItemQuantity by 1: $e")
                 }
             }
             getAllCurrentOrderItems(transactionID)
@@ -237,52 +274,60 @@ class JomDiningViewModel(
                 try {
                     // invoke the function that deletes an OrderItem from the DB
                     repository.deleteOrderItemStream(transactionID, menuItemID)
-                    Log.d("DODOI_OF1_PASS", "OrderItem deleted from the current active transaction list.")
+                    Log.d("DelOrDec_OF1_PASS", "OrderItem deleted from the current active transaction list.")
                 } catch (e: Exception) {
-                    Log.e("DODOI_OF1_FAIL", "Failed to delete OrderItem from currently active transaction list: $e")
+                    Log.e("DelOrDec_OF1_FAIL", "Failed to delete OrderItem from currently active transaction list: $e")
                 }
             } else if (operationFlag == 2) {    // operationFlag = 2 -> decrement existing orderItemQuantity
                 try {
                     // invoke the function that decrements orderItemQuantity
                     repository.decreaseOrderItemQuantityStream(transactionID, menuItemID)
-                    Log.d("DODOI_OF2_PASS", "Existing orderItemQuantity decreased by 1.")
+                    Log.d("DelOrDec_OF2_PASS", "Existing orderItemQuantity decreased by 1.")
                 } catch (e: Exception) {
-                    Log.e("DODOI_OF2_FAIL", "Failed to decrease existing orderItemQuantity by 1: $e")
+                    Log.e("DelOrDec_OF2_FAIL", "Failed to decrease existing orderItemQuantity by 1: $e")
                 }
             }
             getAllCurrentOrderItems(transactionID)
         }
     }
 
+    private suspend fun fetchOrderItemsWithMenus(transactionID: Int): List<Pair<OrderItem, Menu>> {
+        val orderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
+            .filterNotNull()
+            .first()
+        // The value pairs will be stored in the following mutableList
+        val orderItemsListWithMenus = mutableListOf<Pair<OrderItem, Menu>>()
+        // Then, the mutableList is populated with pairs of (OrderItem, Menu), iteratively through each orderItem
+        orderItems.forEach { orderItem ->
+            // Get the OrderItem and its corresponding Menu
+            val correspondingMenuItem = repository.getCorrespondingMenuItemStream(menuItemID = orderItem.menuItemID)
+            // Add the OrderItem and Menu to the mutableList
+            orderItemsListWithMenus.add(Pair(orderItem, correspondingMenuItem))
+        }
+        return orderItemsListWithMenus
+    }
+
     fun getAllCurrentOrderItems(transactionID: Int) {
         viewModelScope.launch {
-            // Firstly, a list of orderItems is generated
-            val currentOrderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
-                .filterNotNull()
-                .first()
-                // Log.d("gACOI_OrderItemList", "Successfully created with total of ${currentOrderItems.size} items.")
+            val currentOrderItemsListWithMenus = fetchOrderItemsWithMenus(transactionID)
 
-            // The value pairs will be stored in the following mutableList
-            val currentOrderItemsListWithMenus = mutableListOf<Pair<OrderItem, Menu>>()
-
-            // Then, the mutableList is populated with pairs of (OrderItem, Menu), iteratively through each OrderItem
-            currentOrderItems.forEach { orderItem ->
-                // Get the OrderItem
-                // Log.d("gACOI_Element", "Order item details: $orderItem")
-                // Get the corresponding Menu
-                val correspondingMenuItem = repository.getCorrespondingMenuItemStream(menuItemID = orderItem.menuItemID)
-                // Log.d("gACOI_MenuItem", "Found corresponding menu item: $correspondingMenuItem")
-                // Add the OrderItem and Menu to the mutableList
-                currentOrderItemsListWithMenus.add(Pair(orderItem, correspondingMenuItem))
-            }
-            // Log.d("gACOI_FinalList", "New list created with size ${currentOrderItemsListWithMenus.size}")
-            // Log.d("gACOI_FinalListDetails", "Details: $currentOrderItemsListWithMenus")
-
-            // Update orderItemUi with the new list of order items
+            // Update orderItemUi with the list of order items
             orderItemUi = orderItemUi.copy(
                 orderItemsList = currentOrderItemsListWithMenus
             )
             Log.d("orderItemUi", "New orderItemsList created with size ${orderItemUi.orderItemsList.size}")
+        }
+    }
+
+    fun getAllHistoricalOrderItems(transactionID: Int) {
+        viewModelScope.launch {
+            val historicalOrderItemsListWithMenus = fetchOrderItemsWithMenus(transactionID)
+
+            // Update orderHistoryOrderItemsUi with the list of order items
+            orderHistoryOrderItemsUi = orderHistoryOrderItemsUi.copy(
+                orderHistoryOrderItemsList = historicalOrderItemsListWithMenus
+            )
+            Log.d("orderHistoryOrderItemsUi", "New orderHistoryOrderItemsList created with size ${orderHistoryOrderItemsUi.orderHistoryOrderItemsList.size}")
         }
     }
 
@@ -367,11 +412,11 @@ class JomDiningViewModel(
             try {
                 // invoke the function that update the Stock item details in the DB
                 repository.updateStockItemDetailsStream(stockItemID, newStockItemName, newStockItemQuantity)
-                Log.d("updateStockItemDtls",
+                Log.d("updateStockItemDetails",
                     "Stock item updated successfully. New details: (stockItemID: $stockItemID | stockItemName: $newStockItemName | stockItemQuantity: $newStockItemQuantity"
                 )
             } catch (e: Exception) {
-                Log.e("updateStockItemDtls", "Error when update stock item details: $e")
+                Log.e("updateStockItemDetails", "Error when update stock item details: $e")
             }
             getAllStockItems()
         }
@@ -425,6 +470,83 @@ class JomDiningViewModel(
                         application.database.transactionsDao()
                     )
                 JomDiningViewModel(repository, application.userPreferencesRepository)
+            }
+        }
+    }
+}
+
+@Composable
+fun PastOrderItemCard(
+    viewModel: JomDiningViewModel,
+    orderItemAndMenu: Pair<OrderItem, Menu>,
+    modifier: Modifier = Modifier
+) {
+    val orderItem = orderItemAndMenu.first
+    val correspondingMenuItem = orderItemAndMenu.second
+    // val context = LocalContext.current
+
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = White
+        ),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            val imagePath = correspondingMenuItem.menuItemImagePath
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data("file:///android_asset/images/menu/$imagePath")
+                        .build()
+                ),
+                contentDescription = "Ordered Item: ${correspondingMenuItem.menuItemName}",
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text(
+                    text = correspondingMenuItem.menuItemName,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = String.format(Locale.getDefault(), "RM %.2f", correspondingMenuItem.menuItemPrice),
+                    color = Color(0xFF7C4DFF)
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Box(
+                    modifier = Modifier.width(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = String.format(Locale.getDefault(), "x %s", orderItem.orderItemQuantity.toString()),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Box(
+                    modifier = Modifier.width(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val orderItemCost = orderItem.orderItemQuantity * correspondingMenuItem.menuItemPrice
+                    Text(
+                        text = String.format(Locale.getDefault(), "RM %.2f", orderItemCost)
+                    )
+                }
             }
         }
     }
