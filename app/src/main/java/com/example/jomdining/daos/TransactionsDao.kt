@@ -26,6 +26,25 @@ interface TransactionsDao {
     suspend fun getCurrentActiveTransaction(accountID: Int): Transactions
 
     @Query("""
+        UPDATE transactions
+        SET 
+            transactionDateTime = :transactionDateTime, transactionMethod = :transactionMethod,
+            transactionTotalPrice = :transactionTotalPrice, transactionPayment = :transactionPayment,
+            transactionBalance = :transactionBalance, tableNumber = :tableNumber,
+            isActive = 0
+        WHERE transactionID = :transactionID
+    """)
+    suspend fun confirmAndFinalizeTransaction(
+        transactionID: Int,
+        transactionDateTime: String,
+        transactionMethod: String,
+        transactionTotalPrice: Double,
+        transactionPayment: Double,
+        transactionBalance: Double,
+        tableNumber: Int
+    )
+
+    @Query("""
         SELECT * FROM transactions
         WHERE transactionID = :transactionID
     """)

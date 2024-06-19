@@ -388,6 +388,34 @@ class JomDiningViewModel(
         }
     }
 
+    fun confirmAndFinalizeTransaction(
+        transactionID: Int,
+        transactionDateTime: String,
+        transactionMethod: String,
+        transactionTotalPrice: Double,
+        transactionPayment: Double,
+        transactionBalance: Double,
+        tableNumber: Int
+    ) {
+        viewModelScope.launch {
+            // Invoke the function that updates the Transactions item in the DB
+            repository.confirmAndFinalizeTransactionStream(
+                transactionID,
+                transactionDateTime,
+                transactionMethod,
+                transactionTotalPrice,
+                transactionPayment,
+                transactionBalance,
+                tableNumber
+            )
+            Log.d(
+                "ConfirmTransaction",
+                "Transaction with ID $transactionID confirmed and finalized successfully."
+            )
+            // The previous transaction has been finalized. Now, a fresh one will be created and activated for this account
+        }
+    }
+
     fun getAllHistoricalTransactions(accountID: Int) {
         viewModelScope.launch {
             orderHistoryUi = orderHistoryUi.copy(

@@ -79,6 +79,25 @@ class OfflineRepository(
     override suspend fun getCurrentActiveTransactionStream(accountID: Int) =
         transactionsDao.getCurrentActiveTransaction(accountID)
 
+    override suspend fun confirmAndFinalizeTransactionStream(
+        transactionID: Int,
+        transactionDateTime: String,
+        transactionMethod: String,
+        transactionTotalPrice: Double,
+        transactionPayment: Double,
+        transactionBalance: Double,
+        tableNumber: Int
+    ) =
+        transactionsDao.confirmAndFinalizeTransaction(
+            transactionID,
+            transactionDateTime,
+            transactionMethod,
+            transactionTotalPrice,
+            transactionPayment,
+            transactionBalance,
+            tableNumber
+        )
+
     override fun getAllHistoricalTransactionsStream(accountID: Int) =
         transactionsDao.getAllHistoricalTransactions(accountID)
 

@@ -190,7 +190,7 @@ fun OrderHistoryDetailsDisplay(
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                         item {
-                            Spacer(modifier = Modifier.height(8.dp))
+
                             Row(modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
@@ -255,6 +255,7 @@ fun OrderHistoryDetailsDisplay(
                                     Text(text = "Paid by: " + transactionToDisplay!!.transactionMethod)
                                 }
                             }
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
                 }

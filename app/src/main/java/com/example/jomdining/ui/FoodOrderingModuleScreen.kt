@@ -94,7 +94,6 @@ fun FoodOrderingModuleScreen(
 
     // Fetch menu items when this screen is composed
     viewModel.getAllMenuItemsExceptRetired()
-
     // Then, fetch current order items list when this screen is composed
     val activeLoginAccount by viewModel.activeLoginAccount.observeAsState()
     LaunchedEffect(activeLoginAccount) {
@@ -541,7 +540,7 @@ fun OrderSummary(
                             try {
                                 // collect all the variables that will be pushed to the DB
                                 val pushTransactionID = activeTransaction?.transactionID
-                                val pushAccountID = activeTransaction?.accountID
+                                val pushAccountID = activeTransaction?.accountID ?: 0
                                 val pushDateTime = getCurrentDateTime()
                                 var pushPaymentMethod: String? = null
                                 val pushTransactionTotalPrice = runningTotal
@@ -605,8 +604,28 @@ fun OrderSummary(
                                 navController.navigate("main_menu")
 
                                 // THE ACTUAL DB BACKEND IS NOT DONE YET!
-                                // THE ACTUAL DB BACKEND IS NOT DONE YET!
-                                // THE ACTUAL DB BACKEND IS NOT DONE YET!
+                                // First, update the currently active with the data, then finalize it
+                                if (pushTransactionID != null) {
+                                    viewModel.confirmAndFinalizeTransaction(
+                                        transactionID = pushTransactionID,
+                                        transactionDateTime = pushDateTime,
+                                        transactionMethod = pushPaymentMethod,
+                                        transactionTotalPrice = pushTransactionTotalPrice,
+                                        transactionPayment = pushTransactionPayment,
+                                        transactionBalance = pushTransactionBalance,
+                                        tableNumber = pushTableNumber
+                                    )
+                                }
+                                // Then, create a fresh transaction, which is active, to be used next
+                                viewModel.createNewTransactionUnderAccount(pushAccountID.toLong())
+
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Transaction finalized successfully.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
 
                             } catch (e: Exception) {
                                 Log.e("ConfirmOrder", "Error: $e. Check your input again.")
