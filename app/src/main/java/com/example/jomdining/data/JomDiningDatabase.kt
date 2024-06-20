@@ -11,7 +11,6 @@ import com.example.jomdining.daos.StockDao
 import com.example.jomdining.daos.TransactionsDao
 import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
-import com.example.jomdining.databaseentities.MenuItemIngredient
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Stock
 import com.example.jomdining.databaseentities.Transactions
@@ -21,7 +20,6 @@ import kotlinx.coroutines.InternalCoroutinesApi
     entities = [
         Account::class,
         Menu::class,
-        MenuItemIngredient::class,
         OrderItem::class,
         Stock::class,
         Transactions::class
@@ -32,7 +30,6 @@ import kotlinx.coroutines.InternalCoroutinesApi
 abstract class JomDiningDatabase: RoomDatabase() {
     abstract fun accountDao(): AccountDao
     abstract fun menuDao(): MenuDao
-    // abstract fun menuItemIngredientDao(): MenuItemIngredientDao
     abstract fun orderItemDao(): OrderItemDao
     abstract fun stockDao(): StockDao
     abstract fun transactionsDao(): TransactionsDao
@@ -41,7 +38,6 @@ abstract class JomDiningDatabase: RoomDatabase() {
         @Volatile
         private var Instance: JomDiningDatabase? = null
 
-        @OptIn(InternalCoroutinesApi::class)
         fun getDatabase(context: Context): JomDiningDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(

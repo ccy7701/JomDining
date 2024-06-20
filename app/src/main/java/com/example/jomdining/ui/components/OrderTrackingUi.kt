@@ -4,10 +4,6 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 
-data class OrderHistoryUi(
-    val orderHistoryList: List<Transactions> = listOf()
-)
-
-data class OrderHistoryOrderItemsUi(
-    val orderHistoryOrderItemsList: List<Pair<OrderItem, Menu>> = listOf()
+data class OrderTrackingUi(
+    val completeTrackingList: List<Pair<Transactions, List<Pair<OrderItem, Menu>>>> = listOf()
 )

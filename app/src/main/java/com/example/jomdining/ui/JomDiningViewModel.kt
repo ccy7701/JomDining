@@ -20,13 +20,17 @@ import com.example.jomdining.databaseentities.Account
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.ui.components.HistoricalTransactionsUi
 import com.example.jomdining.ui.components.MenuUi
+import com.example.jomdining.ui.components.OrderHistoryOrderItemsUi
 import com.example.jomdining.ui.components.OrderHistoryUi
 import com.example.jomdining.ui.components.OrderItemUi
+import com.example.jomdining.ui.components.OrderTrackingUi
 import com.example.jomdining.ui.components.StockUi
 import com.example.jomdining.ui.components.TransactionsUi
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 class JomDiningViewModel(
@@ -40,11 +44,19 @@ class JomDiningViewModel(
     var orderHistoryUi by mutableStateOf(OrderHistoryUi())
         private set
 
+    var orderHistoryOrderItemsUi by mutableStateOf(OrderHistoryOrderItemsUi())
+        private set
+
+    var orderTrackingUi by mutableStateOf(OrderTrackingUi())
+        private set
+
     var orderItemUi by mutableStateOf(OrderItemUi())
         private set
 
     var transactionsUi by mutableStateOf(TransactionsUi())
         private set
+
+    var historicalTransactionsUi by mutableStateOf(HistoricalTransactionsUi())
 
     var stockUi by mutableStateOf(StockUi())
         private set
@@ -58,6 +70,8 @@ class JomDiningViewModel(
     // All variables used in FoodOrderingModuleScreen
     private val _activeTransaction = MutableLiveData<Transactions?>()
     val activeTransaction: LiveData<Transactions?> get() = _activeTransaction
+    private val _activeHistoricalTransaction = MutableLiveData<Transactions?>()
+    val activeHistoricalTransaction: LiveData<Transactions?> get() = _activeHistoricalTransaction
 
     // All variables used in the StockManagementModuleScreen
     var selectedStockItem by mutableStateOf<String?>(null)
@@ -65,6 +79,19 @@ class JomDiningViewModel(
     var stockItemName by mutableStateOf("")
     var stockItemQuantity by mutableIntStateOf(0)
     var stockItemImageUri by mutableStateOf<String?>(null)
+
+    // All variables used in the MenuManagementModuleScreen
+    var selectedMenuItem by mutableStateOf<String?>(null)
+    var menuItemID by mutableIntStateOf(0)
+    var menuItemName by mutableStateOf("")
+    var menuItemPrice by mutableStateOf("")
+    var menuItemType by mutableStateOf("")
+    var menuItemImageUri by mutableStateOf<String?> (null)
+    var menuItemAvailability by mutableIntStateOf(0)
+
+    // All variables used in the OrderHistoryModuleScreen
+    var transactionIsSelected by mutableIntStateOf(0)
+    var selectedTransactionID by mutableIntStateOf(0)
 
     /*
         ALL ITEMS UNDER AccountDao
@@ -75,7 +102,7 @@ class JomDiningViewModel(
                 val fetchedAccount = repository.getAccountByLoginDetailsStream(loginUsername, loginPassword)
                 _activeLoginAccount.postValue(fetchedAccount)
             } catch (e: Exception) {
-                Log.e("getAccByLoginDtls", "Error encountered: $e")
+                Log.e("getAccByLoginDetails", "Error encountered: $e")
                 _activeLoginAccount.postValue(null)
             } finally {
                 _loginAttempted.postValue(true)
@@ -117,6 +144,62 @@ class JomDiningViewModel(
         }
     }
 
+    fun getAllMenuItemsExceptRetired() {
+        viewModelScope.launch {
+            menuUi = menuUi.copy(
+                menuItems = repository.getAllMenuItemsExceptRetired()
+                    .filterNotNull()
+                    .first()
+            )
+        }
+    }
+
+    fun addNewMenuItem(menuItemName: String, menuItemPrice: Double, menuItemType: String) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that inserts a new Menu item to the DB
+                repository.addNewMenuItemStream(menuItemName, menuItemPrice, menuItemType)
+                Log.d("addNewMenuItem", "New menu item added successfully")
+            } catch (e: Exception) {
+                Log.e("addNewMenuItem", "Error when adding new menu item: $e")
+            }
+            getAllMenuItems()
+        }
+    }
+
+    fun updateMenuItemDetails(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that updates the Menu item details in the DB
+                repository.updateMenuItemDetailsStream(menuItemID, menuItemName, menuItemPrice, menuItemType)
+                Log.d("updateMenuItemDetails", "Menu item updated successfully. New details: (menuItemID: $menuItemID | menuItemName: $menuItemName | menuItemPrice: $menuItemPrice | menuItemType: $menuItemType)")
+            } catch (e: Exception) {
+                Log.e("updateMenuItemDetails", "Error when updating menu item details: $e")
+            }
+            getAllMenuItems()
+        }
+    }
+
+    fun updateMenuAvailability(menuItemID: Int, availabilityToggle: Int) {
+        viewModelScope.launch {
+            repository.updateMenuItemAvailabilityStream(menuItemID, availabilityToggle)
+            getAllMenuItems()
+        }
+    }
+
+    fun retireMenuItem(menuItemID: Int) {
+        viewModelScope.launch {
+            try {
+                // invoke the function that retires the menu item by updating its availability flag
+                repository.retireMenuItemStream(menuItemID)
+                Log.d("retireMenuItem", "Menu item retired successfully.")
+            } catch (e: Exception) {
+                Log.e("retireMenuItem", "Error when retiring menu item: $e")
+            }
+            getAllMenuItems()
+        }
+    }
+
     /*
         ALL ITEMS UNDER OrderItemDao
      */
@@ -130,7 +213,7 @@ class JomDiningViewModel(
                     val currentOrderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
                         .filterNotNull()
                         .first()
-                    Log.d("ANOIOI_OF1_COI", "currentOrderItems content: $currentOrderItems")
+                    Log.d("AddOrInc_OF1_COI", "currentOrderItems content: $currentOrderItems")
                     var isNewOrderItem = true
                     for (orderItem in currentOrderItems) {
                         if (orderItem.menuItemID == menuItemID) {
@@ -142,22 +225,22 @@ class JomDiningViewModel(
                     if (isNewOrderItem) {
                         // invoke the function that adds a new order item
                         repository.addNewOrderItemStream(transactionID, menuItemID)
-                        Log.d("ANOIOI_OF1_PASS1", "New OrderItem added to the currently active transaction list.")
+                        Log.d("AddOrInc_OF1_PASS1", "New OrderItem added to the currently active transaction list.")
                     } else {
                         // invoke the function that increments orderItemQuantity
                         repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
-                        Log.d("ANOIOI_OF1_PASS2", "OrderItems exists in list. Existing orderItemQuantity increased by 1.")
+                        Log.d("AddOrInc_OF1_PASS2", "OrderItems exists in list. Existing orderItemQuantity increased by 1.")
                     }
                 } catch (e: Exception) {
-                    Log.e("ANOIOI_OF1_FAIL", "Failed to add new OrderItem to currently active transaction list: $e")
+                    Log.e("AddOrInc_OF1_FAIL", "Failed to add new OrderItem to currently active transaction list: $e")
                 }
             } else if (operationFlag == 2) {    // operationFlag = 2 -> increase existing orderItemQuantity
                 try {
                     // invoke the function that increments orderItemQuantity
                     repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
-                    Log.d("ANOIOI_OF2_PASS", "Existing orderItemQuantity increased by 1.")
+                    Log.d("AddOrInc_OF2_PASS", "Existing orderItemQuantity increased by 1.")
                 } catch (e: Exception) {
-                    Log.e("ANOIOI_OF2_FAIL", "Failed to increase existing orderItemQuantity by 1: $e")
+                    Log.e("AddOrInc_OF2_FAIL", "Failed to increase existing orderItemQuantity by 1: $e")
                 }
             }
             getAllCurrentOrderItems(transactionID)
@@ -172,52 +255,70 @@ class JomDiningViewModel(
                 try {
                     // invoke the function that deletes an OrderItem from the DB
                     repository.deleteOrderItemStream(transactionID, menuItemID)
-                    Log.d("DODOI_OF1_PASS", "OrderItem deleted from the current active transaction list.")
+                    Log.d("DelOrDec_OF1_PASS", "OrderItem deleted from the current active transaction list.")
                 } catch (e: Exception) {
-                    Log.e("DODOI_OF1_FAIL", "Failed to delete OrderItem from currently active transaction list: $e")
+                    Log.e("DelOrDec_OF1_FAIL", "Failed to delete OrderItem from currently active transaction list: $e")
                 }
             } else if (operationFlag == 2) {    // operationFlag = 2 -> decrement existing orderItemQuantity
                 try {
                     // invoke the function that decrements orderItemQuantity
                     repository.decreaseOrderItemQuantityStream(transactionID, menuItemID)
-                    Log.d("DODOI_OF2_PASS", "Existing orderItemQuantity decreased by 1.")
+                    Log.d("DelOrDec_OF2_PASS", "Existing orderItemQuantity decreased by 1.")
                 } catch (e: Exception) {
-                    Log.e("DODOI_OF2_FAIL", "Failed to decrease existing orderItemQuantity by 1: $e")
+                    Log.e("DelOrDec_OF2_FAIL", "Failed to decrease existing orderItemQuantity by 1: $e")
                 }
             }
             getAllCurrentOrderItems(transactionID)
         }
     }
 
+    private suspend fun fetchOrderItemsWithMenus(transactionID: Int): List<Pair<OrderItem, Menu>> {
+        val orderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
+            .filterNotNull()
+            .first()
+        // The value pairs will be stored in the following mutableList
+        val orderItemsListWithMenus = mutableListOf<Pair<OrderItem, Menu>>()
+        // Then, the mutableList is populated with pairs of (OrderItem, Menu), iteratively through each orderItem
+        orderItems.forEach { orderItem ->
+            // Get the OrderItem and its corresponding Menu
+            val correspondingMenuItem = repository.getCorrespondingMenuItemStream(menuItemID = orderItem.menuItemID)
+            // Add the OrderItem and Menu to the mutableList
+            orderItemsListWithMenus.add(Pair(orderItem, correspondingMenuItem))
+        }
+        return orderItemsListWithMenus
+    }
+
     fun getAllCurrentOrderItems(transactionID: Int) {
         viewModelScope.launch {
-            // Firstly, a list of orderItems is generated
-            val currentOrderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
-                .filterNotNull()
-                .first()
-                // Log.d("gACOI_OrderItemList", "Successfully created with total of ${currentOrderItems.size} items.")
+            val currentOrderItemsListWithMenus = fetchOrderItemsWithMenus(transactionID)
 
-            // The value pairs will be stored in the following mutableList
-            val currentOrderItemsListWithMenus = mutableListOf<Pair<OrderItem, Menu>>()
-
-            // Then, the mutableList is populated with pairs of (OrderItem, Menu), iteratively through each OrderItem
-            currentOrderItems.forEach { orderItem ->
-                // Get the OrderItem
-                // Log.d("gACOI_Element", "Order item details: $orderItem")
-                // Get the corresponding Menu
-                val correspondingMenuItem = repository.getCorrespondingMenuItemStream(menuItemID = orderItem.menuItemID)
-                // Log.d("gACOI_MenuItem", "Found corresponding menu item: $correspondingMenuItem")
-                // Add the OrderItem and Menu to the mutableList
-                currentOrderItemsListWithMenus.add(Pair(orderItem, correspondingMenuItem))
-            }
-            // Log.d("gACOI_FinalList", "New list created with size ${currentOrderItemsListWithMenus.size}")
-            // Log.d("gACOI_FinalListDetails", "Details: $currentOrderItemsListWithMenus")
-
-            // Update orderItemUi with the new list of order items
+            // Update orderItemUi with the list of order items
             orderItemUi = orderItemUi.copy(
                 orderItemsList = currentOrderItemsListWithMenus
             )
             Log.d("orderItemUi", "New orderItemsList created with size ${orderItemUi.orderItemsList.size}")
+        }
+    }
+
+    fun getAllHistoricalOrderItems(transactionID: Int) {
+        viewModelScope.launch {
+            val historicalOrderItemsListWithMenus = fetchOrderItemsWithMenus(transactionID)
+
+            // Update orderHistoryOrderItemsUi with the list of order items
+            orderHistoryOrderItemsUi = orderHistoryOrderItemsUi.copy(
+                orderHistoryOrderItemsList = historicalOrderItemsListWithMenus
+            )
+            Log.d("orderHistoryOrderItemsUi", "New orderHistoryOrderItemsList created with size ${orderHistoryOrderItemsUi.orderHistoryOrderItemsList.size}")
+        }
+    }
+
+    fun updateFoodServedFlag(newFlag: Int, connectedTransactionID: Int, menuItemID: Int) {
+        viewModelScope.launch {
+            // invoke the function that updates the foodServed flag for the orderItem in the DB
+            repository.updateFoodServedFlagStream(newFlag, connectedTransactionID, menuItemID)
+            Log.d("UFSF", "Flag updated")
+            // regenerate the list of transactions
+            getAllTransactionsBeingPrepared()
         }
     }
 
@@ -235,9 +336,6 @@ class JomDiningViewModel(
             }
         }
     }
-
-    // NOTE FOR 16/6: When you continue, refer here. This is the basis for the order history module.
-    // Make the DAO function and repository functions accordingly
 
     fun getCurrentActiveTransaction(accountID: Int) {
         viewModelScope.launch {
@@ -273,6 +371,34 @@ class JomDiningViewModel(
         }
     }
 
+    fun confirmAndFinalizeTransaction(
+        transactionID: Int,
+        transactionDateTime: String,
+        transactionMethod: String,
+        transactionTotalPrice: Double,
+        transactionPayment: Double,
+        transactionBalance: Double,
+        tableNumber: Int
+    ) {
+        viewModelScope.launch {
+            // Invoke the function that updates the Transactions item in the DB
+            repository.confirmAndFinalizeTransactionStream(
+                transactionID,
+                transactionDateTime,
+                transactionMethod,
+                transactionTotalPrice,
+                transactionPayment,
+                transactionBalance,
+                tableNumber
+            )
+            Log.d(
+                "ConfirmTransaction",
+                "Transaction with ID $transactionID confirmed and finalized successfully."
+            )
+            // The previous transaction has been finalized. Now, a fresh one will be created and activated for this account
+        }
+    }
+
     fun getAllHistoricalTransactions(accountID: Int) {
         viewModelScope.launch {
             orderHistoryUi = orderHistoryUi.copy(
@@ -281,6 +407,50 @@ class JomDiningViewModel(
                     .first()
             )
             Log.d("orderHistoryList", "Total historical transactions: ${orderHistoryUi.orderHistoryList.size}")
+        }
+    }
+
+    fun getHistoricalTransactionDetailsByID(transactionID: Int) {
+        viewModelScope.launch {
+            val transaction = repository.getHistoricalTransactionByIDStream(transactionID)
+            _activeHistoricalTransaction.value = transaction
+
+            val currentHistoricalTransactionList = mutableListOf<Transactions>()
+            val currentHistoricalTransaction = repository.getHistoricalTransactionByIDStream(transactionID)
+
+            currentHistoricalTransactionList.add(currentHistoricalTransaction)
+            historicalTransactionsUi = historicalTransactionsUi.copy(
+                currentHistoricalTransactionList = currentHistoricalTransactionList
+            )
+
+            getAllHistoricalOrderItems(currentHistoricalTransaction.transactionID)
+        }
+    }
+    fun getAllTransactionsBeingPrepared() {
+        viewModelScope.launch {
+            // Pair(Transactions, List<Pair<OrderItem, Menu>>)
+            val completeTrackingListItems = mutableListOf<Pair<Transactions, List<Pair<OrderItem, Menu>>>>()
+            // First, fetch all transactions where isActive = 0.
+            val collectedTransactions = repository.getAllTransactionsBeingPrepared()
+            collectedTransactions.forEach { transaction ->
+                // Next, fetch the order items for each Transactions item
+                val orderListToThisTransaction = fetchOrderItemsWithMenus(transaction.transactionID)
+                // Then, merge it to the large complex datatype
+                completeTrackingListItems.add(Pair(transaction, orderListToThisTransaction))
+            }
+            orderTrackingUi = orderTrackingUi.copy(
+                completeTrackingList = completeTrackingListItems
+            )
+        }
+    }
+
+    fun updateTransactionAsCompleted(transactionID: Int) {
+        viewModelScope.launch {
+            // Invoke the function that updates the isActive flag for the Transactions item in the DB
+            repository.updateTransactionAsCompleteStream(transactionID)
+            Log.d("UTAC", "Flag update. Transaction now marked as completed")
+            // regenerate the list of transactions
+            getAllTransactionsBeingPrepared()
         }
     }
 
@@ -305,11 +475,11 @@ class JomDiningViewModel(
             try {
                 // invoke the function that update the Stock item details in the DB
                 repository.updateStockItemDetailsStream(stockItemID, newStockItemName, newStockItemQuantity)
-                Log.d("updateStockItemDtls",
+                Log.d("updateStockItemDetails",
                     "Stock item updated successfully. New details: (stockItemID: $stockItemID | stockItemName: $newStockItemName | stockItemQuantity: $newStockItemQuantity"
                 )
             } catch (e: Exception) {
-                Log.e("updateStockItemDtls", "Error when update stock item details: $e")
+                Log.e("updateStockItemDetails", "Error when update stock item details: $e")
             }
             getAllStockItems()
         }
@@ -357,7 +527,6 @@ class JomDiningViewModel(
                     OfflineRepository(
                         application.database.accountDao(),
                         application.database.menuDao(),
-//                        application.database.menuItemIngredientDao(),
                         application.database.orderItemDao(),
                         application.database.stockDao(),
                         application.database.transactionsDao()

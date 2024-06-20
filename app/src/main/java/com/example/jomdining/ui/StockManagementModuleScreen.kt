@@ -409,12 +409,10 @@ fun StockItemActionDisplay(
                             )
                         }
                         // then, display a Toast message indicating the process has passed.
-                        val toastText = if (viewModel.selectedStockItem == "existing_item") {
-                            "Stock item updated successfully!"
-                        } else if (viewModel.selectedStockItem == "new_item") {
-                            "New item inserted successfully!"
-                        } else {
-                            "Error encountered. Please try again."
+                        val toastText = when (viewModel.selectedStockItem) {
+                            "existing_item" -> "Stock item updated successfully!"
+                            "new_item" -> "New item inserted successfully!"
+                            else -> "Error encountered. Please try again."
                         }
                         Toast
                             .makeText(
@@ -517,7 +515,7 @@ fun StockItemActionDisplay(
         }
     } else {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(text = "No item chosen", color = Color.Gray, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.no_item_chosen), color = Color.Gray, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

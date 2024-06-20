@@ -3,11 +3,7 @@ package com.example.jomdining.databaseentities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.ProvidedTypeConverter
-import androidx.room.TypeConverter
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 @Serializable
 @Entity(

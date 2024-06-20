@@ -20,6 +20,16 @@ interface JomDiningRepository {
      */
     fun getAllMenuItems(): Flow<List<Menu>>
 
+    fun getAllMenuItemsExceptRetired(): Flow<List<Menu>>
+
+    suspend fun addNewMenuItemStream(menuItemName: String, menuItemPrice: Double, menuItemType: String)
+
+    suspend fun updateMenuItemDetailsStream(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String)
+
+    suspend fun updateMenuItemAvailabilityStream(menuItemID: Int, availabilityToggle: Int)
+
+    suspend fun retireMenuItemStream(menuItemID: Int)
+
     /*
         ALL ITEMS UNDER OrderItemDao
      */
@@ -37,12 +47,32 @@ interface JomDiningRepository {
 
     suspend fun decreaseOrderItemQuantityStream(transactionID: Int, menuItemID: Int)
 
+    suspend fun updateFoodServedFlagStream(newFlag: Int, connectedTransactionID: Int, menuItemID: Int)
+
     /*
         ALL ITEMS UNDER TransactionsDao
      */
     suspend fun createNewTransactionUnderAccountStream(newAccountID: Long)
+
     suspend fun getCurrentActiveTransactionStream(accountID: Int): Transactions
+
+    suspend fun confirmAndFinalizeTransactionStream(
+        transactionID: Int,
+        transactionDateTime: String,
+        transactionMethod: String,
+        transactionTotalPrice: Double,
+        transactionPayment: Double,
+        transactionBalance: Double,
+        tableNumber: Int
+    )
+
     fun getAllHistoricalTransactionsStream(accountID: Int): Flow<List<Transactions>>
+
+    suspend fun getHistoricalTransactionByIDStream(transactionID: Int): Transactions
+
+    suspend fun getAllTransactionsBeingPrepared(): List<Transactions>
+
+    suspend fun updateTransactionAsCompleteStream(transactionID: Int)
 
     /*
         ALL ITEMS UNDER StockDao
