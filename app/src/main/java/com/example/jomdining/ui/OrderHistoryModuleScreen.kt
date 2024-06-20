@@ -1,6 +1,5 @@
 package com.example.jomdining.ui
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,19 +28,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
@@ -224,13 +217,13 @@ fun OrderHistoryDetailsDisplay(
                                     horizontalAlignment = Alignment.End,
                                     modifier = Modifier.weight(0.8f)
                                 ) {
-                                    Text(text = "Paid: RM\t",)
+                                    Text(text = "Paid: RM\t")
                                 }
                                 Column(
                                     horizontalAlignment = Alignment.End,
                                     modifier = Modifier.weight(0.2f)
                                 ) {
-                                    Text(text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionPayment),)
+                                    Text(text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionPayment))
                                 }
                             }
                             Row(modifier = Modifier
@@ -241,13 +234,13 @@ fun OrderHistoryDetailsDisplay(
                                     horizontalAlignment = Alignment.End,
                                     modifier = Modifier.weight(0.8f)
                                 ) {
-                                    Text(text = "Change: RM\t",)
+                                    Text(text = "Change: RM\t")
                                 }
                                 Column(
                                     horizontalAlignment = Alignment.End,
                                     modifier = Modifier.weight(0.2f)
                                 ) {
-                                    Text(text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionBalance),)
+                                    Text(text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionBalance))
                                 }
                             }
                             Column(horizontalAlignment = Alignment.Start) {
@@ -315,7 +308,11 @@ fun OrderHistoryListCard(
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
         ) {
-            Text(text = "Completed", color = Green, fontSize = 20.sp)
+            if (transactionsObject.isActive == 0) {  // transaction food not yet completed
+                Text(text = "Preparing", color = Color(0xFFA9A9A9), fontSize = 20.sp)
+            } else if (transactionsObject.isActive == -1) {
+                Text(text = "Completed", color = Color(0xFF50C878), fontSize = 20.sp)
+            }
         }
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
