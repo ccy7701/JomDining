@@ -54,8 +54,6 @@ fun OrderTrackingModuleScreen(
 
     // Fetch all transactions and their order items when this screen is composed
     viewModel.getAllTransactionsBeingPrepared()
-    Log.d("What do you see - 1?", "${viewModel.orderTrackingUi.completeTrackingList.size}")
-    Log.d("What do you see - 2?", "${viewModel.orderTrackingUi.completeTrackingList}")
 
     Scaffold(
         topBar = {
@@ -95,13 +93,14 @@ fun OrderTrackingGrid(
     ) {
         val completeTrackingList = viewModel.orderTrackingUi.completeTrackingList
         items(completeTrackingList) { completeItem ->
-            TransactionCard(completeItem)
+            TransactionCard(viewModel, completeItem)
         }
     }
 }
 
 @Composable
 fun TransactionCard(
+    viewModel: JomDiningViewModel,
     completeTransaction: Pair<Transactions, List<Pair<OrderItem, Menu>>>
 ) {
     val transaction = completeTransaction.first
@@ -159,12 +158,13 @@ fun TransactionCard(
             Column { Text(text = "${transaction.accountID}", fontSize = 20.sp) }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        OrderItemListDisplay(transaction.transactionID, orderItemsList)
+        OrderItemListDisplay(viewModel, transaction.transactionID, orderItemsList)
     }
 }
 
 @Composable
 fun OrderItemListDisplay(
+    viewModel: JomDiningViewModel,
     connectedTransactionID: Int,
     orderItemsList: List<Pair<OrderItem, Menu>>
 ) {
@@ -172,7 +172,7 @@ fun OrderItemListDisplay(
         modifier = Modifier.fillMaxWidth()
     ) {
         items(orderItemsList) { pair ->
-            OrderItemListBox(pair, true)
+            OrderItemListBox(viewModel, connectedTransactionID, pair)
         }
         item {
             Row(
@@ -199,13 +199,12 @@ fun OrderItemListDisplay(
 
 @Composable
 fun OrderItemListBox(
+    viewModel: JomDiningViewModel,
+    connectedTransactionID: Int,
     orderItemAndMenu: Pair<OrderItem, Menu>,
-    isCooked: Boolean
 ) {
     val orderItem = orderItemAndMenu.first
     val correspondingMenuItem = orderItemAndMenu.second
-
-    var cooked by remember { mutableStateOf(isCooked) }
 
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
@@ -224,8 +223,16 @@ fun OrderItemListBox(
             }
             Column(modifier = Modifier.fillMaxWidth(0.10f)) {
                 Switch(
-                    checked = cooked,
-                    onCheckedChange = { cooked = it }
+                    checked = when (orderItem.foodServed) {
+                        1 -> true
+                        else -> false
+                    },
+                    onCheckedChange = { foodServed ->
+                        val newFlag = if (foodServed) 1 else 0
+                        Log.d("NewFlag", "New flag after the backend is complete --> $newFlag")
+                        Log.d("test", "Will update for TrxID $connectedTransactionID, orderItem with menuItemID ${orderItem.menuItemID} and flag $newFlag")
+                        viewModel.updateFoodServedFlag(newFlag, connectedTransactionID, orderItem.menuItemID)
+                    }
                 )
             }
         }

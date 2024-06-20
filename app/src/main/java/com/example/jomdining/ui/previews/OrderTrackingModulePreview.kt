@@ -31,6 +31,7 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.JomDiningTopAppBar
+import com.example.jomdining.ui.JomDiningViewModel
 import com.example.jomdining.ui.OrderItemListDisplay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,6 +124,6 @@ fun TestTransactionCard(
             Column() { Text(text = "${transaction.accountID}", fontSize = 20.sp) }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        OrderItemListDisplay(transaction.transactionID, orderItemsList)
+        // OrderItemListDisplay(transaction.transactionID, orderItemsList)
     }
 }

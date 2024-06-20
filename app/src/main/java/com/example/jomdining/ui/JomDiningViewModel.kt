@@ -312,6 +312,16 @@ class JomDiningViewModel(
         }
     }
 
+    fun updateFoodServedFlag(newFlag: Int, connectedTransactionID: Int, menuItemID: Int) {
+        viewModelScope.launch {
+            // invoke the function that updates the foodServed flag for the orderItem in the DB
+            repository.updateFoodServedFlagStream(newFlag, connectedTransactionID, menuItemID)
+            Log.d("UFSF", "Flag updated")
+            // regenerate the list of transactions
+            getAllTransactionsBeingPrepared()
+        }
+    }
+
     /*
         ALL ITEMS UNDER TransactionsDao
      */
@@ -425,7 +435,6 @@ class JomDiningViewModel(
             collectedTransactions.forEach { transaction ->
                 // Next, fetch the order items for each Transactions item
                 val orderListToThisTransaction = fetchOrderItemsWithMenus(transaction.transactionID)
-                Log.d("OrderList?", "${transaction.transactionID} | $orderListToThisTransaction")
                 // Then, merge it to the large complex datatype
                 completeTrackingListItems.add(Pair(transaction, orderListToThisTransaction))
             }

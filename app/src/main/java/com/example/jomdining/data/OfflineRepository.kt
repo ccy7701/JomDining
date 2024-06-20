@@ -71,6 +71,9 @@ class OfflineRepository(
     override suspend fun decreaseOrderItemQuantityStream(transactionID: Int, menuItemID: Int) =
         orderItemDao.decreaseOrderItemQuantity(transactionID, menuItemID)
 
+    override suspend fun updateFoodServedFlagStream(newFlag: Int, connectedTransactionID: Int, menuItemID: Int) =
+        orderItemDao.updateFoodServedFlag(newFlag, connectedTransactionID, menuItemID)
+
     /*
         ALL ITEMS UNDER TransactionsDao
      */

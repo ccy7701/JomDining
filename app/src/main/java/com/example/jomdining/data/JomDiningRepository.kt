@@ -47,6 +47,8 @@ interface JomDiningRepository {
 
     suspend fun decreaseOrderItemQuantityStream(transactionID: Int, menuItemID: Int)
 
+    suspend fun updateFoodServedFlagStream(newFlag: Int, connectedTransactionID: Int, menuItemID: Int)
+
     /*
         ALL ITEMS UNDER TransactionsDao
      */

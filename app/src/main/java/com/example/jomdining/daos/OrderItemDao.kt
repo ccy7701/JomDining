@@ -1,5 +1,6 @@
 package com.example.jomdining.daos
 
+import androidx.compose.ui.graphics.colorspace.Connector
 import androidx.room.Dao
 import androidx.room.Query
 import com.example.jomdining.databaseentities.Menu
@@ -71,4 +72,12 @@ interface OrderItemDao {
         AND menuItemID = :menuItemID
     """)
     suspend fun decreaseOrderItemQuantity(transactionID: Int, menuItemID: Int)
+
+    @Query("""
+        UPDATE order_item
+        SET foodServed = :newFlag
+        WHERE transactionID = :connectedTransactionID
+        AND menuItemID = :menuItemID
+    """)
+    suspend fun updateFoodServedFlag(newFlag: Int, connectedTransactionID: Int, menuItemID: Int)
 }
