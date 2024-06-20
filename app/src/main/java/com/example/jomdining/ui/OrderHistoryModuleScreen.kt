@@ -118,8 +118,6 @@ fun OrderHistoryDetailsDisplay(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-
     val transactionToDisplay by viewModel.activeHistoricalTransaction.observeAsState()
     val currentHistoricalOrderItemsList = viewModel.orderHistoryOrderItemsUi.orderHistoryOrderItemsList
 
@@ -176,10 +174,7 @@ fun OrderHistoryDetailsDisplay(
                         items(currentHistoricalOrderItemsList) { pair ->
                             val orderItem = pair.first
                             val correspondingMenuItem = pair.second
-                            PastOrderItemCard(
-                                viewModel = viewModel,
-                                orderItemAndMenu = Pair(orderItem, correspondingMenuItem)
-                            )
+                            PastOrderItemCard(orderItemAndMenu = Pair(orderItem, correspondingMenuItem))
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                         item {
@@ -334,13 +329,11 @@ fun OrderHistoryListCard(
 }
 @Composable
 fun PastOrderItemCard(
-    viewModel: JomDiningViewModel,
     orderItemAndMenu: Pair<OrderItem, Menu>,
     modifier: Modifier = Modifier
 ) {
     val orderItem = orderItemAndMenu.first
     val correspondingMenuItem = orderItemAndMenu.second
-    // val context = LocalContext.current
 
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -350,7 +343,7 @@ fun PastOrderItemCard(
         elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Row(
-            modifier = Modifier
+            modifier = modifier
                 .padding(8.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

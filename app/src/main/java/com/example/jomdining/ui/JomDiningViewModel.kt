@@ -26,11 +26,9 @@ import com.example.jomdining.ui.components.OrderHistoryOrderItemsUi
 import com.example.jomdining.ui.components.OrderHistoryUi
 import com.example.jomdining.ui.components.OrderItemUi
 import com.example.jomdining.ui.components.OrderTrackingUi
-import com.example.jomdining.ui.components.StockUi
 import com.example.jomdining.ui.components.TransactionsUi
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 class JomDiningViewModel(
@@ -58,9 +56,6 @@ class JomDiningViewModel(
 
     var historicalTransactionsUi by mutableStateOf(HistoricalTransactionsUi())
 
-    var stockUi by mutableStateOf(StockUi())
-        private set
-
     // All variables used to track currently active login session
     private val _activeLoginAccount = MutableLiveData<Account?>()
     private val _loginAttempted = MutableLiveData(false)
@@ -72,13 +67,6 @@ class JomDiningViewModel(
     val activeTransaction: LiveData<Transactions?> get() = _activeTransaction
     private val _activeHistoricalTransaction = MutableLiveData<Transactions?>()
     val activeHistoricalTransaction: LiveData<Transactions?> get() = _activeHistoricalTransaction
-
-    // All variables used in the StockManagementModuleScreen
-    var selectedStockItem by mutableStateOf<String?>(null)
-    var stockItemID by mutableIntStateOf(0)
-    var stockItemName by mutableStateOf("")
-    var stockItemQuantity by mutableIntStateOf(0)
-    var stockItemImageUri by mutableStateOf<String?>(null)
 
     // All variables used in the MenuManagementModuleScreen
     var selectedMenuItem by mutableStateOf<String?>(null)
@@ -316,7 +304,6 @@ class JomDiningViewModel(
         viewModelScope.launch {
             // invoke the function that updates the foodServed flag for the orderItem in the DB
             repository.updateFoodServedFlagStream(newFlag, connectedTransactionID, menuItemID)
-            Log.d("UFSF", "Flag updated")
             // regenerate the list of transactions
             getAllTransactionsBeingPrepared()
         }
@@ -448,64 +435,8 @@ class JomDiningViewModel(
         viewModelScope.launch {
             // Invoke the function that updates the isActive flag for the Transactions item in the DB
             repository.updateTransactionAsCompleteStream(transactionID)
-            Log.d("UTAC", "Flag update. Transaction now marked as completed")
             // regenerate the list of transactions
             getAllTransactionsBeingPrepared()
-        }
-    }
-
-    /*
-        ALL ITEMS UNDER StockDao
-     */
-    fun addNewStockItem(stockItemName: String, stockItemQuantity: Int) {
-        viewModelScope.launch {
-            try {
-                // invoke the function that inserts a new Stock item to the DB
-                repository.addNewStockItemStream(stockItemName, stockItemQuantity)
-                Log.d("addNewStockItem", "New stock item added successfully")
-            } catch (e: Exception) {
-                Log.e("addNewStockItem", "Error when adding new stock item: $e")
-            }
-            getAllStockItems()
-        }
-    }
-
-    fun updateStockItemDetails(stockItemID: Int, newStockItemName: String, newStockItemQuantity: Int) {
-        viewModelScope.launch {
-            try {
-                // invoke the function that update the Stock item details in the DB
-                repository.updateStockItemDetailsStream(stockItemID, newStockItemName, newStockItemQuantity)
-                Log.d("updateStockItemDetails",
-                    "Stock item updated successfully. New details: (stockItemID: $stockItemID | stockItemName: $newStockItemName | stockItemQuantity: $newStockItemQuantity"
-                )
-            } catch (e: Exception) {
-                Log.e("updateStockItemDetails", "Error when update stock item details: $e")
-            }
-            getAllStockItems()
-        }
-    }
-
-    fun deleteStockItem(stockItemID: Int) {
-        viewModelScope.launch {
-            try {
-                // invoke the function that deletes the Stock item in the DB
-                repository.deleteStockItemStream(stockItemID)
-                Log.d("deleteStockItem", "Stock item deleted successfully.")
-            } catch (e: Exception) {
-                Log.e("deleteStockItem", "Error when deleting stock item: $e")
-            }
-            getAllStockItems()
-        }
-    }
-
-    fun getAllStockItems() {
-        viewModelScope.launch {
-            stockUi = stockUi.copy(
-                stockItems = repository.getAllStockItems()
-                    .filterNotNull()
-                    .first()
-            )
-            Log.d("stockItems", "Total stock items: ${stockUi.stockItems.size}")
         }
     }
 

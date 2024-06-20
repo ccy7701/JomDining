@@ -2,7 +2,6 @@ package com.example.jomdining.ui
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,9 +53,6 @@ fun OrderTrackingModuleScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val context = LocalContext.current
-
     // Fetch all transactions and their order items when this screen is composed
     viewModel.getAllTransactionsBeingPrepared()
 
@@ -91,8 +86,7 @@ fun OrderTrackingModuleScreen(
 @Composable
 fun OrderTrackingGrid(
     viewModel: JomDiningViewModel,
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFFCEDFFF)
+    modifier: Modifier = Modifier
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth()

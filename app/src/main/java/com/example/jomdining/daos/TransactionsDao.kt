@@ -1,7 +1,6 @@
 package com.example.jomdining.daos
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Query
 import com.example.jomdining.databaseentities.Transactions
 import kotlinx.coroutines.flow.Flow
@@ -14,9 +13,6 @@ interface TransactionsDao {
         (:newAccountID, "", "", 0.00, 0.00, 0.00, 1, 1)
     """)
     suspend fun createNewTransactionUnderAccount(newAccountID: Long)
-
-    @Delete
-    suspend fun removeTransaction(transaction: Transactions)
 
     @Query("""
         SELECT * FROM transactions

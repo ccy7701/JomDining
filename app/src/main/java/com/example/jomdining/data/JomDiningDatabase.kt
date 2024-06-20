@@ -14,7 +14,6 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Stock
 import com.example.jomdining.databaseentities.Transactions
-import kotlinx.coroutines.InternalCoroutinesApi
 
 @Database(
     entities = [

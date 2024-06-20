@@ -78,7 +78,7 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
-import java.text.SimpleDateFormat
+import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -542,11 +542,11 @@ fun OrderSummary(
                                 val pushTransactionID = activeTransaction?.transactionID
                                 val pushAccountID = activeTransaction?.accountID ?: 0
                                 val pushDateTime = getCurrentDateTime()
-                                var pushPaymentMethod: String? = null
+                                val pushPaymentMethod: String?
                                 val pushTransactionTotalPrice = runningTotal
                                 val pushTransactionPayment = totalPaymentAmountString.toDouble()
                                 val pushTransactionBalance = String.format(Locale.getDefault(), "%.2f", pushTransactionPayment - pushTransactionTotalPrice).toDouble()
-                                var pushTableNumber: Int? = null
+                                val pushTableNumber: Int?
 
                                 // The data has to go through all four checks and pass them all before pushing to DB
                                 if (currentOrderItemsList.isEmpty()) {
@@ -792,7 +792,7 @@ fun OrderItemCard(
 }
 
 fun getCurrentDateTime(): String {
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+    val dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Locale.getDefault())
     dateFormat.timeZone = TimeZone.getTimeZone("Asia/Kuala_Lumpur")
     return dateFormat.format(Date())
 }
