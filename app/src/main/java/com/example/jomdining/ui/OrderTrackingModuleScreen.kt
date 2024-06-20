@@ -1,6 +1,7 @@
 package com.example.jomdining.ui
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -25,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,11 +35,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
@@ -168,6 +174,16 @@ fun OrderItemListDisplay(
     connectedTransactionID: Int,
     orderItemsList: List<Pair<OrderItem, Menu>>
 ) {
+    val context = LocalContext.current
+
+    // State to track if all items in this list have been served
+    val allOrderItemsServed = remember { mutableStateOf(false) }
+
+    // Update allOrderItemsServed based on orderItemsList
+    LaunchedEffect(orderItemsList) {
+        allOrderItemsServed.value = orderItemsList.all { it.first.foodServed == 1 }
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -182,15 +198,52 @@ fun OrderItemListDisplay(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
+                var showCompleteConfirmationDialog by remember { mutableStateOf(false) }
                 Button(
-                    onClick = { /* something to do with connectedTransactionID: Int */ },
-                    colors = ButtonDefaults.buttonColors(
-
-                    ),
+                    onClick = { showCompleteConfirmationDialog = true },
+                    colors = ButtonDefaults.buttonColors(),
+                    enabled = allOrderItemsServed.value,
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
                 ) {
                     Text(text = "COMPLETE ORDER", fontSize = 24.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                }
+                // Confirmation dialog
+                if (showCompleteConfirmationDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showCompleteConfirmationDialog = false },
+                        title = { Text(text = "Confirm transaction completion") },
+                        text = { Text(text = "Mark this transaction as complete? This action cannot be undone!") },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    // Invoke the completion function from the viewmodel
+                                    viewModel.updateTransactionAsCompleted(connectedTransactionID)
+                                    // Display a Toast message indicating the process has passed
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Transaction with ID $connectedTransactionID marked as completed.",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    // Hide the dialog
+                                    showCompleteConfirmationDialog = false
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = Red)
+                            ) {
+                                Text(text = "Confirm", color = White)
+                            }
+                        },
+                        dismissButton = {
+                            Button(
+                                onClick = { showCompleteConfirmationDialog = false }
+                            ) {
+                                Text(text = "Cancel")
+                            }
+                        },
+                        properties = DialogProperties(dismissOnClickOutside = true)
+                    )
                 }
             }
         }

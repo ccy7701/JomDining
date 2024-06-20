@@ -72,6 +72,8 @@ interface JomDiningRepository {
 
     suspend fun getAllTransactionsBeingPrepared(): List<Transactions>
 
+    suspend fun updateTransactionAsCompleteStream(transactionID: Int)
+
     /*
         ALL ITEMS UNDER StockDao
      */

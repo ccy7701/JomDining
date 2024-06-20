@@ -61,4 +61,11 @@ interface TransactionsDao {
         WHERE isActive = 0
     """)
     suspend fun getAllTransactionsBeingPrepared(): List<Transactions>
+
+    @Query("""
+        UPDATE transactions
+        SET isActive = (-1)
+        WHERE transactionID = :transactionID
+    """)
+    suspend fun updateTransactionAsComplete(transactionID: Int)
 }

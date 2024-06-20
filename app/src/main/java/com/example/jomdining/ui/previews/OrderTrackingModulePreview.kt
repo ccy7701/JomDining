@@ -90,7 +90,7 @@ fun TestTransactionCard(
     completeTransaction: Pair<Transactions, List<Pair<OrderItem, Menu>>>
 ) {
     val transaction = completeTransaction.first
-    val orderItemsList = completeTransaction.second
+    // val orderItemsList = completeTransaction.second
 
     Card(
         colors = CardDefaults.cardColors(

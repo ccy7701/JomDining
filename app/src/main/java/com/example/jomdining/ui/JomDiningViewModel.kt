@@ -444,6 +444,16 @@ class JomDiningViewModel(
         }
     }
 
+    fun updateTransactionAsCompleted(transactionID: Int) {
+        viewModelScope.launch {
+            // Invoke the function that updates the isActive flag for the Transactions item in the DB
+            repository.updateTransactionAsCompleteStream(transactionID)
+            Log.d("UTAC", "Flag update. Transaction now marked as completed")
+            // regenerate the list of transactions
+            getAllTransactionsBeingPrepared()
+        }
+    }
+
     /*
         ALL ITEMS UNDER StockDao
      */
