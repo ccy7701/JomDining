@@ -396,7 +396,7 @@ fun PastOrderItemCard(
                     )
                 }
                 Box(
-                    modifier = Modifier.width(80.dp),
+                    modifier = Modifier.width(120.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     val orderItemCost = orderItem.orderItemQuantity * correspondingMenuItem.menuItemPrice

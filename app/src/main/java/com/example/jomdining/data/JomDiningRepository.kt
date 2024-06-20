@@ -68,6 +68,8 @@ interface JomDiningRepository {
 
     suspend fun getHistoricalTransactionByIDStream(transactionID: Int): Transactions
 
+    suspend fun getAllTransactionsBeingPrepared(): List<Transactions>
+
     /*
         ALL ITEMS UNDER StockDao
      */

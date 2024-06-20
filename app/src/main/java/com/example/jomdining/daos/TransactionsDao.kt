@@ -52,7 +52,13 @@ interface TransactionsDao {
 
     @Query("""
         SELECT * FROM transactions
-        WHERE accountID = :accountID AND isActive = 0
+        WHERE accountID = :accountID AND isActive IN (0, -1)
     """)
     fun getAllHistoricalTransactions(accountID: Int): Flow<List<Transactions>>
+
+    @Query("""
+        SELECT * FROM transactions
+        WHERE isActive = 0
+    """)
+    suspend fun getAllTransactionsBeingPrepared(): List<Transactions>
 }

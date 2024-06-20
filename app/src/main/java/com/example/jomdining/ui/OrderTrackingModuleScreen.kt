@@ -1,5 +1,6 @@
 package com.example.jomdining.ui
 
+import android.util.Log
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,7 +53,9 @@ fun OrderTrackingModuleScreen(
     val context = LocalContext.current
 
     // Fetch all transactions and their order items when this screen is composed
-    // viewModel.getAllTransactionsBeingPrepared(...)
+    viewModel.getAllTransactionsBeingPrepared()
+    Log.d("What do you see - 1?", "${viewModel.orderTrackingUi.completeTrackingList.size}")
+    Log.d("What do you see - 2?", "${viewModel.orderTrackingUi.completeTrackingList}")
 
     Scaffold(
         topBar = {
@@ -180,7 +183,7 @@ fun OrderItemListDisplay(
                     .padding(16.dp)
             ) {
                 Button(
-                    onClick = { },
+                    onClick = { /* something to do with connectedTransactionID: Int */ },
                     colors = ButtonDefaults.buttonColors(
 
                     ),

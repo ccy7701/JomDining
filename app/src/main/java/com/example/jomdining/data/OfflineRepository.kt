@@ -6,6 +6,7 @@ import com.example.jomdining.daos.OrderItemDao
 import com.example.jomdining.daos.StockDao
 import com.example.jomdining.daos.TransactionsDao
 import com.example.jomdining.databaseentities.Menu
+import com.example.jomdining.databaseentities.Transactions
 import kotlinx.coroutines.flow.Flow
 
 class OfflineRepository(
@@ -103,6 +104,9 @@ class OfflineRepository(
 
     override suspend fun getHistoricalTransactionByIDStream(transactionID: Int) =
         transactionsDao.getHistoricalTransactionByID(transactionID)
+
+    override suspend fun getAllTransactionsBeingPrepared() =
+        transactionsDao.getAllTransactionsBeingPrepared()
 
     /*
         ALL ITEMS UNDER StockDao
