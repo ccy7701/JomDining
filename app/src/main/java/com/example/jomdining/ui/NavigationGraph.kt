@@ -30,6 +30,9 @@ fun NavigationGraph(startDestination: String = "login") {
         composable("order_history") {
             OrderHistoryModuleScreen(viewModel = viewModel, navController = navController)
         }
+        composable("order_tracking") {
+            OrderTrackingModuleScreen(viewModel = viewModel, navController = navController)
+        }
         composable("menu_management") {
             MenuManagementModuleScreen(viewModel = viewModel, navController = navController)
         }

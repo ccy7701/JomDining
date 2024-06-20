@@ -55,6 +55,7 @@ import com.example.jomdining.ui.components.MenuUi
 import com.example.jomdining.ui.components.OrderHistoryOrderItemsUi
 import com.example.jomdining.ui.components.OrderHistoryUi
 import com.example.jomdining.ui.components.OrderItemUi
+import com.example.jomdining.ui.components.OrderTrackingUi
 import com.example.jomdining.ui.components.StockUi
 import com.example.jomdining.ui.components.TransactionsUi
 import kotlinx.coroutines.flow.filterNotNull
@@ -75,6 +76,9 @@ class JomDiningViewModel(
         private set
 
     var orderHistoryOrderItemsUi by mutableStateOf(OrderHistoryOrderItemsUi())
+        private set
+
+    var orderTrackingUi by mutableStateOf(OrderTrackingUi())
         private set
 
     var orderItemUi by mutableStateOf(OrderItemUi())
