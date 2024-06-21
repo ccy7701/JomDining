@@ -24,7 +24,6 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.data.TempMenuItems
 import com.example.jomdining.databaseentities.Menu
-import com.example.jomdining.ui.JomDiningTopAppBar
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
@@ -48,7 +47,7 @@ fun MenuManagementModulePreview(
 ) {
     Scaffold(
         topBar = {
-            JomDiningTopAppBar(
+            JomDiningTopAppBarPreview(
                 title = "JomDining"
             )
         }

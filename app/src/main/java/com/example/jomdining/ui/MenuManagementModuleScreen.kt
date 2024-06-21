@@ -65,6 +65,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
+import com.example.jomdining.ui.components.JomDiningTopAppBar
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,7 +83,10 @@ fun MenuManagementModuleScreen(
 
     Scaffold(
         topBar = {
-            JomDiningTopAppBar(title = "JomDining")
+            JomDiningTopAppBar(
+                title = "Menu Management",
+                onBackClicked = { navController.popBackStack() }
+            )
         },
         containerColor = Color(0xFFCEDFFF)
     ) { innerPadding ->

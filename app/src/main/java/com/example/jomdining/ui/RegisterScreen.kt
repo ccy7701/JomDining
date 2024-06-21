@@ -104,6 +104,7 @@ fun RegisterScreen(
                 if (password == confirmPassword) {
                     try {
                         // Push this new account information to the DB
+                        Log.d("RegAttempt", "Now attempting with $username, $password, $email")
                         viewModel.registerAndCreateNewAccount(
                             accountUsername = username,
                             accountPassword = password,

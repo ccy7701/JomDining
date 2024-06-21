@@ -45,6 +45,7 @@ import androidx.navigation.NavHostController
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.ui.components.JomDiningTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +60,8 @@ fun OrderTrackingModuleScreen(
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "Order Tracking"
+                title = "Order Tracking",
+                onBackClicked = { navController.popBackStack() }
             )
         },
         containerColor = Color(0xFFCEDFFF)

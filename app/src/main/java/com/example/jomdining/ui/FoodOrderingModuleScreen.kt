@@ -45,8 +45,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -78,6 +76,7 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import com.example.jomdining.ui.components.JomDiningTopAppBar
 import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
@@ -108,7 +107,8 @@ fun FoodOrderingModuleScreen(
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "Food Ordering"
+                title = "Food Ordering",
+                onBackClicked = { navController.popBackStack() }
             )
         },
         containerColor = Color(0xFFCEDFFF)
@@ -152,24 +152,6 @@ fun FoodOrderingModuleScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun JomDiningTopAppBar(
-    title: String,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = {
-            Text(title)
-        },
-        modifier = modifier,
-        colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary
-        )
-    )
 }
 
 @Composable

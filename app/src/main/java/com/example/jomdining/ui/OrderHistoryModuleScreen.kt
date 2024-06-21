@@ -52,6 +52,7 @@ import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.ui.components.JomDiningTopAppBar
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +77,10 @@ fun OrderHistoryModuleScreen(
 
     Scaffold(
         topBar = {
-            JomDiningTopAppBar(title = "JomDining")
+            JomDiningTopAppBar(
+                title = "Order History",
+                onBackClicked = { navController.popBackStack() }
+            )
         },
         containerColor = Color(0xFFCEDFFF)
     ) { innerPadding ->
