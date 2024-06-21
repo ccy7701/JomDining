@@ -78,6 +78,7 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.ui.components.JomDiningTopAppBar
 import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -774,7 +775,7 @@ fun OrderItemCard(
 }
 
 fun getCurrentDateTime(): String {
-    val dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
     dateFormat.timeZone = TimeZone.getTimeZone("Asia/Kuala_Lumpur")
     return dateFormat.format(Date())
 }

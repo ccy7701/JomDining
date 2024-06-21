@@ -1,5 +1,12 @@
 package com.example.jomdining.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +28,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +40,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -107,7 +119,6 @@ fun OrderHistoryModuleScreen(
                 }
                 OrderHistoryList(
                     viewModel = viewModel,
-                    navController = navController,
                     modifier = Modifier
                         .weight(0.4f)
                         .fillMaxHeight()
@@ -182,14 +193,20 @@ fun OrderHistoryDetailsDisplay(
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                         item {
-
-                            Row(modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
                             ) {
                                 Column(
+                                    horizontalAlignment = Alignment.Start,
+                                    modifier = Modifier.weight(0.5f)
+                                ) {
+                                    Text(text = "Paid by: " + transactionToDisplay!!.transactionMethod)
+                                }
+                                Column(
                                     horizontalAlignment = Alignment.End,
-                                    modifier = Modifier.weight(0.8f)
+                                    modifier = Modifier.weight(0.3f)
                                 ) {
                                     Text(
                                         text = "TOTAL: RM\t",
@@ -242,11 +259,11 @@ fun OrderHistoryDetailsDisplay(
                                     Text(text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionBalance))
                                 }
                             }
-                            Column(horizontalAlignment = Alignment.Start) {
-                                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                                    Text(text = "Paid by: " + transactionToDisplay!!.transactionMethod)
-                                }
-                            }
+//                            Column(horizontalAlignment = Alignment.Start) {
+//                                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+//                                    Text(text = "Paid by: " + transactionToDisplay!!.transactionMethod)
+//                                }
+//                            }
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
@@ -263,9 +280,10 @@ fun OrderHistoryDetailsDisplay(
 @Composable
 fun OrderHistoryList(
     viewModel: JomDiningViewModel,
-    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+    var expandedTransactionCardID by remember { mutableStateOf<Int?>(null) }
+
     LazyColumn(
         modifier = modifier
             .background(Color(0xFFE6E6E6))
@@ -275,18 +293,23 @@ fun OrderHistoryList(
             OrderHistoryListCard(
                 viewModel = viewModel,
                 transactionsObject = orderHistoryItem,
+                isExpanded = orderHistoryItem.transactionID == expandedTransactionCardID,
+                onCardClick = {
+                    expandedTransactionCardID = if (expandedTransactionCardID == orderHistoryItem.transactionID) null else orderHistoryItem.transactionID
+                },
                 modifier = Modifier.padding(16.dp)
-//                navController = navController,
             )
         }
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OrderHistoryListCard(
     viewModel: JomDiningViewModel,
     transactionsObject: Transactions,
-//    navController: NavHostController,
+    isExpanded: Boolean,
+    onCardClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -296,6 +319,7 @@ fun OrderHistoryListCard(
             .clickable {
                 viewModel.transactionIsSelected = 1
                 viewModel.getHistoricalTransactionDetailsByID(transactionsObject.transactionID)
+                onCardClick(transactionsObject.transactionID)
             },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
@@ -329,8 +353,31 @@ fun OrderHistoryListCard(
             Text(text = String.format(Locale.getDefault(), "TOTAL: RM%.2f", transactionsObject.transactionTotalPrice), fontSize = 20.sp)
         }
         Spacer(modifier = Modifier.height(4.dp))
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically(animationSpec = tween(durationMillis = 300)) + fadeIn(animationSpec = tween(durationMillis = 300)),
+            exit = shrinkVertically(animationSpec = tween(durationMillis = 300)) + fadeOut(animationSpec = tween(durationMillis = 300)),
+            modifier = Modifier.padding(vertical = 16.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            ) {
+                Button(
+                    onClick = { /* something here */ },
+                    colors = ButtonDefaults.buttonColors(),
+                    modifier = Modifier.fillMaxWidth(0.5f)
+                ) {
+                    Text(text = "CANCEL ORDER", fontSize = 20.sp, modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+//        if (isExpanded) {
+//
+//        }
     }
 }
+
 @Composable
 fun PastOrderItemCard(
     orderItemAndMenu: Pair<OrderItem, Menu>,
