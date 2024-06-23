@@ -3,7 +3,6 @@ package com.example.jomdining.ui
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -16,6 +15,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -43,7 +43,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Red
@@ -159,136 +159,151 @@ fun OrderHistoryDetailsDisplay(
         )
     ) {
         if (viewModel.transactionIsSelected == 1) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column {
-                    Row(
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier.clickable {
-                                viewModel.transactionIsSelected = 0
-                                viewModel.selectedTransactionID = 0
+            if (transactionToDisplay != null) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column {
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier.clickable {
+                                    viewModel.transactionIsSelected = 0
+                                    viewModel.selectedTransactionID = 0
+                                }
+                            ){
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Close",
+                                    modifier = Modifier.size(32.dp)
+                                )
                             }
-                        ){
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Close",
-                                modifier = Modifier.size(32.dp)
+                        }
+                        Text(
+                            text = "Transaction ID: ${transactionToDisplay!!.transactionID}",
+                            textAlign = TextAlign.Center,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (transactionToDisplay!!.isActive == -2) {
+                            Text(
+                                text = "** ORDER CANCELLED **",
+                                textAlign = TextAlign.Center,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFA95C68),
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
-                    }
-                    Text(
-                        text = "TransactionID: ${transactionToDisplay!!.transactionID}",
-                        textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Table Number: ${transactionToDisplay!!.tableNumber}",
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
-                    Text(
-                        text = "Date and Time: ${transactionToDisplay!!.transactionDateTime}",
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    LazyColumn(
-                        modifier = modifier
-                            .weight(1f)
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        items(currentHistoricalOrderItemsList) { pair ->
-                            val orderItem = pair.first
-                            val correspondingMenuItem = pair.second
-                            PastOrderItemCard(orderItemAndMenu = Pair(orderItem, correspondingMenuItem))
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-                        item {
-                            Row(
-                                modifier = Modifier
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Table Number: ${transactionToDisplay!!.tableNumber}",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
+                        Text(
+                            text = "Date and Time: ${transactionToDisplay!!.transactionDateTime}",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        LazyColumn(
+                            modifier = modifier
+                                .weight(1f)
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            items(currentHistoricalOrderItemsList) { pair ->
+                                val orderItem = pair.first
+                                val correspondingMenuItem = pair.second
+                                PastOrderItemCard(orderItemAndMenu = Pair(orderItem, correspondingMenuItem))
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                            item {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                ) {
+                                    Column(
+                                        horizontalAlignment = Alignment.Start,
+                                        modifier = Modifier.weight(0.5f)
+                                    ) {
+                                        Text(text = "Paid by: " + transactionToDisplay!!.transactionMethod)
+                                    }
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        modifier = Modifier.weight(0.3f)
+                                    ) {
+                                        Text(
+                                            text = "TOTAL: RM\t",
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        modifier = Modifier.weight(0.2f)
+                                    ) {
+                                        Text(
+                                            text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionTotalPrice),
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                                Row(modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 4.dp)
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.Start,
-                                    modifier = Modifier.weight(0.5f)
                                 ) {
-                                    Text(text = "Paid by: " + transactionToDisplay!!.transactionMethod)
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        modifier = Modifier.weight(0.8f)
+                                    ) {
+                                        Text(text = "Paid: RM\t")
+                                    }
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        modifier = Modifier.weight(0.2f)
+                                    ) {
+                                        Text(text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionPayment))
+                                    }
                                 }
-                                Column(
-                                    horizontalAlignment = Alignment.End,
-                                    modifier = Modifier.weight(0.3f)
+                                Row(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
                                 ) {
-                                    Text(
-                                        text = "TOTAL: RM\t",
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        modifier = Modifier.weight(0.8f)
+                                    ) {
+                                        Text(text = "Change: RM\t")
+                                    }
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        modifier = Modifier.weight(0.2f)
+                                    ) {
+                                        Text(text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionBalance))
+                                    }
                                 }
-                                Column(
-                                    horizontalAlignment = Alignment.End,
-                                    modifier = Modifier.weight(0.2f)
-                                ) {
-                                    Text(
-                                        text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionTotalPrice),
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
-                            Row(modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.End,
-                                    modifier = Modifier.weight(0.8f)
-                                ) {
-                                    Text(text = "Paid: RM\t")
-                                }
-                                Column(
-                                    horizontalAlignment = Alignment.End,
-                                    modifier = Modifier.weight(0.2f)
-                                ) {
-                                    Text(text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionPayment))
-                                }
-                            }
-                            Row(modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.End,
-                                    modifier = Modifier.weight(0.8f)
-                                ) {
-                                    Text(text = "Change: RM\t")
-                                }
-                                Column(
-                                    horizontalAlignment = Alignment.End,
-                                    modifier = Modifier.weight(0.2f)
-                                ) {
-                                    Text(text = String.format(Locale.getDefault(), "%.2f", transactionToDisplay!!.transactionBalance))
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
                 }
+            } else {
+                Log.e("TransactionToDisplay", "List is currently empty!")
+                Text(text = "Loading...")
             }
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = stringResource(R.string.no_item_chosen), color = Color.Gray, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(text = stringResource(R.string.no_item_chosen), color = Gray, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -320,7 +335,6 @@ fun OrderHistoryList(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OrderHistoryListCard(
     viewModel: JomDiningViewModel,
@@ -330,23 +344,20 @@ fun OrderHistoryListCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val activeLoginAccount by viewModel.activeLoginAccount.observeAsState()
+    val accountID = activeLoginAccount!!.accountID
+
     Card(
-        modifier = when (transactionsObject.isActive) {
-            -2 -> modifier
-                .fillMaxWidth()
-                .background(LightGray, shape = RoundedCornerShape(8.dp))
-            else -> modifier
-                .fillMaxWidth()
-                .background(White, shape = RoundedCornerShape(8.dp))
-                .clickable {
-                    viewModel.transactionIsSelected = 1
-                    viewModel.getHistoricalTransactionDetailsByID(transactionsObject.transactionID)
-                    onCardClick(transactionsObject.transactionID)
-                }
+        modifier = modifier.fillMaxWidth()
+        .background(White, shape = RoundedCornerShape(8.dp))
+        .clickable {
+            viewModel.transactionIsSelected = 1
+            viewModel.getHistoricalTransactionDetailsByID(transactionsObject.transactionID)
+            onCardClick(transactionsObject.transactionID)
         },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = White
+            containerColor = if (transactionsObject.isActive == -2) Color(0xFFA95C68) else White
         )
     ) {
         Spacer(modifier = Modifier.height(4.dp))
@@ -359,7 +370,7 @@ fun OrderHistoryListCard(
             when (transactionsObject.isActive) {
                 0 -> Text(text = "Preparing", color = Color(0xFFA9A9A9), fontSize = 20.sp)
                 -1 -> Text(text = "Completed", color = Color(0xFF50C878), fontSize = 20.sp)
-                -2 -> Text(text = "Cancelled", color = Gray, fontSize = 20.sp)
+                -2 -> Text(text = "Cancelled", color = Color(0xFFFFFFFF), fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         }
         Row(
@@ -368,10 +379,18 @@ fun OrderHistoryListCard(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
         ) {
-            Text(text = "Transaction ID: ${transactionsObject.transactionID}", fontSize = 20.sp)
+            Text(
+                text = "Transaction ID: ${transactionsObject.transactionID}",
+                fontSize = 20.sp,
+                color = if (transactionsObject.isActive == -2) White else Black
+            )
         }
         Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-            Text(text = "Transaction Date: ${transactionsObject.transactionDateTime}", fontSize = 20.sp)
+            Text(
+                text = "Transaction Date: ${transactionsObject.transactionDateTime}",
+                fontSize = 20.sp,
+                color = if (transactionsObject.isActive == -2) White else Black
+            )
         }
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -379,80 +398,81 @@ fun OrderHistoryListCard(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
         ) {
-            Text(text = String.format(Locale.getDefault(), "TOTAL: RM%.2f", transactionsObject.transactionTotalPrice), fontSize = 20.sp)
+            Text(
+                text = String.format(Locale.getDefault(), "TOTAL: RM%.2f", transactionsObject.transactionTotalPrice),
+                fontSize = 20.sp,
+                color = if (transactionsObject.isActive == -2) White else Black
+            )
         }
         Spacer(modifier = Modifier.height(4.dp))
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = expandVertically(animationSpec = tween(durationMillis = 100)) + fadeIn(animationSpec = tween(durationMillis = 100)),
-            exit = shrinkVertically(animationSpec = tween(durationMillis = 100)) + fadeOut(animationSpec = tween(durationMillis = 100)),
-            modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+        if (transactionsObject.isActive != -2) {
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(animationSpec = tween(durationMillis = 100)) + fadeIn(animationSpec = tween(durationMillis = 100)),
+                exit = shrinkVertically(animationSpec = tween(durationMillis = 100)) + fadeOut(animationSpec = tween(durationMillis = 100)),
+                modifier = Modifier.padding(vertical = 16.dp)
             ) {
-                var showCancelConfirmationDialog by remember { mutableStateOf(false) }
-                Button(
-                    onClick = { showCancelConfirmationDialog = true },
-                    colors = ButtonDefaults.buttonColors(),
-                    modifier = Modifier.fillMaxWidth(0.5f)
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 ) {
-                    Text(text = "CANCEL ORDER", fontSize = 20.sp, modifier = Modifier.padding(8.dp))
-                }
-                if (showCancelConfirmationDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showCancelConfirmationDialog = false },
-                        title = { Text(text = "Confirm transaction cancellation") },
-                        text = { Text(text = "Mark this transaction as cancelled? This action cannot be undone!") },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    viewModel.updateTransactionAsCancelled(transactionsObject.transactionID)
-                                    Toast
-                                        .makeText(
-                                            context,
-                                            "Transaction with ID ${transactionsObject.transactionID} marked as cancelled.",
-                                            Toast.LENGTH_SHORT
-                                        )
-                                        .show()
-                                    showCancelConfirmationDialog = false
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        var showCancelConfirmationDialog by remember { mutableStateOf(false) }
+                        Button(
+                            onClick = { showCancelConfirmationDialog = true },
+                            colors = ButtonDefaults.buttonColors(),
+                            modifier = Modifier.fillMaxWidth(0.5f)
+                        ) {
+                            Text(text = "CANCEL ORDER", fontSize = 20.sp, modifier = Modifier.padding(8.dp))
+                        }
+                        if (showCancelConfirmationDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showCancelConfirmationDialog = false },
+                                title = { Text(text = "Confirm transaction cancellation") },
+                                text = { Text(text = "Mark this transaction as cancelled? This action cannot be undone!") },
+                                confirmButton = {
+                                    Button(
+                                        onClick = {
+                                            // Invoke the cancellation function from the viewmodel
+                                            viewModel.updateTransactionAsCancelled(transactionsObject.transactionID)
+                                            viewModel.getAllHistoricalTransactions(accountID)
+                                            // Close down the display, revert it to starting view
+                                            viewModel.transactionIsSelected = 0
+                                            viewModel.selectedTransactionID = 0
+                                            // ... something else? ...
+                                            // Display a Toast message indicating the process has passed
+                                            Toast
+                                                .makeText(
+                                                    context,
+                                                    "Transaction with ID ${transactionsObject.transactionID} marked as cancelled.",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                            showCancelConfirmationDialog = false
+                                        },
+                                        colors = ButtonDefaults.buttonColors(containerColor = Red)
+                                    ) {
+                                        Text(text = "Confirm", color = White)
+                                    }
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Red)
-                            ) {
-                                Text(text = "Confirm", color = White)
-                            }
-                        },
-                        dismissButton = {
-                            Button(
-                                onClick = { showCancelConfirmationDialog = false }
-                            ) {
-                                Text(text = "Cancel")
-                            }
-                        },
-                        properties = DialogProperties(dismissOnClickOutside = true)
-                    )
+                                dismissButton = {
+                                    Button(
+                                        onClick = { showCancelConfirmationDialog = false }
+                                    ) {
+                                        Text(text = "Cancel")
+                                    }
+                                },
+                                properties = DialogProperties(dismissOnClickOutside = true)
+                            )
+                        }
+                    }
                 }
             }
+        } else {
+            Spacer(modifier = Modifier.height(IntrinsicSize.Min))
         }
-    }
-
-    if (transactionsObject.isActive == -2) {
-        Card(
-            modifier = modifier
-                .fillMaxWidth()
-                .background(LightGray, shape = RoundedCornerShape(8.dp)),
-            elevation = CardDefaults.cardElevation(4.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = LightGray
-            )
-        ) {
-
-        }
-    } else {
-
     }
 }
 

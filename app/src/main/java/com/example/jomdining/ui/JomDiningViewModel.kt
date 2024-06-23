@@ -1,6 +1,7 @@
 package com.example.jomdining.ui
 
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -65,8 +66,6 @@ class JomDiningViewModel(
     // All variables used in FoodOrderingModuleScreen
     private val _activeTransaction = MutableLiveData<Transactions?>()
     val activeTransaction: LiveData<Transactions?> get() = _activeTransaction
-    private val _activeHistoricalTransaction = MutableLiveData<Transactions?>()
-    val activeHistoricalTransaction: LiveData<Transactions?> get() = _activeHistoricalTransaction
 
     // All variables used in the MenuManagementModuleScreen
     var selectedMenuItem by mutableStateOf<String?>(null)
@@ -80,6 +79,11 @@ class JomDiningViewModel(
     // All variables used in the OrderHistoryModuleScreen
     var transactionIsSelected by mutableIntStateOf(0)
     var selectedTransactionID by mutableIntStateOf(0)
+    private val _activeHistoricalTransaction = MutableLiveData<Transactions?>()
+    val activeHistoricalTransaction: LiveData<Transactions?> get() = _activeHistoricalTransaction
+    // TEST
+    private val _orderHistoryUi = mutableStateOf(OrderHistoryUi())
+    val newOrderHistoryUi: State<OrderHistoryUi> = _orderHistoryUi
 
     /*
         ALL ITEMS UNDER AccountDao
@@ -442,10 +446,12 @@ class JomDiningViewModel(
 
     fun updateTransactionAsCancelled(transactionID: Int) {
         viewModelScope.launch {
-            // Invoke the function that updates the isActive flag for the Transactions item in the DB
-            repository.updateTransactionAsCancelledStream(transactionID)
-            // regenerate the list of transactions
-            getAllTransactionsBeingPrepared()
+            try {
+                // Invoke the function that updates the isActive flag for the Transactions item in the DB
+                repository.updateTransactionAsCancelledStream(transactionID)
+            } catch (e: Exception) {
+                Log.e("cancelTransaction", "Error when cancelling transaction: $e")
+            }
         }
     }
 
