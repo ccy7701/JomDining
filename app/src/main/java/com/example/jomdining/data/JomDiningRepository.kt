@@ -74,6 +74,8 @@ interface JomDiningRepository {
 
     suspend fun updateTransactionAsCompleteStream(transactionID: Int)
 
+    suspend fun updateTransactionAsCancelledStream(transactionID: Int)
+
     /*
         ALL ITEMS UNDER StockDao
      */

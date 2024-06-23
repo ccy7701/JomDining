@@ -440,6 +440,15 @@ class JomDiningViewModel(
         }
     }
 
+    fun updateTransactionAsCancelled(transactionID: Int) {
+        viewModelScope.launch {
+            // Invoke the function that updates the isActive flag for the Transactions item in the DB
+            repository.updateTransactionAsCancelledStream(transactionID)
+            // regenerate the list of transactions
+            getAllTransactionsBeingPrepared()
+        }
+    }
+
     /*
         EVERYTHING ELSE
      */

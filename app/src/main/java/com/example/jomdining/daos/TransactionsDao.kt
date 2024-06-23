@@ -48,7 +48,7 @@ interface TransactionsDao {
 
     @Query("""
         SELECT * FROM transactions
-        WHERE accountID = :accountID AND isActive IN (0, -1)
+        WHERE accountID = :accountID AND isActive IN (0, -1, -2)
     """)
     fun getAllHistoricalTransactions(accountID: Int): Flow<List<Transactions>>
 
@@ -64,4 +64,11 @@ interface TransactionsDao {
         WHERE transactionID = :transactionID
     """)
     suspend fun updateTransactionAsComplete(transactionID: Int)
+
+    @Query("""
+        UPDATE transactions
+        SET isActive = (-2)
+        WHERE transactionID = :transactionID
+    """)
+    suspend fun updateTransactionAsCancelled(transactionID: Int)
 }

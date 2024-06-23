@@ -113,6 +113,9 @@ class OfflineRepository(
     override suspend fun updateTransactionAsCompleteStream(transactionID: Int) =
         transactionsDao.updateTransactionAsComplete(transactionID)
 
+    override suspend fun updateTransactionAsCancelledStream(transactionID: Int) =
+        transactionsDao.updateTransactionAsCancelled(transactionID)
+
     /*
         ALL ITEMS UNDER StockDao
      */
