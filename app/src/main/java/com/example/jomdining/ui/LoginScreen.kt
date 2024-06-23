@@ -56,6 +56,7 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
+            // painter = painterResource(id =
             painter = painterResource(id = R.drawable.jomdininglogo),
             contentDescription = "JomDining Logo",
             modifier = Modifier

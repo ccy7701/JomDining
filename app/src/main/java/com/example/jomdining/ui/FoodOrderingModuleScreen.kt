@@ -180,6 +180,9 @@ fun MenuItemCard(
     menuItem: Menu,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val packageName = "com.example.jomdining"
+
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = if (menuItem.menuItemAvailability == 1) {
@@ -210,10 +213,11 @@ fun MenuItemCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 val imagePath = menuItem.menuItemImagePath
+                val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
                 Image(
                     painter = rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data("file:///android_asset/images/menu/$imagePath")
+                        model = ImageRequest.Builder(context)
+                            .data(resourceID)
                             .build()
                     ),
                     contentDescription = menuItem.menuItemName,
@@ -648,6 +652,7 @@ fun OrderItemCard(
     val currentOrderItem = orderItemAndMenu.first
     val correspondingMenuItem = orderItemAndMenu.second
     val context = LocalContext.current
+    val packageName = "com.example.jomdining"
 
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -665,10 +670,11 @@ fun OrderItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             val imagePath = correspondingMenuItem.menuItemImagePath
+            val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
             Image(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data("file:///android_asset/images/menu/$imagePath")
+                        .data(resourceID)
                         .build()
                 ),
                 contentDescription = "Ordered Item: ${correspondingMenuItem.menuItemName}",

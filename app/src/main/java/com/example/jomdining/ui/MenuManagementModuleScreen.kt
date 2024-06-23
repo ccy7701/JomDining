@@ -160,6 +160,8 @@ fun MenuCard(
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
+    val packageName = "com.example.jomdining"
 
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -190,11 +192,12 @@ fun MenuCard(
             // Group A: Menu image
             Column(modifier = modifier.weight(0.3f)) {
                 val imagePath = menuItem.menuItemImagePath
+                val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
                 Image(
                     painter= rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
+                        model = ImageRequest.Builder(context)
                             .data(
-                                if (imagePath != "") { "file:///android_asset/images/menu/$imagePath" }
+                                if (imagePath != "") { resourceID }
                                 else { R.drawable.jomdininglogo }
                             )
                             .build()
@@ -329,6 +332,7 @@ fun EditMenuActionDisplay(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val packageName = "com.example.jomdining"
 
     if (viewModel.selectedMenuItem != null) {
         if (viewModel.menuItemAvailability == -1) {
@@ -341,11 +345,12 @@ fun EditMenuActionDisplay(
                 verticalArrangement = Arrangement.Center
             ) {
                 val imagePath = viewModel.menuItemImageUri
+                val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
                 Image(
                     painter= rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
+                        model = ImageRequest.Builder(context)
                             .data(
-                                if (imagePath != "") { "file:///android_asset/images/menu/$imagePath" }
+                                if (imagePath != "") { resourceID }
                                 else { R.drawable.jomdininglogo }
                             )
                             .build()
@@ -382,11 +387,12 @@ fun EditMenuActionDisplay(
                 verticalArrangement = Arrangement.Center
             ) {
                 val imagePath = viewModel.menuItemImageUri
+                val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
                 Image(
                     painter= rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
+                        model = ImageRequest.Builder(context)
                             .data(
-                                if (imagePath != "") { "file:///android_asset/images/menu/$imagePath" }
+                                if (imagePath != "") { resourceID }
                                 else { R.drawable.jomdininglogo }
                             )
                             .build()

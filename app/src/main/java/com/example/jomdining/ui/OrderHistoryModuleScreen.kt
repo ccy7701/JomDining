@@ -463,6 +463,8 @@ fun PastOrderItemCard(
 ) {
     val orderItem = orderItemAndMenu.first
     val correspondingMenuItem = orderItemAndMenu.second
+    val context = LocalContext.current
+    val packageName = "com.example.jomdining"
 
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -479,10 +481,11 @@ fun PastOrderItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             val imagePath = correspondingMenuItem.menuItemImagePath
+            val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
             Image(
                 painter = rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data("file:///android_asset/images/menu/$imagePath")
+                    model = ImageRequest.Builder(context)
+                        .data(resourceID)
                         .build()
                 ),
                 contentDescription = "Ordered Item: ${correspondingMenuItem.menuItemName}",
