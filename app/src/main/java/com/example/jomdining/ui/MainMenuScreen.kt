@@ -33,9 +33,7 @@ fun MainMenuScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text("Main Menu")
-                },
+                title = { Text("Main Menu") },
                 actions = {
                     activeLoginAccount?.let { account ->
                         Row(
@@ -49,7 +47,7 @@ fun MainMenuScreen(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = account.accountUsername,
+                                text = account.accountUsername + " [ID ${account.accountID}]",
                                 color = Color.White,
                                 style = MaterialTheme.typography.bodyLarge
                             )

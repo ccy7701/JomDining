@@ -118,8 +118,7 @@ fun LoginScreen(
                             inclusive = true
                         }
                     }
-                    Log.d("LoginScreen", "Login successful. The system currently holds the following session details:")
-                    Log.d("SessionDetails", "$activeLoginAccount")
+                    Log.d("LoginScreen", "Login successful.")
                 } else {
                     Log.d("LoginScreen", "Login failed: No matching account found.")
                     // If login fails, display the Toast message indicating it.

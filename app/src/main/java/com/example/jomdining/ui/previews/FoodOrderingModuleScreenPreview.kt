@@ -73,9 +73,7 @@ fun FoodOrderingModulePreview(
 ) {
     Scaffold(
         topBar = {
-            JomDiningTopAppBarPreview(
-                title = "JomDining",
-            )
+            JomDiningTopAppBarPreview(title = "JomDining")
         }
     ) { innerPadding ->
         Column(

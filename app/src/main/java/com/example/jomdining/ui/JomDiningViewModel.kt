@@ -1,11 +1,11 @@
 package com.example.jomdining.ui
 
 import android.util.Log
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -55,7 +55,7 @@ class JomDiningViewModel(
     var transactionsUi by mutableStateOf(TransactionsUi())
         private set
 
-    var historicalTransactionsUi by mutableStateOf(HistoricalTransactionsUi())
+    private var historicalTransactionsUi by mutableStateOf(HistoricalTransactionsUi())
 
     // All variables used to track currently active login session
     private val _activeLoginAccount = MutableLiveData<Account?>()
@@ -81,9 +81,6 @@ class JomDiningViewModel(
     var selectedTransactionID by mutableIntStateOf(0)
     private val _activeHistoricalTransaction = MutableLiveData<Transactions?>()
     val activeHistoricalTransaction: LiveData<Transactions?> get() = _activeHistoricalTransaction
-    // TEST
-    private val _orderHistoryUi = mutableStateOf(OrderHistoryUi())
-    val newOrderHistoryUi: State<OrderHistoryUi> = _orderHistoryUi
 
     /*
         ALL ITEMS UNDER AccountDao
@@ -280,7 +277,7 @@ class JomDiningViewModel(
         return orderItemsListWithMenus
     }
 
-    fun getAllCurrentOrderItems(transactionID: Int) {
+    private fun getAllCurrentOrderItems(transactionID: Int) {
         viewModelScope.launch {
             val currentOrderItemsListWithMenus = fetchOrderItemsWithMenus(transactionID)
 
@@ -292,7 +289,7 @@ class JomDiningViewModel(
         }
     }
 
-    fun getAllHistoricalOrderItems(transactionID: Int) {
+    private fun getAllHistoricalOrderItems(transactionID: Int) {
         viewModelScope.launch {
             val historicalOrderItemsListWithMenus = fetchOrderItemsWithMenus(transactionID)
 

@@ -155,7 +155,7 @@ fun TransactionCard(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
         ) {
-            Column(modifier = Modifier.width(100.dp)) { Text(text = "Sent by") }
+            Column(modifier = Modifier.width(100.dp)) { Text(text = "Sender ID") }
             Spacer(modifier = Modifier.width(16.dp))
             Column { Text(text = "${transaction.accountID}", fontSize = 20.sp) }
         }

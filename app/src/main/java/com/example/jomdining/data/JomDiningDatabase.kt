@@ -43,13 +43,9 @@ abstract class JomDiningDatabase: RoomDatabase() {
                     context = context,
                     JomDiningDatabase::class.java, "jom_dining_database.db"
                 )
-                    .createFromAsset(
-                        "database/jom_dining_database.db"
-                    )
+                    .createFromAsset("database/jom_dining_database.db")
                     .build()
-                    .also {
-                        Instance = it
-                    }
+                    .also { Instance = it }
             }
         }
     }

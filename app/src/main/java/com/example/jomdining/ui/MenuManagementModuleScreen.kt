@@ -100,9 +100,7 @@ fun MenuManagementModuleScreen(
                     }
                 }
         ) {
-            Row(
-                modifier = modifier.fillMaxSize()
-            ) {
+            Row(modifier = modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier
                         .weight(0.6f)
@@ -110,7 +108,6 @@ fun MenuManagementModuleScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    // the left side composable
                     MenuCardGrid(
                         viewModel = viewModel,
                         modifier = modifier
@@ -132,7 +129,6 @@ fun MenuManagementModuleScreen(
     }
 }
 
-// Composable for the grid of menu item cards
 @Composable
 fun MenuCardGrid(
     viewModel: JomDiningViewModel,
@@ -143,15 +139,10 @@ fun MenuCardGrid(
         modifier = modifier
             .background(backgroundColor)
     ) {
-        items(viewModel.menuUi.menuItems) { menu ->
-            MenuCard(viewModel, menu)
-        }
-        item {
-            AddMenuCard(viewModel)
-        }
+        items(viewModel.menuUi.menuItems) { menu -> MenuCard(viewModel, menu) }
+        item { AddMenuCard(viewModel) }
     }
 }
-
 
 @Composable
 fun MenuCard(
@@ -179,9 +170,7 @@ fun MenuCard(
                 focusManager.clearFocus()
             },
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (menuItem.menuItemAvailability == -1) Color(0xFFA95C68) else White
-        )
+        colors = CardDefaults.cardColors(containerColor = if (menuItem.menuItemAvailability == -1) Color(0xFFA95C68) else White)
     ) {
         Row(
             modifier = Modifier
@@ -255,9 +244,7 @@ fun MenuCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                    ) {
-                        Text(text = "Available")
-                    }
+                    ) { Text(text = "Available") }
                     Button(
                         onClick = { viewModel.updateMenuAvailability(menuItem.menuItemID, 0) },
                         colors = ButtonDefaults.buttonColors(
@@ -304,9 +291,7 @@ fun AddMenuCard(
                 )
             },
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = White
-        )
+        colors = CardDefaults.cardColors(containerColor = White)
     ) {
         Row(
             modifier = Modifier
@@ -576,10 +561,7 @@ fun EditMenuActionDisplay(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
                         modifier = Modifier.weight(1f)
-                    ) {
-                        // this button should be lighter shade, or white-ish
-                        Text(text = "Cancel", color = White)
-                    }
+                    ) { Text(text = "Cancel", color = White) }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 if (viewModel.selectedMenuItem == "existing_item") {
@@ -588,9 +570,7 @@ fun EditMenuActionDisplay(
                         onClick = { showRetireConfirmationDialog = true },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0000)),
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = stringResource(R.string.retire_this_menu_item), color = White)
-                    }
+                    ) { Text(text = stringResource(R.string.retire_this_menu_item), color = White) }
                     // Confirmation dialog
                     if (showRetireConfirmationDialog) {
                         AlertDialog(
@@ -625,11 +605,7 @@ fun EditMenuActionDisplay(
                                 }
                             },
                             dismissButton = {
-                                Button(
-                                    onClick = { showRetireConfirmationDialog = false }
-                                ) {
-                                    Text(text = "Cancel")
-                                }
+                                Button(onClick = { showRetireConfirmationDialog = false }) { Text(text = "Cancel") }
                             },
                             properties = DialogProperties(dismissOnClickOutside = true)
                         )

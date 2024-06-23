@@ -77,7 +77,6 @@ import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.ui.components.JomDiningTopAppBar
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -124,9 +123,7 @@ fun FoodOrderingModuleScreen(
                     }
                 }
         ) {
-            Row(
-                modifier = modifier.fillMaxSize()
-            ) {
+            Row(modifier = modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier
                         .weight(0.6f)
@@ -139,9 +136,7 @@ fun FoodOrderingModuleScreen(
                             currentActiveTransactionID = activeTransaction!!.transactionID,
                             modifier = modifier
                         )
-                    } else {
-                        Text("Loading transaction...")
-                    }
+                    } else { Text("Loading transaction...") }
                 }
                 OrderSummary(
                     viewModel = viewModel,
@@ -162,10 +157,10 @@ fun MenuItemGrid(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
+    Spacer(modifier = Modifier.height(8.dp))
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        modifier = modifier
-            .background(backgroundColor)
+        modifier = modifier.background(backgroundColor)
     ) {
         items(viewModel.menuUi.menuItems) { menuItem ->
             MenuItemCard(viewModel, currentActiveTransactionID, menuItem)
@@ -195,17 +190,12 @@ fun MenuItemCard(
                         operationFlag = 1
                     )
                 }
-        } else {
-            modifier.padding(16.dp)
-        },
+        } else { modifier.padding(16.dp) },
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (menuItem.menuItemAvailability == 1) White else Color(0xFF565F71),
-        )
+        colors = CardDefaults.cardColors(containerColor = if (menuItem.menuItemAvailability == 1) White else Color(0xFF565F71))
     ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -231,10 +221,7 @@ fun MenuItemCard(
             }
             Row {
                 Text(
-                    text = stringResource(
-                        R.string.menu_item_name_placeholder,
-                        menuItem.menuItemName
-                    ),
+                    text = stringResource(R.string.menu_item_name_placeholder, menuItem.menuItemName),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -248,9 +235,7 @@ fun MenuItemCard(
                 Text(
                     text = if (menuItem.menuItemAvailability == 1) {
                         String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice)
-                    } else {
-                        "NOT AVAILABLE"
-                    },
+                    } else { "NOT AVAILABLE" },
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -303,9 +288,7 @@ fun OrderSummary(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn(
-                modifier = Modifier.weight(1f) // Make it take available space and be scrollable
-            ) {
+            LazyColumn(modifier = Modifier.weight(1f)) {
                 items(currentOrderItemsList) { pair ->
                     val orderItem = pair.first
                     val correspondingMenuItem = pair.second
@@ -454,9 +437,7 @@ fun OrderSummary(
                                     .show()
                                 showResetConfirmationDialog = false
                                 return@Button
-                            } else {
-                                showResetConfirmationDialog = true
-                            }
+                            } else { showResetConfirmationDialog = true }
                         },
                         modifier = Modifier.height(60.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
@@ -503,9 +484,7 @@ fun OrderSummary(
                                         showResetConfirmationDialog = false
                                     },
                                     colors = ButtonDefaults.buttonColors(containerColor = Red)
-                                ) {
-                                    Text(text = "Yes")
-                                }
+                                ) { Text(text = "Yes") }
                             },
                             dismissButton = {
                                 Button(
@@ -513,9 +492,7 @@ fun OrderSummary(
                                         showResetConfirmationDialog = false
                                         Log.d("cancelOrder", "Order cancelled.")
                                     }
-                                ) {
-                                    Text(text = "No")
-                                }
+                                ) { Text(text = "No") }
                             },
                             properties = DialogProperties(dismissOnClickOutside = true)
                         )
@@ -656,11 +633,8 @@ fun OrderItemCard(
 
     Card(
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = White,
-        ),
-        modifier = modifier
-            .fillMaxWidth()
+        colors = CardDefaults.cardColors(containerColor = White),
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier

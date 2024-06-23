@@ -123,11 +123,6 @@ fun OrderHistoryModuleScreen(
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
                     OrderHistoryDetailsDisplay(viewModel = viewModel)
-                    /*
-                    PROBLEM:
-                    PROBLEM:
-                    PROBLEM: When the CROSS icon is clicked, the cancel button does not hide. We want it to hide, though.
-                     */
                 }
                 OrderHistoryList(
                     viewModel = viewModel,
@@ -322,15 +317,42 @@ fun OrderHistoryList(
             .padding(16.dp)
     ) {
         items(viewModel.orderHistoryUi.orderHistoryList) { orderHistoryItem ->
-            OrderHistoryListCard(
-                viewModel = viewModel,
-                transactionsObject = orderHistoryItem,
-                isExpanded = orderHistoryItem.transactionID == expandedTransactionCardID,
-                onCardClick = {
-                    expandedTransactionCardID = if (expandedTransactionCardID == orderHistoryItem.transactionID) null else orderHistoryItem.transactionID
-                },
-                modifier = Modifier.padding(16.dp)
-            )
+            if (orderHistoryItem.isActive != (-2)) {
+                OrderHistoryListCard(
+                    viewModel = viewModel,
+                    transactionsObject = orderHistoryItem,
+                    isExpanded = orderHistoryItem.transactionID == expandedTransactionCardID,
+                    onCardClick = {
+                        expandedTransactionCardID =
+                            if (expandedTransactionCardID == orderHistoryItem.transactionID) null else orderHistoryItem.transactionID
+                    },
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "CANCELLED ORDERS",
+                    color = Gray,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        items(viewModel.orderHistoryUi.orderHistoryList) { orderHistoryItem ->
+            if (orderHistoryItem.isActive == (-2)) {
+                OrderHistoryListCard(
+                    viewModel = viewModel,
+                    transactionsObject = orderHistoryItem,
+                    isExpanded = orderHistoryItem.transactionID == expandedTransactionCardID,
+                    onCardClick = {
+                        expandedTransactionCardID = if (expandedTransactionCardID == orderHistoryItem.transactionID) null else orderHistoryItem.transactionID
+                    },
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
     }
 }
@@ -458,11 +480,7 @@ fun OrderHistoryListCard(
                                     }
                                 },
                                 dismissButton = {
-                                    Button(
-                                        onClick = { showCancelConfirmationDialog = false }
-                                    ) {
-                                        Text(text = "Cancel")
-                                    }
+                                    Button(onClick = { showCancelConfirmationDialog = false }) { Text(text = "Cancel") }
                                 },
                                 properties = DialogProperties(dismissOnClickOutside = true)
                             )
@@ -470,9 +488,7 @@ fun OrderHistoryListCard(
                     }
                 }
             }
-        } else {
-            Spacer(modifier = Modifier.height(IntrinsicSize.Min))
-        }
+        } else { Spacer(modifier = Modifier.height(IntrinsicSize.Min)) }
     }
 }
 
