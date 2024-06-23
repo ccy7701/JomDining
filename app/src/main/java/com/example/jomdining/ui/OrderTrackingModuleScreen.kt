@@ -37,11 +37,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
@@ -60,7 +62,7 @@ fun OrderTrackingModuleScreen(
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "Order Tracking",
+                title = stringResource(R.string.order_tracking),
                 onBackClicked = { navController.popBackStack() }
             )
         },
@@ -202,7 +204,7 @@ fun OrderItemListDisplay(
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
                 ) {
-                    Text(text = "COMPLETE ORDER", fontSize = 24.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                    Text(text = stringResource(R.string.complete_order), fontSize = 24.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 }
                 // Confirmation dialog
                 if (showCompleteConfirmationDialog) {

@@ -107,7 +107,7 @@ fun FoodOrderingModuleScreen(
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "Food Ordering",
+                title = stringResource(R.string.food_ordering),
                 onBackClicked = { navController.popBackStack() }
             )
         },
@@ -136,7 +136,7 @@ fun FoodOrderingModuleScreen(
                             currentActiveTransactionID = activeTransaction!!.transactionID,
                             modifier = modifier
                         )
-                    } else { Text("Loading transaction...") }
+                    } else { Text(stringResource(R.string.loading_transaction)) }
                 }
                 OrderSummary(
                     viewModel = viewModel,
@@ -235,7 +235,8 @@ fun MenuItemCard(
                 Text(
                     text = if (menuItem.menuItemAvailability == 1) {
                         String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice)
-                    } else { "NOT AVAILABLE" },
+                    } else {
+                        stringResource(R.string.not_available) },
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -388,7 +389,11 @@ fun OrderSummary(
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
                 var paymentMethodDropdownExpanded by remember { mutableStateOf(false) }
-                val allPaymentMethods = listOf("Cash", "Card", "EWallet")
+                val allPaymentMethods = listOf(
+                    stringResource(R.string.cash),
+                    stringResource(R.string.card),
+                    stringResource(R.string.ewallet)
+                )
                 Box(
                     modifier = Modifier
                         .width(144.dp)
@@ -443,7 +448,7 @@ fun OrderSummary(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
                     ) {
                         Text(
-                            "Reset",
+                            stringResource(R.string.reset),
                             color = White,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
@@ -456,8 +461,8 @@ fun OrderSummary(
                     if (showResetConfirmationDialog) {
                         AlertDialog(
                             onDismissRequest = { showResetConfirmationDialog = false },
-                            title = { Text(text = "Confirm Reset") },
-                            text = { Text(text = "Are you sure you want to cancel?") },
+                            title = { Text(text = stringResource(R.string.confirm_reset)) },
+                            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_reset)) },
                             confirmButton = {
                                 Button(
                                     onClick = {

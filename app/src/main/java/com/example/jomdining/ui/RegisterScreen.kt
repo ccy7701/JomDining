@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.jomdining.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +52,7 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Register",
+            text = stringResource(R.string.register),
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.headlineMedium,
@@ -59,7 +61,7 @@ fun RegisterScreen(
         TextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") },
+            label = { Text(stringResource(R.string.username)) },
             modifier = Modifier
                 .width(800.dp)
                 .padding(bottom = 16.dp)
@@ -67,7 +69,7 @@ fun RegisterScreen(
         TextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text(stringResource(R.string.email)) },
             modifier = Modifier
                 .width(800.dp)
                 .padding(bottom = 16.dp)
@@ -75,7 +77,7 @@ fun RegisterScreen(
         TextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.password)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .width(800.dp)
@@ -84,7 +86,7 @@ fun RegisterScreen(
         TextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password") },
+            label = { Text(stringResource(R.string.confirm_password)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .width(800.dp)
@@ -138,7 +140,7 @@ fun RegisterScreen(
                 .height(65.dp)
         ) {
             Text(
-                text = "Register",
+                text = stringResource(R.string.register),
                 fontSize = 25.sp
             )
         }

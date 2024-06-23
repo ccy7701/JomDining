@@ -15,10 +15,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.jomdining.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +35,7 @@ fun MainMenuScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Main Menu") },
+                title = { Text(stringResource(R.string.main_menu)) },
                 actions = {
                     activeLoginAccount?.let { account ->
                         Row(
@@ -102,8 +104,10 @@ fun MainMenuScreen(
                         .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally) // Adjust horizontal spacing here
                 ) {
-                    ButtonBox(navController, "Food Ordering", "food_ordering", Color(0xFFE57373))
-                    ButtonBox(navController, "Order History", "order_history", Color(0xFF64B5F6))
+                    ButtonBox(navController,
+                        stringResource(R.string.food_ordering), "food_ordering", Color(0xFFE57373))
+                    ButtonBox(navController,
+                        stringResource(R.string.order_history), "order_history", Color(0xFF64B5F6))
                 }
                 Spacer(modifier = Modifier.height(30.dp))
                 Row(
@@ -112,8 +116,10 @@ fun MainMenuScreen(
                         .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally) // Adjust horizontal spacing here
                 ) {
-                    ButtonBox(navController, "Track All Orders", "order_tracking", Color(0xFF81C784))
-                    ButtonBox(navController, "Menu Management", "menu_management", Color(0xFFFFD54F))
+                    ButtonBox(navController,
+                        stringResource(R.string.track_all_orders), "order_tracking", Color(0xFF81C784))
+                    ButtonBox(navController,
+                        stringResource(R.string.menu_management), "menu_management", Color(0xFFFFD54F))
                 }
             }
         }

@@ -50,3 +50,5 @@ abstract class JomDiningDatabase: RoomDatabase() {
         }
     }
 }
+
+// test

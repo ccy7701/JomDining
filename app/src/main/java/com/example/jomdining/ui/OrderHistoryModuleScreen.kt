@@ -97,7 +97,7 @@ fun OrderHistoryModuleScreen(
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "Order History",
+                title = stringResource(R.string.order_history),
                 onBackClicked = { navController.popBackStack() }
             )
         },
@@ -185,7 +185,7 @@ fun OrderHistoryDetailsDisplay(
                         )
                         if (transactionToDisplay!!.isActive == -2) {
                             Text(
-                                text = "** ORDER CANCELLED **",
+                                text = "** " + stringResource(R.string.order_cancelled) + " **",
                                 textAlign = TextAlign.Center,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -294,7 +294,7 @@ fun OrderHistoryDetailsDisplay(
                 }
             } else {
                 Log.e("TransactionToDisplay", "List is currently empty!")
-                Text(text = "Loading...")
+                Text(text = stringResource(R.string.loading))
             }
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -334,7 +334,7 @@ fun OrderHistoryList(
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "CANCELLED ORDERS",
+                    text = stringResource(R.string.cancelled_orders),
                     color = Gray,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -370,13 +370,14 @@ fun OrderHistoryListCard(
     val accountID = activeLoginAccount!!.accountID
 
     Card(
-        modifier = modifier.fillMaxWidth()
-        .background(White, shape = RoundedCornerShape(8.dp))
-        .clickable {
-            viewModel.transactionIsSelected = 1
-            viewModel.getHistoricalTransactionDetailsByID(transactionsObject.transactionID)
-            onCardClick(transactionsObject.transactionID)
-        },
+        modifier = modifier
+            .fillMaxWidth()
+            .background(White, shape = RoundedCornerShape(8.dp))
+            .clickable {
+                viewModel.transactionIsSelected = 1
+                viewModel.getHistoricalTransactionDetailsByID(transactionsObject.transactionID)
+                onCardClick(transactionsObject.transactionID)
+            },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (transactionsObject.isActive == -2) Color(0xFFA95C68) else White
@@ -390,9 +391,9 @@ fun OrderHistoryListCard(
                 .padding(horizontal = 16.dp, vertical = 4.dp)
         ) {
             when (transactionsObject.isActive) {
-                0 -> Text(text = "Preparing", color = Color(0xFFA9A9A9), fontSize = 20.sp)
-                -1 -> Text(text = "Completed", color = Color(0xFF50C878), fontSize = 20.sp)
-                -2 -> Text(text = "Cancelled", color = Color(0xFFFFFFFF), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                0 -> Text(text = stringResource(R.string.preparing), color = Color(0xFFA9A9A9), fontSize = 20.sp)
+                -1 -> Text(text = stringResource(R.string.completed), color = Color(0xFF50C878), fontSize = 20.sp)
+                -2 -> Text(text = stringResource(R.string.cancelled), color = Color(0xFFFFFFFF), fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         }
         Row(
@@ -435,7 +436,9 @@ fun OrderHistoryListCard(
                 modifier = Modifier.padding(vertical = 16.dp)
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.Center,
@@ -447,13 +450,13 @@ fun OrderHistoryListCard(
                             colors = ButtonDefaults.buttonColors(),
                             modifier = Modifier.fillMaxWidth(0.5f)
                         ) {
-                            Text(text = "CANCEL ORDER", fontSize = 20.sp, modifier = Modifier.padding(8.dp))
+                            Text(text = stringResource(R.string.cancel_order), fontSize = 20.sp, modifier = Modifier.padding(8.dp))
                         }
                         if (showCancelConfirmationDialog) {
                             AlertDialog(
                                 onDismissRequest = { showCancelConfirmationDialog = false },
-                                title = { Text(text = "Confirm transaction cancellation") },
-                                text = { Text(text = "Mark this transaction as cancelled? This action cannot be undone!") },
+                                title = { Text(text = stringResource(R.string.confirm_transaction_cancellation)) },
+                                text = { Text(text = stringResource(R.string.mark_as_cancelled_message)) },
                                 confirmButton = {
                                     Button(
                                         onClick = {
@@ -480,7 +483,7 @@ fun OrderHistoryListCard(
                                     }
                                 },
                                 dismissButton = {
-                                    Button(onClick = { showCancelConfirmationDialog = false }) { Text(text = "Cancel") }
+                                    Button(onClick = { showCancelConfirmationDialog = false }) { Text(text = stringResource(R.string.cancel)) }
                                 },
                                 properties = DialogProperties(dismissOnClickOutside = true)
                             )

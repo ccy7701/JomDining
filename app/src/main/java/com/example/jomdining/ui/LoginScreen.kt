@@ -56,7 +56,6 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            // painter = painterResource(id =
             painter = painterResource(id = R.drawable.jomdininglogo),
             contentDescription = "JomDining Logo",
             modifier = Modifier
@@ -65,7 +64,7 @@ fun LoginScreen(
                 .padding(bottom = 12.dp)
         )
         Text(
-            text = "Login",
+            text = stringResource(R.string.login),
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.headlineMedium,
@@ -74,7 +73,7 @@ fun LoginScreen(
         TextField(
             value = loginUsername,
             onValueChange = { loginUsername = it },
-            label = { Text("Username") },
+            label = { Text(stringResource(R.string.username)) },
             modifier = Modifier
                 .width(800.dp)
                 .padding(bottom = 16.dp)
@@ -104,7 +103,7 @@ fun LoginScreen(
                 .height(65.dp)
         ) {
             Text(
-                text = "Login",
+                text = stringResource(R.string.login),
                 fontSize = 25.sp
             )
         }
@@ -135,13 +134,13 @@ fun LoginScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
         val annotatedString = buildAnnotatedString {
-            append("New user? ")
+            append(stringResource(R.string.new_user))
             withStyle(style = SpanStyle(color = Color(0xFF7d0000), fontWeight = FontWeight.Bold)) {
-                append("Register here")
+                append(stringResource(R.string.register_here))
                 addStringAnnotation(
                     tag = "REGISTER",
                     annotation = "register",
-                    start = this@buildAnnotatedString.length - "Register here".length,
+                    start = this@buildAnnotatedString.length - (stringResource(R.string.register_here)).length,
                     end = this@buildAnnotatedString.length
                 )
             }

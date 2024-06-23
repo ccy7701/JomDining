@@ -84,7 +84,7 @@ fun MenuManagementModuleScreen(
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "Menu Management",
+                title = stringResource(R.string.menu_management),
                 onBackClicked = { navController.popBackStack() }
             )
         },
@@ -229,7 +229,7 @@ fun MenuCard(
             ) {
                 if (menuItem.menuItemAvailability == -1) {
                     Text(
-                        text = "MENU ITEM RETIRED",
+                        text = stringResource(R.string.menu_item_retired),
                         style = MaterialTheme.typography.bodyMedium,
                         color = White,
                         fontSize = 24.sp,
@@ -244,7 +244,7 @@ fun MenuCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                    ) { Text(text = "Available") }
+                    ) { Text(text = stringResource(R.string.available)) }
                     Button(
                         onClick = { viewModel.updateMenuAvailability(menuItem.menuItemID, 0) },
                         colors = ButtonDefaults.buttonColors(
@@ -255,7 +255,7 @@ fun MenuCard(
                             .padding(vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Out of Stock",
+                            text = stringResource(R.string.out_of_stock),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -302,7 +302,7 @@ fun AddMenuCard(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Add New Menu Item",
+                text = stringResource(R.string.add_new_menu_item),
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 24.sp
             )
@@ -356,7 +356,7 @@ fun EditMenuActionDisplay(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "This menu item was retired.",
+                    text = stringResource(R.string.this_menu_item_was_retired),
                     style = MaterialTheme.typography.bodyMedium,
                     color = White,
                     fontSize = 24.sp
@@ -407,7 +407,7 @@ fun EditMenuActionDisplay(
                     onValueChange = {
                         viewModel.menuItemPrice = it
                     },
-                    label = { Text("Menu item price") },
+                    label = { Text(stringResource(R.string.menu_item_price)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number
@@ -559,23 +559,23 @@ fun EditMenuActionDisplay(
                             viewModel.menuItemPrice = ""
                             viewModel.menuItemImageUri = ""
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA489C5)),
                         modifier = Modifier.weight(1f)
-                    ) { Text(text = "Cancel", color = White) }
+                    ) { Text(text = stringResource(R.string.cancel), color = White) }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 if (viewModel.selectedMenuItem == "existing_item") {
                     var showRetireConfirmationDialog by remember { mutableStateOf(false) }
                     Button(
                         onClick = { showRetireConfirmationDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0000)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
                         modifier = Modifier.fillMaxWidth()
                     ) { Text(text = stringResource(R.string.retire_this_menu_item), color = White) }
                     // Confirmation dialog
                     if (showRetireConfirmationDialog) {
                         AlertDialog(
                             onDismissRequest = { showRetireConfirmationDialog = false},
-                            title = { Text(text = "Confirm retirement") },
+                            title = { Text(text = stringResource(R.string.confirm_retirement)) },
                             text = { Text(text = "Are you sure you want to retire ${viewModel.menuItemName}? This action cannot be undone!") },
                             confirmButton = {
                                 Button(
@@ -601,11 +601,13 @@ fun EditMenuActionDisplay(
                                     },
                                     colors = ButtonDefaults.buttonColors(containerColor = Red)
                                 ) {
-                                    Text(text = "Confirm", color = White)
+                                    Text(text = stringResource(R.string.confirm), color = White)
                                 }
                             },
                             dismissButton = {
-                                Button(onClick = { showRetireConfirmationDialog = false }) { Text(text = "Cancel") }
+                                Button(onClick = { showRetireConfirmationDialog = false }) {
+                                    Text(text = stringResource(R.string.cancel))
+                                }
                             },
                             properties = DialogProperties(dismissOnClickOutside = true)
                         )
