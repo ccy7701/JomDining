@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-06-16T05:59:25.079746800Z">
+        <DropdownSelection timestamp="2024-06-20T13:22:06.527408600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\chiew\.android\avd\Pixel_Tablet_API_25_Landscape.avd" />

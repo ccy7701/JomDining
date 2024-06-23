@@ -30,9 +30,6 @@ import com.example.jomdining.data.TestOrderTrackingItems
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
-import com.example.jomdining.ui.JomDiningTopAppBar
-import com.example.jomdining.ui.JomDiningViewModel
-import com.example.jomdining.ui.OrderItemListDisplay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(
@@ -47,7 +44,7 @@ fun OrderTrackingModulePreview(
 ) {
     Scaffold(
         topBar = {
-            JomDiningTopAppBar(title = "JomDining")
+            JomDiningTopAppBarPreview(title = "JomDining")
         },
         containerColor = Color(0xCEDFFFFF)
     ) { innerPadding ->
@@ -73,7 +70,6 @@ fun OrderTrackingModulePreview(
 @Composable
 fun TestOrderTrackingGrid(
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth()

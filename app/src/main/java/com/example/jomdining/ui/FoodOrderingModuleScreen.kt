@@ -45,8 +45,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -78,6 +76,7 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
+import com.example.jomdining.ui.components.JomDiningTopAppBar
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -108,7 +107,8 @@ fun FoodOrderingModuleScreen(
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "Food Ordering"
+                title = "Food Ordering",
+                onBackClicked = { navController.popBackStack() }
             )
         },
         containerColor = Color(0xFFCEDFFF)
@@ -123,9 +123,7 @@ fun FoodOrderingModuleScreen(
                     }
                 }
         ) {
-            Row(
-                modifier = modifier.fillMaxSize()
-            ) {
+            Row(modifier = modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier
                         .weight(0.6f)
@@ -138,9 +136,7 @@ fun FoodOrderingModuleScreen(
                             currentActiveTransactionID = activeTransaction!!.transactionID,
                             modifier = modifier
                         )
-                    } else {
-                        Text("Loading transaction...")
-                    }
+                    } else { Text("Loading transaction...") }
                 }
                 OrderSummary(
                     viewModel = viewModel,
@@ -154,24 +150,6 @@ fun FoodOrderingModuleScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun JomDiningTopAppBar(
-    title: String,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = {
-            Text(title)
-        },
-        modifier = modifier,
-        colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary
-        )
-    )
-}
-
 @Composable
 fun MenuItemGrid(
     viewModel: JomDiningViewModel,
@@ -179,10 +157,10 @@ fun MenuItemGrid(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFFCEDFFF)
 ) {
+    Spacer(modifier = Modifier.height(8.dp))
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        modifier = modifier
-            .background(backgroundColor)
+        modifier = modifier.background(backgroundColor)
     ) {
         items(viewModel.menuUi.menuItems) { menuItem ->
             MenuItemCard(viewModel, currentActiveTransactionID, menuItem)
@@ -197,6 +175,9 @@ fun MenuItemCard(
     menuItem: Menu,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val packageName = "com.example.jomdining"
+
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = if (menuItem.menuItemAvailability == 1) {
@@ -209,17 +190,12 @@ fun MenuItemCard(
                         operationFlag = 1
                     )
                 }
-        } else {
-            modifier.padding(16.dp)
-        },
+        } else { modifier.padding(16.dp) },
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (menuItem.menuItemAvailability == 1) White else Color(0xFF565F71),
-        )
+        colors = CardDefaults.cardColors(containerColor = if (menuItem.menuItemAvailability == 1) White else Color(0xFF565F71))
     ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -227,10 +203,11 @@ fun MenuItemCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 val imagePath = menuItem.menuItemImagePath
+                val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
                 Image(
                     painter = rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data("file:///android_asset/images/menu/$imagePath")
+                        model = ImageRequest.Builder(context)
+                            .data(resourceID)
                             .build()
                     ),
                     contentDescription = menuItem.menuItemName,
@@ -244,10 +221,7 @@ fun MenuItemCard(
             }
             Row {
                 Text(
-                    text = stringResource(
-                        R.string.menu_item_name_placeholder,
-                        menuItem.menuItemName
-                    ),
+                    text = stringResource(R.string.menu_item_name_placeholder, menuItem.menuItemName),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -261,9 +235,7 @@ fun MenuItemCard(
                 Text(
                     text = if (menuItem.menuItemAvailability == 1) {
                         String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice)
-                    } else {
-                        "NOT AVAILABLE"
-                    },
+                    } else { "NOT AVAILABLE" },
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -316,9 +288,7 @@ fun OrderSummary(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn(
-                modifier = Modifier.weight(1f) // Make it take available space and be scrollable
-            ) {
+            LazyColumn(modifier = Modifier.weight(1f)) {
                 items(currentOrderItemsList) { pair ->
                     val orderItem = pair.first
                     val correspondingMenuItem = pair.second
@@ -467,9 +437,7 @@ fun OrderSummary(
                                     .show()
                                 showResetConfirmationDialog = false
                                 return@Button
-                            } else {
-                                showResetConfirmationDialog = true
-                            }
+                            } else { showResetConfirmationDialog = true }
                         },
                         modifier = Modifier.height(60.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
@@ -516,9 +484,7 @@ fun OrderSummary(
                                         showResetConfirmationDialog = false
                                     },
                                     colors = ButtonDefaults.buttonColors(containerColor = Red)
-                                ) {
-                                    Text(text = "Yes")
-                                }
+                                ) { Text(text = "Yes") }
                             },
                             dismissButton = {
                                 Button(
@@ -526,9 +492,7 @@ fun OrderSummary(
                                         showResetConfirmationDialog = false
                                         Log.d("cancelOrder", "Order cancelled.")
                                     }
-                                ) {
-                                    Text(text = "No")
-                                }
+                                ) { Text(text = "No") }
                             },
                             properties = DialogProperties(dismissOnClickOutside = true)
                         )
@@ -542,11 +506,11 @@ fun OrderSummary(
                                 val pushTransactionID = activeTransaction?.transactionID
                                 val pushAccountID = activeTransaction?.accountID ?: 0
                                 val pushDateTime = getCurrentDateTime()
-                                var pushPaymentMethod: String? = null
+                                val pushPaymentMethod: String?
                                 val pushTransactionTotalPrice = runningTotal
                                 val pushTransactionPayment = totalPaymentAmountString.toDouble()
                                 val pushTransactionBalance = String.format(Locale.getDefault(), "%.2f", pushTransactionPayment - pushTransactionTotalPrice).toDouble()
-                                var pushTableNumber: Int? = null
+                                val pushTableNumber: Int?
 
                                 // The data has to go through all four checks and pass them all before pushing to DB
                                 if (currentOrderItemsList.isEmpty()) {
@@ -665,14 +629,12 @@ fun OrderItemCard(
     val currentOrderItem = orderItemAndMenu.first
     val correspondingMenuItem = orderItemAndMenu.second
     val context = LocalContext.current
+    val packageName = "com.example.jomdining"
 
     Card(
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = White,
-        ),
-        modifier = modifier
-            .fillMaxWidth()
+        colors = CardDefaults.cardColors(containerColor = White),
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -682,10 +644,11 @@ fun OrderItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             val imagePath = correspondingMenuItem.menuItemImagePath
+            val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
             Image(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data("file:///android_asset/images/menu/$imagePath")
+                        .data(resourceID)
                         .build()
                 ),
                 contentDescription = "Ordered Item: ${correspondingMenuItem.menuItemName}",
@@ -792,7 +755,7 @@ fun OrderItemCard(
 }
 
 fun getCurrentDateTime(): String {
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
     dateFormat.timeZone = TimeZone.getTimeZone("Asia/Kuala_Lumpur")
     return dateFormat.format(Date())
 }

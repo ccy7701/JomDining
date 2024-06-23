@@ -14,7 +14,6 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Stock
 import com.example.jomdining.databaseentities.Transactions
-import kotlinx.coroutines.InternalCoroutinesApi
 
 @Database(
     entities = [
@@ -44,13 +43,9 @@ abstract class JomDiningDatabase: RoomDatabase() {
                     context = context,
                     JomDiningDatabase::class.java, "jom_dining_database.db"
                 )
-                    .createFromAsset(
-                        "database/jom_dining_database.db"
-                    )
+                    .createFromAsset("database/jom_dining_database.db")
                     .build()
-                    .also {
-                        Instance = it
-                    }
+                    .also { Instance = it }
             }
         }
     }

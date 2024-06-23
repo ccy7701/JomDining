@@ -58,7 +58,6 @@ import com.example.jomdining.R
 import com.example.jomdining.data.TempMenuItems
 import com.example.jomdining.data.TestOrderItemsWithMenus
 import com.example.jomdining.databaseentities.Menu
-import com.example.jomdining.ui.JomDiningTopAppBar
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,9 +73,7 @@ fun FoodOrderingModulePreview(
 ) {
     Scaffold(
         topBar = {
-            JomDiningTopAppBar(
-                title = "JomDining"
-            )
+            JomDiningTopAppBarPreview(title = "JomDining")
         }
     ) { innerPadding ->
         Column(

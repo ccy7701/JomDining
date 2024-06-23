@@ -1,6 +1,5 @@
 package com.example.jomdining.daos
 
-import androidx.compose.ui.graphics.colorspace.Connector
 import androidx.room.Dao
 import androidx.room.Query
 import com.example.jomdining.databaseentities.Menu

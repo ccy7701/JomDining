@@ -2,7 +2,6 @@ package com.example.jomdining.ui
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +45,7 @@ import androidx.navigation.NavHostController
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
+import com.example.jomdining.ui.components.JomDiningTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,16 +54,14 @@ fun OrderTrackingModuleScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val context = LocalContext.current
-
     // Fetch all transactions and their order items when this screen is composed
     viewModel.getAllTransactionsBeingPrepared()
 
     Scaffold(
         topBar = {
             JomDiningTopAppBar(
-                title = "Order Tracking"
+                title = "Order Tracking",
+                onBackClicked = { navController.popBackStack() }
             )
         },
         containerColor = Color(0xFFCEDFFF)
@@ -91,8 +88,7 @@ fun OrderTrackingModuleScreen(
 @Composable
 fun OrderTrackingGrid(
     viewModel: JomDiningViewModel,
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFFCEDFFF)
+    modifier: Modifier = Modifier
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth()
@@ -159,7 +155,7 @@ fun TransactionCard(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
         ) {
-            Column(modifier = Modifier.width(100.dp)) { Text(text = "Sent by") }
+            Column(modifier = Modifier.width(100.dp)) { Text(text = "Sender ID") }
             Spacer(modifier = Modifier.width(16.dp))
             Column { Text(text = "${transaction.accountID}", fontSize = 20.sp) }
         }

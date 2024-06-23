@@ -20,7 +20,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,8 +39,8 @@ fun LoginScreen(
     val context = LocalContext.current
     val activeLoginAccount by viewModel.activeLoginAccount.observeAsState()
     val loginAttempted by viewModel.loginAttempted.observeAsState(false)
-    var loginUsername by remember { mutableStateOf(TextFieldValue("")) }
-    var loginPassword by remember { mutableStateOf(TextFieldValue("")) }
+    var loginUsername by remember { mutableStateOf("") }
+    var loginPassword by remember { mutableStateOf("") }
     val errorMessage by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -51,15 +50,13 @@ fun LoginScreen(
             .background(Color(0xFFCEDFFF))
             .padding(16.dp)
             .pointerInput(Unit) {
-                detectTapGestures {
-                    // Hide the keyboard when tapped outside
-                    keyboardController?.hide()
-                }
+                detectTapGestures { keyboardController?.hide() }
             },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
+            // painter = painterResource(id =
             painter = painterResource(id = R.drawable.jomdininglogo),
             contentDescription = "JomDining Logo",
             modifier = Modifier
@@ -100,10 +97,7 @@ fun LoginScreen(
         }
         Spacer(modifier = Modifier.height(35.dp))
         Button(
-            onClick = {
-                Log.d("LoginScreen", "Attempting login with username: ${loginUsername.text}")
-                viewModel.getAccountByLoginDetails(loginUsername.text, loginPassword.text)
-            },
+            onClick = { viewModel.getAccountByLoginDetails(loginUsername, loginPassword) },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .width(300.dp)
@@ -119,14 +113,12 @@ fun LoginScreen(
         LaunchedEffect(activeLoginAccount, loginAttempted) {
             if (loginAttempted) {
                 if (activeLoginAccount != null) {
-//                    Log.d("LoginScreen", "Login successful: ${activeLoginAccount!!.accountID}")
                     navController.navigate("main_menu") {
                         popUpTo("login") {
                             inclusive = true
                         }
                     }
-                    Log.d("LoginScreen", "Login successful. The system currently holds the following session details:")
-                    Log.d("SessionDetails", "$activeLoginAccount")
+                    Log.d("LoginScreen", "Login successful.")
                 } else {
                     Log.d("LoginScreen", "Login failed: No matching account found.")
                     // If login fails, display the Toast message indicating it.
@@ -167,10 +159,3 @@ fun LoginScreen(
         )
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun LoginScreenPreview() {
-//    val navController = rememberNavController()
-//    LoginScreen(navController = navController)
-//}

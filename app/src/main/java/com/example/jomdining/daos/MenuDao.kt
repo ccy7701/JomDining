@@ -7,9 +7,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MenuDao {
-//    @Delete
-//    suspend fun removeMenu(menu: Menu)
-
     @Query("""
         INSERT INTO menu (menuItemName, menuItemPrice, menuItemType, menuItemImagePath, menuItemAvailability)
         VALUES (:menuItemName, :menuItemPrice, :menuItemType, "", 1)
