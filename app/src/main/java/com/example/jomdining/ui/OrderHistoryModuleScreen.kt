@@ -428,7 +428,7 @@ fun OrderHistoryListCard(
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
-        if (transactionsObject.isActive != -2) {
+        if (transactionsObject.isActive != -2 && transactionsObject.isActive != -1) {
             AnimatedVisibility(
                 visible = isExpanded,
                 enter = expandVertically(animationSpec = tween(durationMillis = 100)) + fadeIn(animationSpec = tween(durationMillis = 100)),
