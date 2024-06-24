@@ -37,7 +37,6 @@ class OrderHistoryViewModel(
         private set
 
     private var historicalTransactionsUi by mutableStateOf(HistoricalTransactionsUi())
-        private set
 
     // All variables used in the OrderHistoryModuleScreen
     var transactionIsSelected by mutableIntStateOf(0)

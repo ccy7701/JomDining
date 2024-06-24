@@ -5,11 +5,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Index
 import com.example.jomdining.ui.viewmodels.FoodOrderingViewModel
 import com.example.jomdining.ui.viewmodels.JomDiningSharedViewModel
 import com.example.jomdining.ui.viewmodels.MenuManagementViewModel
 import com.example.jomdining.ui.viewmodels.OrderHistoryViewModel
+import com.example.jomdining.ui.viewmodels.OrderTrackingViewModel
 import com.example.jomdining.ui.viewmodels.RegisterViewModel
 
 @Composable
@@ -21,6 +21,7 @@ fun NavigationGraph(startDestination: String = "login") {
     val registerViewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.factory)
     val foodOrderingViewModel: FoodOrderingViewModel = viewModel(factory = FoodOrderingViewModel.factory)
     val orderHistoryViewModel: OrderHistoryViewModel = viewModel(factory = OrderHistoryViewModel.factory)
+    val orderTrackingViewModel: OrderTrackingViewModel = viewModel(factory = OrderTrackingViewModel.factory)
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
@@ -57,7 +58,8 @@ fun NavigationGraph(startDestination: String = "login") {
         }
         composable("order_tracking") {
             OrderTrackingModuleScreen(
-                viewModel = sharedViewModel,
+                sharedViewModel = sharedViewModel,
+                viewModel = orderTrackingViewModel,
                 navController = navController
             )
         }

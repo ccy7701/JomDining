@@ -149,7 +149,6 @@ fun FoodOrderingModuleScreen(
                     } else { Text(stringResource(R.string.loading_transaction)) }
                 }
                 OrderSummary(
-                    sharedViewModel = sharedViewModel,
                     viewModel = viewModel,
                     navController = navController,
                     modifier = Modifier
@@ -263,7 +262,6 @@ fun MenuItemCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderSummary(
-    sharedViewModel: JomDiningSharedViewModel,
     viewModel: FoodOrderingViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier

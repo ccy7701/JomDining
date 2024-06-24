@@ -65,7 +65,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
-import androidx.room.Index
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.jomdining.R
@@ -126,10 +125,7 @@ fun OrderHistoryModuleScreen(
                         .fillMaxSize()
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    OrderHistoryDetailsDisplay(
-                        sharedViewModel = sharedViewModel,
-                        viewModel = viewModel
-                    )
+                    OrderHistoryDetailsDisplay(viewModel = viewModel)
                 }
                 OrderHistoryList(
                     sharedViewModel = sharedViewModel,
@@ -145,7 +141,6 @@ fun OrderHistoryModuleScreen(
 
 @Composable
 fun OrderHistoryDetailsDisplay(
-    sharedViewModel: JomDiningSharedViewModel,
     viewModel: OrderHistoryViewModel,
     modifier: Modifier = Modifier
 ) {

@@ -48,12 +48,12 @@ import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.components.JomDiningTopAppBar
 import com.example.jomdining.ui.theme.secondaryContainerLight
-import com.example.jomdining.ui.viewmodels.JomDiningSharedViewModel
+import com.example.jomdining.ui.viewmodels.OrderTrackingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderTrackingModuleScreen(
-    viewModel: JomDiningSharedViewModel,
+    viewModel: OrderTrackingViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
@@ -90,7 +90,7 @@ fun OrderTrackingModuleScreen(
 
 @Composable
 fun OrderTrackingGrid(
-    viewModel: JomDiningSharedViewModel,
+    viewModel: OrderTrackingViewModel,
     modifier: Modifier = Modifier
 ) {
     LazyRow(
@@ -98,14 +98,17 @@ fun OrderTrackingGrid(
     ) {
         val completeTrackingList = viewModel.orderTrackingUi.completeTrackingList
         items(completeTrackingList) { completeItem ->
-            TransactionCard(viewModel, completeItem)
+            TransactionCard(
+                viewModel = viewModel,
+                completeTransaction = completeItem
+            )
         }
     }
 }
 
 @Composable
 fun TransactionCard(
-    viewModel: JomDiningSharedViewModel,
+    viewModel: OrderTrackingViewModel,
     completeTransaction: Pair<Transactions, List<Pair<OrderItem, Menu>>>
 ) {
     val transaction = completeTransaction.first
@@ -161,13 +164,17 @@ fun TransactionCard(
             Column { Text(text = "${transaction.accountID}", fontSize = 20.sp) }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        OrderItemListDisplay(viewModel, transaction.transactionID, orderItemsList)
+        OrderItemListDisplay(
+            viewModel = viewModel,
+            connectedTransactionID = transaction.transactionID,
+            orderItemsList = orderItemsList
+        )
     }
 }
 
 @Composable
 fun OrderItemListDisplay(
-    viewModel: JomDiningSharedViewModel,
+    viewModel: OrderTrackingViewModel,
     connectedTransactionID: Int,
     orderItemsList: List<Pair<OrderItem, Menu>>
 ) {
@@ -249,7 +256,7 @@ fun OrderItemListDisplay(
 
 @Composable
 fun OrderItemListBox(
-    viewModel: JomDiningSharedViewModel,
+    viewModel: OrderTrackingViewModel,
     connectedTransactionID: Int,
     orderItemAndMenu: Pair<OrderItem, Menu>,
 ) {
