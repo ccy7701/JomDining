@@ -58,7 +58,6 @@ fun NavigationGraph(startDestination: String = "login") {
         }
         composable("order_tracking") {
             OrderTrackingModuleScreen(
-                sharedViewModel = sharedViewModel,
                 viewModel = orderTrackingViewModel,
                 navController = navController
             )
