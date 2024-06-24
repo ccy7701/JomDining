@@ -33,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
@@ -49,6 +48,7 @@ import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.components.JomDiningTopAppBar
 import com.example.jomdining.ui.theme.secondaryContainerLight
+import com.example.jomdining.ui.viewmodels.JomDiningViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

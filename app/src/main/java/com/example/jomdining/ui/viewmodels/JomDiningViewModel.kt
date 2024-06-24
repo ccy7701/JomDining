@@ -1,11 +1,10 @@
-package com.example.jomdining.ui
+package com.example.jomdining.ui.viewmodels
 
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -123,16 +122,6 @@ class JomDiningViewModel(
     /*
         ALL ITEMS UNDER MenuDao
      */
-    fun getAllMenuItems() {
-        viewModelScope.launch {
-            menuUi = menuUi.copy(
-                menuItems = repository.getAllMenuItems()
-                    .filterNotNull()
-                    .first()
-            )
-        }
-    }
-
     fun getAllMenuItemsExceptRetired() {
         viewModelScope.launch {
             menuUi = menuUi.copy(
@@ -140,52 +129,6 @@ class JomDiningViewModel(
                     .filterNotNull()
                     .first()
             )
-        }
-    }
-
-    fun addNewMenuItem(menuItemName: String, menuItemPrice: Double, menuItemType: String) {
-        viewModelScope.launch {
-            try {
-                // invoke the function that inserts a new Menu item to the DB
-                repository.addNewMenuItemStream(menuItemName, menuItemPrice, menuItemType)
-                Log.d("addNewMenuItem", "New menu item added successfully")
-            } catch (e: Exception) {
-                Log.e("addNewMenuItem", "Error when adding new menu item: $e")
-            }
-            getAllMenuItems()
-        }
-    }
-
-    fun updateMenuItemDetails(menuItemID: Int, menuItemName: String, menuItemPrice: Double, menuItemType: String) {
-        viewModelScope.launch {
-            try {
-                // invoke the function that updates the Menu item details in the DB
-                repository.updateMenuItemDetailsStream(menuItemID, menuItemName, menuItemPrice, menuItemType)
-                Log.d("updateMenuItemDetails", "Menu item updated successfully. New details: (menuItemID: $menuItemID | menuItemName: $menuItemName | menuItemPrice: $menuItemPrice | menuItemType: $menuItemType)")
-            } catch (e: Exception) {
-                Log.e("updateMenuItemDetails", "Error when updating menu item details: $e")
-            }
-            getAllMenuItems()
-        }
-    }
-
-    fun updateMenuAvailability(menuItemID: Int, availabilityToggle: Int) {
-        viewModelScope.launch {
-            repository.updateMenuItemAvailabilityStream(menuItemID, availabilityToggle)
-            getAllMenuItems()
-        }
-    }
-
-    fun retireMenuItem(menuItemID: Int) {
-        viewModelScope.launch {
-            try {
-                // invoke the function that retires the menu item by updating its availability flag
-                repository.retireMenuItemStream(menuItemID)
-                Log.d("retireMenuItem", "Menu item retired successfully.")
-            } catch (e: Exception) {
-                Log.e("retireMenuItem", "Error when retiring menu item: $e")
-            }
-            getAllMenuItems()
         }
     }
 

@@ -68,20 +68,21 @@ import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.ui.components.JomDiningTopAppBar
 import com.example.jomdining.ui.theme.errorLight
-import com.example.jomdining.ui.theme.onPrimaryLight
 import com.example.jomdining.ui.theme.primaryLight
 import com.example.jomdining.ui.theme.retireRed
 import com.example.jomdining.ui.theme.secondaryContainerLight
 import com.example.jomdining.ui.theme.systemPurple
 import com.example.jomdining.ui.theme.systemPurpleXLight
 import com.example.jomdining.ui.theme.tertiaryContainerLight
+import com.example.jomdining.ui.viewmodels.MenuManagementViewModel
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("AutoboxingStateCreation")
 @Composable
 fun MenuManagementModuleScreen(
-    viewModel: JomDiningViewModel,
+//    viewModel: JomDiningViewModel,
+    viewModel: MenuManagementViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -140,7 +141,8 @@ fun MenuManagementModuleScreen(
 
 @Composable
 fun MenuCardGrid(
-    viewModel: JomDiningViewModel,
+//    viewModel: JomDiningViewModel,
+    viewModel: MenuManagementViewModel,
     modifier: Modifier = Modifier,
     backgroundColor: Color = secondaryContainerLight
 ) {
@@ -155,7 +157,8 @@ fun MenuCardGrid(
 
 @Composable
 fun MenuCard(
-    viewModel: JomDiningViewModel,
+//    viewModel: JomDiningViewModel,
+    viewModel: MenuManagementViewModel,
     menuItem: Menu,
     modifier: Modifier = Modifier
 ) {
@@ -217,7 +220,7 @@ fun MenuCard(
                 Text(
                     text = menuItem.menuItemName,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (menuItem.menuItemAvailability == -1) White else Color.Black,
+                    color = if (menuItem.menuItemAvailability == -1) White else Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 8.dp)
@@ -225,7 +228,7 @@ fun MenuCard(
                 Text(
                     text = String.format(Locale.getDefault(), "RM %.2f", menuItem.menuItemPrice),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (menuItem.menuItemAvailability == -1) White else Color.Black,
+                    color = if (menuItem.menuItemAvailability == -1) White else Black,
                     fontSize = 24.sp,
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -276,7 +279,8 @@ fun MenuCard(
 
 @Composable
 fun AddMenuCard(
-    viewModel: JomDiningViewModel,
+//    viewModel: JomDiningViewModel,
+    viewModel: MenuManagementViewModel,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -322,7 +326,8 @@ fun AddMenuCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditMenuActionDisplay(
-    viewModel: JomDiningViewModel,
+//    viewModel: JomDiningViewModel,
+    viewModel: MenuManagementViewModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current

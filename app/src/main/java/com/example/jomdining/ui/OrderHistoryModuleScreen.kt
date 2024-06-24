@@ -72,6 +72,7 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.components.JomDiningTopAppBar
+import com.example.jomdining.ui.viewmodels.JomDiningViewModel
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)

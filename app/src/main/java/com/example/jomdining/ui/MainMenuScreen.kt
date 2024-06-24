@@ -1,6 +1,5 @@
 package com.example.jomdining.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,6 +24,7 @@ import com.example.jomdining.ui.theme.mainBlue
 import com.example.jomdining.ui.theme.mainGreen
 import com.example.jomdining.ui.theme.mainRed
 import com.example.jomdining.ui.theme.mainYellow
+import com.example.jomdining.ui.viewmodels.JomDiningViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

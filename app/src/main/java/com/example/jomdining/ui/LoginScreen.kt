@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.jomdining.ui.theme.navRed
 import com.example.jomdining.ui.theme.secondaryContainerLight
+import com.example.jomdining.ui.viewmodels.JomDiningViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
