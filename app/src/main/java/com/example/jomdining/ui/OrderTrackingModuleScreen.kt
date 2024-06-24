@@ -48,6 +48,7 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.components.JomDiningTopAppBar
+import com.example.jomdining.ui.theme.secondaryContainerLight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +67,7 @@ fun OrderTrackingModuleScreen(
                 onBackClicked = { navController.popBackStack() }
             )
         },
-        containerColor = Color(0xFFCEDFFF)
+        containerColor = secondaryContainerLight
     ) { innerPadding ->
         Column(
             modifier
@@ -111,9 +112,7 @@ fun TransactionCard(
     val orderItemsList = completeTransaction.second
 
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFFFFF)
-        ),
+        colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(4.dp),
         modifier = Modifier
             .width(500.dp)

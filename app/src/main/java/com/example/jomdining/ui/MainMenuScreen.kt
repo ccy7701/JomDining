@@ -21,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.jomdining.R
+import com.example.jomdining.ui.theme.mainBlue
+import com.example.jomdining.ui.theme.mainGreen
+import com.example.jomdining.ui.theme.mainRed
+import com.example.jomdining.ui.theme.mainYellow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,9 +109,9 @@ fun MainMenuScreen(
                     horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally) // Adjust horizontal spacing here
                 ) {
                     ButtonBox(navController,
-                        stringResource(R.string.food_ordering), "food_ordering", Color(0xFFE57373))
+                        stringResource(R.string.food_ordering), "food_ordering", mainRed)
                     ButtonBox(navController,
-                        stringResource(R.string.order_history), "order_history", Color(0xFF64B5F6))
+                        stringResource(R.string.order_history), "order_history", mainBlue)
                 }
                 Spacer(modifier = Modifier.height(30.dp))
                 Row(
@@ -117,9 +121,9 @@ fun MainMenuScreen(
                     horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally) // Adjust horizontal spacing here
                 ) {
                     ButtonBox(navController,
-                        stringResource(R.string.track_all_orders), "order_tracking", Color(0xFF81C784))
+                        stringResource(R.string.track_all_orders), "order_tracking", mainGreen)
                     ButtonBox(navController,
-                        stringResource(R.string.menu_management), "menu_management", Color(0xFFFFD54F))
+                        stringResource(R.string.menu_management), "menu_management", mainYellow)
                 }
             }
         }

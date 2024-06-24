@@ -21,6 +21,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.jomdining.R
+import com.example.jomdining.ui.theme.secondaryContainerLight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +41,7 @@ fun RegisterScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFCEDFFF))
+            .background(secondaryContainerLight)
             .padding(16.dp)
             .pointerInput(Unit) {
                 detectTapGestures {

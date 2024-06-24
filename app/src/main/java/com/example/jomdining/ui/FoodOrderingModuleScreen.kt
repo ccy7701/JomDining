@@ -36,6 +36,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +46,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
@@ -77,6 +80,11 @@ import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.ui.components.JomDiningTopAppBar
+import com.example.jomdining.ui.theme.errorLight
+import com.example.jomdining.ui.theme.primaryContainerLight
+import com.example.jomdining.ui.theme.systemPurple
+import com.example.jomdining.ui.theme.systemPurpleLight
+import com.example.jomdining.ui.theme.tertiaryContainerLight
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -111,7 +119,7 @@ fun FoodOrderingModuleScreen(
                 onBackClicked = { navController.popBackStack() }
             )
         },
-        containerColor = Color(0xFFCEDFFF)
+        containerColor = primaryContainerLight
     ) { innerPadding ->
         Column(
             modifier
@@ -155,7 +163,7 @@ fun MenuItemGrid(
     viewModel: JomDiningViewModel,
     currentActiveTransactionID: Int,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFFCEDFFF)
+    backgroundColor: Color = primaryContainerLight
 ) {
     Spacer(modifier = Modifier.height(8.dp))
     LazyVerticalGrid(
@@ -203,7 +211,9 @@ fun MenuItemCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 val imagePath = menuItem.menuItemImagePath
-                val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
+                val resourceID = if (imagePath != "") {
+                    context.resources.getIdentifier(imagePath, "drawable", packageName)
+                } else R.drawable.jomdininglogo
                 Image(
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(context)
@@ -240,7 +250,7 @@ fun MenuItemCard(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    color = if (menuItem.menuItemAvailability == 1) Color(0xFF4A1688) else White
+                    color = if (menuItem.menuItemAvailability == 1) systemPurple else White
                 )
             }
         }
@@ -275,7 +285,7 @@ fun OrderSummary(
         // val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
         Column(
             modifier = modifier
-                .background(Color(0xFFE6E6E6))
+                .background(tertiaryContainerLight)
                 .padding(16.dp)
         ) {
             Text(
@@ -283,7 +293,7 @@ fun OrderSummary(
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF34197C), shape = RoundedCornerShape(8.dp))
+                    .background(systemPurple, shape = RoundedCornerShape(8.dp))
                     .padding(8.dp),
                 color = White,
                 textAlign = TextAlign.Center
@@ -313,6 +323,10 @@ fun OrderSummary(
                     readOnly = true,
                     singleLine = true,
                     leadingIcon = { Text("RM ") },
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Black,
+                        containerColor = White
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -333,6 +347,10 @@ fun OrderSummary(
                         keyboardType = KeyboardType.Number
                     ),
                     leadingIcon = { Text("RM ") },
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Black,
+                        containerColor = White
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -445,7 +463,7 @@ fun OrderSummary(
                             } else { showResetConfirmationDialog = true }
                         },
                         modifier = Modifier.height(60.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C))
+                        colors = ButtonDefaults.buttonColors(containerColor = errorLight)
                     ) {
                         Text(
                             stringResource(R.string.reset),
@@ -608,7 +626,7 @@ fun OrderSummary(
                             }
                         },
                         modifier = Modifier.height(60.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34197C))
+                        colors = ButtonDefaults.buttonColors(containerColor = systemPurple)
                     ) {
                         Text(
                             stringResource(R.string.confirm_order),
@@ -639,6 +657,7 @@ fun OrderItemCard(
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(4.dp),
         modifier = modifier.fillMaxWidth()
     ) {
         Row(
@@ -649,7 +668,9 @@ fun OrderItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             val imagePath = correspondingMenuItem.menuItemImagePath
-            val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
+            val resourceID = if (imagePath != "") {
+                context.resources.getIdentifier(imagePath, "drawable", packageName)
+            } else R.drawable.jomdininglogo
             Image(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -673,7 +694,7 @@ fun OrderItemCard(
                 )
                 Text(
                     text = String.format(Locale.getDefault(), "RM %.2f", currentOrderItemCost),
-                    color = Color(0xFF7C4DFF)
+                    color = systemPurpleLight
                 )
             }
             Row(

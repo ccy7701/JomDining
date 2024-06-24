@@ -520,7 +520,9 @@ fun PastOrderItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             val imagePath = correspondingMenuItem.menuItemImagePath
-            val resourceID = context.resources.getIdentifier(imagePath, "drawable", packageName)
+            val resourceID = if (imagePath != "") {
+                context.resources.getIdentifier(imagePath, "drawable", packageName)
+            } else R.drawable.jomdininglogo
             Image(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(context)

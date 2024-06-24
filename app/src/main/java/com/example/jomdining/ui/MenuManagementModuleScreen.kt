@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
@@ -66,6 +67,14 @@ import coil.request.ImageRequest
 import com.example.jomdining.R
 import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.ui.components.JomDiningTopAppBar
+import com.example.jomdining.ui.theme.errorLight
+import com.example.jomdining.ui.theme.onPrimaryLight
+import com.example.jomdining.ui.theme.primaryLight
+import com.example.jomdining.ui.theme.retireRed
+import com.example.jomdining.ui.theme.secondaryContainerLight
+import com.example.jomdining.ui.theme.systemPurple
+import com.example.jomdining.ui.theme.systemPurpleXLight
+import com.example.jomdining.ui.theme.tertiaryContainerLight
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +97,7 @@ fun MenuManagementModuleScreen(
                 onBackClicked = { navController.popBackStack() }
             )
         },
-        containerColor = Color(0xFFCEDFFF)
+        containerColor = secondaryContainerLight
     ) { innerPadding ->
         Column(
             modifier
@@ -133,7 +142,7 @@ fun MenuManagementModuleScreen(
 fun MenuCardGrid(
     viewModel: JomDiningViewModel,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFFCEDFFF)
+    backgroundColor: Color = secondaryContainerLight
 ) {
     LazyColumn(
         modifier = modifier
@@ -170,7 +179,7 @@ fun MenuCard(
                 focusManager.clearFocus()
             },
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = if (menuItem.menuItemAvailability == -1) Color(0xFFA95C68) else White)
+        colors = CardDefaults.cardColors(containerColor = if (menuItem.menuItemAvailability == -1) retireRed else White)
     ) {
         Row(
             modifier = Modifier
@@ -239,7 +248,7 @@ fun MenuCard(
                     Button(
                         onClick = { viewModel.updateMenuAvailability(menuItem.menuItemID, 1) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (menuItem.menuItemAvailability == 1) Color(0xFF415F91) else Color.LightGray
+                            containerColor = if (menuItem.menuItemAvailability == 1) primaryLight else Color.LightGray
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -248,7 +257,7 @@ fun MenuCard(
                     Button(
                         onClick = { viewModel.updateMenuAvailability(menuItem.menuItemID, 0) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (menuItem.menuItemAvailability == 0) Color(0xFF415F91) else Color.LightGray
+                            containerColor = if (menuItem.menuItemAvailability == 0) primaryLight else Color.LightGray
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -323,7 +332,7 @@ fun EditMenuActionDisplay(
         if (viewModel.menuItemAvailability == -1) {
             Column(
                 modifier = modifier
-                    .background(Color(0xFFA95C68))
+                    .background(retireRed)
                     .fillMaxSize()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -365,7 +374,7 @@ fun EditMenuActionDisplay(
         } else {
             Column(
                 modifier = modifier
-                    .background(Color(0xFFE6E6E6))
+                    .background(tertiaryContainerLight)
                     .fillMaxHeight()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -394,10 +403,8 @@ fun EditMenuActionDisplay(
                     onValueChange = { viewModel.menuItemName = it },
                     label = { Text(stringResource(R.string.menu_item_name)) },
                     colors = TextFieldDefaults.textFieldColors(
-                        textColor = Color.Black,
+                        textColor = Black,
                         containerColor = White,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -413,10 +420,8 @@ fun EditMenuActionDisplay(
                         keyboardType = KeyboardType.Number
                     ),
                     colors = TextFieldDefaults.textFieldColors(
-                        textColor = Color.Black,
+                        textColor = Black,
                         containerColor = White,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
                     ),
                     leadingIcon = { Text("RM ") },
                     modifier = Modifier.fillMaxWidth()
@@ -544,7 +549,7 @@ fun EditMenuActionDisplay(
                                     .show()
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A148C)),
+                        colors = ButtonDefaults.buttonColors(containerColor = systemPurple),
                         modifier = Modifier.weight(1f)
                     ) {
                         if (viewModel.selectedMenuItem == "existing_item") { Text(text = stringResource(R.string.save), color = White) }
@@ -559,7 +564,7 @@ fun EditMenuActionDisplay(
                             viewModel.menuItemPrice = ""
                             viewModel.menuItemImageUri = ""
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA489C5)),
+                        colors = ButtonDefaults.buttonColors(containerColor = systemPurpleXLight),
                         modifier = Modifier.weight(1f)
                     ) { Text(text = stringResource(R.string.cancel), color = White) }
                 }
@@ -568,7 +573,7 @@ fun EditMenuActionDisplay(
                     var showRetireConfirmationDialog by remember { mutableStateOf(false) }
                     Button(
                         onClick = { showRetireConfirmationDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC143C)),
+                        colors = ButtonDefaults.buttonColors(containerColor = errorLight),
                         modifier = Modifier.fillMaxWidth()
                     ) { Text(text = stringResource(R.string.retire_this_menu_item), color = White) }
                     // Confirmation dialog

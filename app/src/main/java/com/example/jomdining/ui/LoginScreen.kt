@@ -28,6 +28,8 @@ import com.example.jomdining.R
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.example.jomdining.ui.theme.navRed
+import com.example.jomdining.ui.theme.secondaryContainerLight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +49,7 @@ fun LoginScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFCEDFFF))
+            .background(secondaryContainerLight)
             .padding(16.dp)
             .pointerInput(Unit) {
                 detectTapGestures { keyboardController?.hide() }
@@ -135,7 +137,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
         val annotatedString = buildAnnotatedString {
             append(stringResource(R.string.new_user))
-            withStyle(style = SpanStyle(color = Color(0xFF7d0000), fontWeight = FontWeight.Bold)) {
+            withStyle(style = SpanStyle(color = navRed, fontWeight = FontWeight.Bold)) {
                 append(stringResource(R.string.register_here))
                 addStringAnnotation(
                     tag = "REGISTER",
