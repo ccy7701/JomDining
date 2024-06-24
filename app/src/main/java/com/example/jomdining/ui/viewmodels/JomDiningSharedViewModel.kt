@@ -156,6 +156,7 @@ class JomDiningSharedViewModel(
             getAllHistoricalOrderItems(currentHistoricalTransaction.transactionID)
         }
     }
+
     fun getAllTransactionsBeingPrepared() {
         viewModelScope.launch {
             // Pair(Transactions, List<Pair<OrderItem, Menu>>)

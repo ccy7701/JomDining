@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import androidx.room.Index
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.jomdining.R
@@ -73,19 +74,21 @@ import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.components.JomDiningTopAppBar
 import com.example.jomdining.ui.viewmodels.JomDiningSharedViewModel
+import com.example.jomdining.ui.viewmodels.OrderHistoryViewModel
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderHistoryModuleScreen(
-    viewModel: JomDiningSharedViewModel,
+    sharedViewModel: JomDiningSharedViewModel,
+    viewModel: OrderHistoryViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     // Fetch current order history list when this screen is composed
-    val activeLoginAccount by viewModel.activeLoginAccount.observeAsState()
+    val activeLoginAccount by sharedViewModel.activeLoginAccount.observeAsState()
     LaunchedEffect(activeLoginAccount) {
         activeLoginAccount?.let { account ->
             account.accountID.let { accountID ->
@@ -123,9 +126,13 @@ fun OrderHistoryModuleScreen(
                         .fillMaxSize()
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    OrderHistoryDetailsDisplay(viewModel = viewModel)
+                    OrderHistoryDetailsDisplay(
+                        sharedViewModel = sharedViewModel,
+                        viewModel = viewModel
+                    )
                 }
                 OrderHistoryList(
+                    sharedViewModel = sharedViewModel,
                     viewModel = viewModel,
                     modifier = Modifier
                         .weight(0.4f)
@@ -138,7 +145,8 @@ fun OrderHistoryModuleScreen(
 
 @Composable
 fun OrderHistoryDetailsDisplay(
-    viewModel: JomDiningSharedViewModel,
+    sharedViewModel: JomDiningSharedViewModel,
+    viewModel: OrderHistoryViewModel,
     modifier: Modifier = Modifier
 ) {
     val transactionToDisplay by viewModel.activeHistoricalTransaction.observeAsState()
@@ -307,7 +315,8 @@ fun OrderHistoryDetailsDisplay(
 
 @Composable
 fun OrderHistoryList(
-    viewModel: JomDiningSharedViewModel,
+    sharedViewModel: JomDiningSharedViewModel,
+    viewModel: OrderHistoryViewModel,
     modifier: Modifier = Modifier
 ) {
     var expandedTransactionCardID by remember { mutableStateOf<Int?>(null) }
@@ -320,6 +329,7 @@ fun OrderHistoryList(
         items(viewModel.orderHistoryUi.orderHistoryList) { orderHistoryItem ->
             if (orderHistoryItem.isActive != (-2)) {
                 OrderHistoryListCard(
+                    sharedViewModel = sharedViewModel,
                     viewModel = viewModel,
                     transactionsObject = orderHistoryItem,
                     isExpanded = orderHistoryItem.transactionID == expandedTransactionCardID,
@@ -345,6 +355,7 @@ fun OrderHistoryList(
         items(viewModel.orderHistoryUi.orderHistoryList) { orderHistoryItem ->
             if (orderHistoryItem.isActive == (-2)) {
                 OrderHistoryListCard(
+                    sharedViewModel = sharedViewModel,
                     viewModel = viewModel,
                     transactionsObject = orderHistoryItem,
                     isExpanded = orderHistoryItem.transactionID == expandedTransactionCardID,
@@ -360,14 +371,15 @@ fun OrderHistoryList(
 
 @Composable
 fun OrderHistoryListCard(
-    viewModel: JomDiningSharedViewModel,
+    sharedViewModel: JomDiningSharedViewModel,
+    viewModel: OrderHistoryViewModel,
     transactionsObject: Transactions,
     isExpanded: Boolean,
     onCardClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val activeLoginAccount by viewModel.activeLoginAccount.observeAsState()
+    val activeLoginAccount by sharedViewModel.activeLoginAccount.observeAsState()
     val accountID = activeLoginAccount!!.accountID
 
     Card(

@@ -108,7 +108,6 @@ fun FoodOrderingModuleScreen(
     LaunchedEffect(activeLoginAccount) {
         activeLoginAccount?.let { account ->
             account.accountID.let { accountID ->
-//                sharedViewModel.getCurrentActiveTransaction(accountID)
                 viewModel.getCurrentActiveTransaction(accountID)
             }
         }
