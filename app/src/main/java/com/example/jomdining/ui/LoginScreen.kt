@@ -30,11 +30,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.jomdining.ui.theme.navRed
 import com.example.jomdining.ui.theme.secondaryContainerLight
+import com.example.jomdining.ui.viewmodels.JomDiningSharedViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {

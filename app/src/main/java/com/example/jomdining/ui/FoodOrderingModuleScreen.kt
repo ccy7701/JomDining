@@ -36,7 +36,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -85,6 +84,8 @@ import com.example.jomdining.ui.theme.primaryContainerLight
 import com.example.jomdining.ui.theme.systemPurple
 import com.example.jomdining.ui.theme.systemPurpleLight
 import com.example.jomdining.ui.theme.tertiaryContainerLight
+import com.example.jomdining.ui.viewmodels.FoodOrderingViewModel
+import com.example.jomdining.ui.viewmodels.JomDiningSharedViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -93,7 +94,8 @@ import java.util.TimeZone
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodOrderingModuleScreen(
-    viewModel: JomDiningViewModel,
+    sharedViewModel: JomDiningSharedViewModel,
+    viewModel: FoodOrderingViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
@@ -102,7 +104,7 @@ fun FoodOrderingModuleScreen(
     // Fetch menu items when this screen is composed
     viewModel.getAllMenuItemsExceptRetired()
     // Then, fetch current order items list when this screen is composed
-    val activeLoginAccount by viewModel.activeLoginAccount.observeAsState()
+    val activeLoginAccount by sharedViewModel.activeLoginAccount.observeAsState()
     LaunchedEffect(activeLoginAccount) {
         activeLoginAccount?.let { account ->
             account.accountID.let { accountID ->
@@ -160,7 +162,7 @@ fun FoodOrderingModuleScreen(
 
 @Composable
 fun MenuItemGrid(
-    viewModel: JomDiningViewModel,
+    viewModel: FoodOrderingViewModel,
     currentActiveTransactionID: Int,
     modifier: Modifier = Modifier,
     backgroundColor: Color = primaryContainerLight
@@ -178,7 +180,7 @@ fun MenuItemGrid(
 
 @Composable
 fun MenuItemCard(
-    viewModel: JomDiningViewModel,
+    viewModel: FoodOrderingViewModel,
     currentActiveTransactionID: Int,
     menuItem: Menu,
     modifier: Modifier = Modifier
@@ -260,7 +262,7 @@ fun MenuItemCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderSummary(
-    viewModel: JomDiningViewModel,
+    viewModel: FoodOrderingViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -282,7 +284,6 @@ fun OrderSummary(
     var tableNumber by remember { mutableStateOf("-") }
 
     if (currentActiveTransactionList.isNotEmpty()) {
-        // val currentOrderItemsList = viewModel.orderItemUi.orderItemsList
         Column(
             modifier = modifier
                 .background(tertiaryContainerLight)
@@ -645,7 +646,7 @@ fun OrderSummary(
 
 @Composable
 fun OrderItemCard(
-    viewModel: JomDiningViewModel,
+    viewModel: FoodOrderingViewModel,
     orderItemAndMenu: Pair<OrderItem, Menu>,
     modifier: Modifier = Modifier
 ) {

@@ -22,11 +22,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.jomdining.R
 import com.example.jomdining.ui.theme.secondaryContainerLight
+import com.example.jomdining.ui.viewmodels.RegisterViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
-    viewModel: JomDiningViewModel,
+    viewModel: RegisterViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
