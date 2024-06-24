@@ -21,12 +21,9 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.components.HistoricalTransactionsUi
-import com.example.jomdining.ui.components.MenuUi
 import com.example.jomdining.ui.components.OrderHistoryOrderItemsUi
 import com.example.jomdining.ui.components.OrderHistoryUi
-import com.example.jomdining.ui.components.OrderItemUi
 import com.example.jomdining.ui.components.OrderTrackingUi
-import com.example.jomdining.ui.components.TransactionsUi
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -35,10 +32,6 @@ class JomDiningSharedViewModel(
     private val repository: JomDiningRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
-
-    var menuUi by mutableStateOf(MenuUi())
-        private set
-
     var orderHistoryUi by mutableStateOf(OrderHistoryUi())
         private set
 
@@ -46,12 +39,6 @@ class JomDiningSharedViewModel(
         private set
 
     var orderTrackingUi by mutableStateOf(OrderTrackingUi())
-        private set
-
-    var orderItemUi by mutableStateOf(OrderItemUi())
-        private set
-
-    var transactionsUi by mutableStateOf(TransactionsUi())
         private set
 
     private var historicalTransactionsUi by mutableStateOf(HistoricalTransactionsUi())
@@ -62,17 +49,11 @@ class JomDiningSharedViewModel(
     val activeLoginAccount: LiveData<Account?> get() = _activeLoginAccount
     val loginAttempted: LiveData<Boolean> get() = _loginAttempted
 
-    // All variables used in FoodOrderingModuleScreen
-    private val _activeTransaction = MutableLiveData<Transactions?>()
-    val activeTransaction: LiveData<Transactions?> get() = _activeTransaction
-
     // All variables used in the MenuManagementModuleScreen
-    var selectedMenuItem by mutableStateOf<String?>(null)
     var menuItemID by mutableIntStateOf(0)
     var menuItemName by mutableStateOf("")
     var menuItemPrice by mutableStateOf("")
     var menuItemType by mutableStateOf("")
-    var menuItemImageUri by mutableStateOf<String?> (null)
     var menuItemAvailability by mutableIntStateOf(0)
 
     // All variables used in the OrderHistoryModuleScreen
@@ -105,105 +86,9 @@ class JomDiningSharedViewModel(
         _loginAttempted.value = false
     }
 
-    fun registerAndCreateNewAccount(accountUsername: String, accountPassword: String, accountEmail: String) {
-        viewModelScope.launch {
-            try {
-                // invoke the function that creates a new account and pushes it to the DB
-                val newAccountID = repository.createNewAccountStream(accountUsername, accountPassword, accountEmail)
-                Log.d("AccountRegistration", "New account with username $accountUsername registered successfully [New accountID: $newAccountID]")
-                // invoke the function that creates a new Transactions item. a new account will have one active Transactions item at all times
-                createNewTransactionUnderAccount(newAccountID)
-            } catch (e: Exception) {
-                Log.e("AccountRegistration", "Error when registering new account: $e")
-            }
-        }
-    }
-
-    /*
-        ALL ITEMS UNDER MenuDao
-     */
-    fun getAllMenuItemsExceptRetired() {
-        viewModelScope.launch {
-            menuUi = menuUi.copy(
-                menuItems = repository.getAllMenuItemsExceptRetired()
-                    .filterNotNull()
-                    .first()
-            )
-        }
-    }
-
     /*
         ALL ITEMS UNDER OrderItemDao
      */
-    fun addNewOrIncrementOrderItem(transactionID: Int, menuItemID: Int, operationFlag: Int) {
-        // The operation flag will be used to decide which control flow to use.
-        // operationFlag = 1 -> add new order item to the list, operationFlag = 2 -> increment existing orderItemQuantity
-        viewModelScope.launch {
-            if (operationFlag == 1) {   // operationFlag = 1 -> add new item to the list
-                try {
-                    // invoke the function that inserts a new OrderItem to the DB
-                    val currentOrderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
-                        .filterNotNull()
-                        .first()
-                    Log.d("AddOrInc_OF1_COI", "currentOrderItems content: $currentOrderItems")
-                    var isNewOrderItem = true
-                    for (orderItem in currentOrderItems) {
-                        if (orderItem.menuItemID == menuItemID) {
-                            isNewOrderItem = false
-                            break
-                        }
-                    }
-                    // Log.d("ANOIOI_IsNewOrderItem", "With $menuItemID, value of isNewOrderItem returned as $isNewOrderItem")
-                    if (isNewOrderItem) {
-                        // invoke the function that adds a new order item
-                        repository.addNewOrderItemStream(transactionID, menuItemID)
-                        Log.d("AddOrInc_OF1_PASS1", "New OrderItem added to the currently active transaction list.")
-                    } else {
-                        // invoke the function that increments orderItemQuantity
-                        repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
-                        Log.d("AddOrInc_OF1_PASS2", "OrderItems exists in list. Existing orderItemQuantity increased by 1.")
-                    }
-                } catch (e: Exception) {
-                    Log.e("AddOrInc_OF1_FAIL", "Failed to add new OrderItem to currently active transaction list: $e")
-                }
-            } else if (operationFlag == 2) {    // operationFlag = 2 -> increase existing orderItemQuantity
-                try {
-                    // invoke the function that increments orderItemQuantity
-                    repository.increaseOrderItemQuantityStream(transactionID, menuItemID)
-                    Log.d("AddOrInc_OF2_PASS", "Existing orderItemQuantity increased by 1.")
-                } catch (e: Exception) {
-                    Log.e("AddOrInc_OF2_FAIL", "Failed to increase existing orderItemQuantity by 1: $e")
-                }
-            }
-            getAllCurrentOrderItems(transactionID)
-        }
-    }
-
-    fun deleteOrDecrementOrderItem(transactionID: Int, menuItemID: Int, operationFlag: Int) {
-        // The operation flag will be used to decide which control flow to use.
-        // operationFlag = 1 -> delete order item from the list, operationFlag = 2 -> decrement existing orderItemQuantity
-        viewModelScope.launch {
-            if (operationFlag == 1) {   // operationFlag = 1 -> delete order item from the list
-                try {
-                    // invoke the function that deletes an OrderItem from the DB
-                    repository.deleteOrderItemStream(transactionID, menuItemID)
-                    Log.d("DelOrDec_OF1_PASS", "OrderItem deleted from the current active transaction list.")
-                } catch (e: Exception) {
-                    Log.e("DelOrDec_OF1_FAIL", "Failed to delete OrderItem from currently active transaction list: $e")
-                }
-            } else if (operationFlag == 2) {    // operationFlag = 2 -> decrement existing orderItemQuantity
-                try {
-                    // invoke the function that decrements orderItemQuantity
-                    repository.decreaseOrderItemQuantityStream(transactionID, menuItemID)
-                    Log.d("DelOrDec_OF2_PASS", "Existing orderItemQuantity decreased by 1.")
-                } catch (e: Exception) {
-                    Log.e("DelOrDec_OF2_FAIL", "Failed to decrease existing orderItemQuantity by 1: $e")
-                }
-            }
-            getAllCurrentOrderItems(transactionID)
-        }
-    }
-
     private suspend fun fetchOrderItemsWithMenus(transactionID: Int): List<Pair<OrderItem, Menu>> {
         val orderItems = repository.getAllOrderItemsByTransactionIDStream(transactionID)
             .filterNotNull()
@@ -218,18 +103,6 @@ class JomDiningSharedViewModel(
             orderItemsListWithMenus.add(Pair(orderItem, correspondingMenuItem))
         }
         return orderItemsListWithMenus
-    }
-
-    private fun getAllCurrentOrderItems(transactionID: Int) {
-        viewModelScope.launch {
-            val currentOrderItemsListWithMenus = fetchOrderItemsWithMenus(transactionID)
-
-            // Update orderItemUi with the list of order items
-            orderItemUi = orderItemUi.copy(
-                orderItemsList = currentOrderItemsListWithMenus
-            )
-            Log.d("orderItemUi", "New orderItemsList created with size ${orderItemUi.orderItemsList.size}")
-        }
     }
 
     private fun getAllHistoricalOrderItems(transactionID: Int) {
@@ -256,80 +129,6 @@ class JomDiningSharedViewModel(
     /*
         ALL ITEMS UNDER TransactionsDao
      */
-    fun createNewTransactionUnderAccount(newAccountID: Long) {
-        viewModelScope.launch {
-            try {
-                // invoke the function that creates a new Transactions item in the DB
-                repository.createNewTransactionUnderAccountStream(newAccountID)
-                Log.d("NewTransaction", "Created new Transactions item for accountID $newAccountID. This Transactions item is now currently active for this account.")
-            } catch (e: Exception) {
-                Log.e("NewTransaction", "Failed to create new Transactions item: $e")
-            }
-        }
-    }
-
-    fun getCurrentActiveTransaction(accountID: Int) {
-        viewModelScope.launch {
-            val transaction = repository.getCurrentActiveTransactionStream(accountID)
-            _activeTransaction.value = transaction
-
-            // The fetched current active transaction will be stored in this mutableList
-            val currentActiveTransactionList = mutableListOf<Transactions>()
-
-            // Also, the fetched Transaction object will be stored in this val
-            val currentActiveTransaction = repository.getCurrentActiveTransactionStream(accountID)
-            Log.d(
-                "CAT_fetch",
-                "Successfully fetched current active transaction: $currentActiveTransaction"
-            )
-
-            // Update TransactionsUi with the new current active transaction
-            currentActiveTransactionList.add(currentActiveTransaction)
-            transactionsUi = transactionsUi.copy(
-                currentActiveTransactionList = currentActiveTransactionList
-            )
-            Log.d(
-                "CAT_toList",
-                "Details of current active transaction moved to List: $currentActiveTransactionList"
-            )
-
-            // Then, using the fetched Transaction object, fetched all its order items
-            getAllCurrentOrderItems(currentActiveTransaction.transactionID)
-            Log.d(
-                "CAT_orderItems",
-                "Successfully fetched all order items under transaction with ID ${currentActiveTransaction.transactionID}"
-            )
-        }
-    }
-
-    fun confirmAndFinalizeTransaction(
-        transactionID: Int,
-        transactionDateTime: String,
-        transactionMethod: String,
-        transactionTotalPrice: Double,
-        transactionPayment: Double,
-        transactionBalance: Double,
-        tableNumber: Int
-    ) {
-        viewModelScope.launch {
-            // Invoke the function that updates the Transactions item in the DB
-            repository.confirmAndFinalizeTransactionStream(
-                transactionID,
-                transactionDateTime,
-                transactionMethod,
-                transactionTotalPrice,
-                transactionPayment,
-                transactionBalance,
-                tableNumber
-            )
-            Log.d(
-                "ConfirmTransaction",
-                "Transaction with ID $transactionID confirmed and finalized successfully."
-            )
-            // The previous transaction has been finalized. Now, a fresh one will be created and activated for this account
-        }
-    }
-
     fun getAllHistoricalTransactions(accountID: Int) {
         viewModelScope.launch {
             orderHistoryUi = orderHistoryUi.copy(
