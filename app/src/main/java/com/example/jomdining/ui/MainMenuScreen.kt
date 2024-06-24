@@ -24,12 +24,12 @@ import com.example.jomdining.ui.theme.mainBlue
 import com.example.jomdining.ui.theme.mainGreen
 import com.example.jomdining.ui.theme.mainRed
 import com.example.jomdining.ui.theme.mainYellow
-import com.example.jomdining.ui.viewmodels.JomDiningViewModel
+import com.example.jomdining.ui.viewmodels.JomDiningSharedViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainMenuScreen(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(0xFFCEDFFF)

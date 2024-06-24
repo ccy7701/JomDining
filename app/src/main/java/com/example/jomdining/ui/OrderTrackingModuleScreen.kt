@@ -48,12 +48,12 @@ import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.components.JomDiningTopAppBar
 import com.example.jomdining.ui.theme.secondaryContainerLight
-import com.example.jomdining.ui.viewmodels.JomDiningViewModel
+import com.example.jomdining.ui.viewmodels.JomDiningSharedViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderTrackingModuleScreen(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
@@ -90,7 +90,7 @@ fun OrderTrackingModuleScreen(
 
 @Composable
 fun OrderTrackingGrid(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     modifier: Modifier = Modifier
 ) {
     LazyRow(
@@ -105,7 +105,7 @@ fun OrderTrackingGrid(
 
 @Composable
 fun TransactionCard(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     completeTransaction: Pair<Transactions, List<Pair<OrderItem, Menu>>>
 ) {
     val transaction = completeTransaction.first
@@ -167,7 +167,7 @@ fun TransactionCard(
 
 @Composable
 fun OrderItemListDisplay(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     connectedTransactionID: Int,
     orderItemsList: List<Pair<OrderItem, Menu>>
 ) {
@@ -249,7 +249,7 @@ fun OrderItemListDisplay(
 
 @Composable
 fun OrderItemListBox(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     connectedTransactionID: Int,
     orderItemAndMenu: Pair<OrderItem, Menu>,
 ) {

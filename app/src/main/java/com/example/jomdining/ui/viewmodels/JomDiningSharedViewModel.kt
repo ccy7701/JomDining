@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class JomDiningViewModel(
+class JomDiningSharedViewModel(
     private val repository: JomDiningRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
@@ -417,7 +417,7 @@ class JomDiningViewModel(
                         application.database.stockDao(),
                         application.database.transactionsDao()
                     )
-                JomDiningViewModel(repository, application.userPreferencesRepository)
+                JomDiningSharedViewModel(repository, application.userPreferencesRepository)
             }
         }
     }

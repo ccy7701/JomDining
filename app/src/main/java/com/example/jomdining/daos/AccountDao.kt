@@ -15,7 +15,7 @@ interface AccountDao {
 
     @Query("""
         INSERT INTO account (accountUsername, accountPassword, accountEmail, accountPhoneNumber)
-        VALUES (:accountUsername, :accountPassword, :accountEmail, '')
+        VALUES (:accountUsername, :accountPassword, :accountEmail, "")
     """)
     suspend fun createNewAccount(accountUsername: String, accountPassword: String, accountEmail: String): Long
 }

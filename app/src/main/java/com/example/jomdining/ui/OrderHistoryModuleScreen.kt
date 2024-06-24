@@ -72,13 +72,13 @@ import com.example.jomdining.databaseentities.Menu
 import com.example.jomdining.databaseentities.OrderItem
 import com.example.jomdining.databaseentities.Transactions
 import com.example.jomdining.ui.components.JomDiningTopAppBar
-import com.example.jomdining.ui.viewmodels.JomDiningViewModel
+import com.example.jomdining.ui.viewmodels.JomDiningSharedViewModel
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderHistoryModuleScreen(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
@@ -138,7 +138,7 @@ fun OrderHistoryModuleScreen(
 
 @Composable
 fun OrderHistoryDetailsDisplay(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     modifier: Modifier = Modifier
 ) {
     val transactionToDisplay by viewModel.activeHistoricalTransaction.observeAsState()
@@ -307,7 +307,7 @@ fun OrderHistoryDetailsDisplay(
 
 @Composable
 fun OrderHistoryList(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     modifier: Modifier = Modifier
 ) {
     var expandedTransactionCardID by remember { mutableStateOf<Int?>(null) }
@@ -360,7 +360,7 @@ fun OrderHistoryList(
 
 @Composable
 fun OrderHistoryListCard(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     transactionsObject: Transactions,
     isExpanded: Boolean,
     onCardClick: (Int) -> Unit,

@@ -84,7 +84,7 @@ import com.example.jomdining.ui.theme.primaryContainerLight
 import com.example.jomdining.ui.theme.systemPurple
 import com.example.jomdining.ui.theme.systemPurpleLight
 import com.example.jomdining.ui.theme.tertiaryContainerLight
-import com.example.jomdining.ui.viewmodels.JomDiningViewModel
+import com.example.jomdining.ui.viewmodels.JomDiningSharedViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -93,7 +93,7 @@ import java.util.TimeZone
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodOrderingModuleScreen(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
@@ -160,7 +160,7 @@ fun FoodOrderingModuleScreen(
 
 @Composable
 fun MenuItemGrid(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     currentActiveTransactionID: Int,
     modifier: Modifier = Modifier,
     backgroundColor: Color = primaryContainerLight
@@ -178,7 +178,7 @@ fun MenuItemGrid(
 
 @Composable
 fun MenuItemCard(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     currentActiveTransactionID: Int,
     menuItem: Menu,
     modifier: Modifier = Modifier
@@ -260,7 +260,7 @@ fun MenuItemCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderSummary(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -645,7 +645,7 @@ fun OrderSummary(
 
 @Composable
 fun OrderItemCard(
-    viewModel: JomDiningViewModel,
+    viewModel: JomDiningSharedViewModel,
     orderItemAndMenu: Pair<OrderItem, Menu>,
     modifier: Modifier = Modifier
 ) {
